@@ -4,7 +4,13 @@
 	    "./src/**/*.{js,jsx,ts,tsx}",
 	  ],
 	  theme: {
-	    extend: {},
+	    extend: {
+
+          fontFamily: {
+            'mainfont': ['"Square Market"', 'sans-serif'],
+          },
+
+      },
 	  },
 	  plugins: [],
 	};
