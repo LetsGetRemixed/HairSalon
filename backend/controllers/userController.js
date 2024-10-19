@@ -27,10 +27,10 @@ exports.getUserById = async (req, res) => {
 // Fetch all users
 exports.getAllUsers = async (req, res) => {
     try {
-      const users = await User.find(); // Fetch all users from the database
-      res.json(users); // Send the list of users as a JSON response
+      const users = await User.find(); 
+      res.status(200).json(users); 
     } catch (error) {
-      res.status(500).json({ message: error.message }); // Handle potential errors
+      res.status(500).json({ message: error.message }); 
     }
   };
 
@@ -40,6 +40,28 @@ exports.deleteUser = async (req, res) => {
       const deletedUser = await User.findByIdAndDelete(req.params.id);
       if (!deletedUser) return res.status(404).json({ message: 'User not found' });
       res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+  // Create Membership
+  exports.createMembership = async (req, res) => {
+    try {
+      const userId = req.params.id;
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      // Already have a membership so extend expiration datee plus one month
+      let currentDate = new Date();
+      if (user.membership === 'Silver' || user.membership === 'Gold') {
+          user.membershipExpiresAt = new Date(user.membershipExpiresAt.setMonth(user.membershipExpiresAt.getMonth() + 1));
+      } else {
+        // Create new membership
+        user.membershipExpiresAt = new Date(currentDate.setMonth(currentDate.getMonth() + 1));
+      }
+      const updatedUser = await user.save();
+      res.json({ message: 'Membership updated successfully', user: updatedUser });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
