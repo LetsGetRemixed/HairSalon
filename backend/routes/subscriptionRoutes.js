@@ -1,0 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const subscriptionController = require('../controllers/subscriptionController');
+
+// Route to create or extend a membership
+router.post('/:userId/membership', subscriptionController.createMembership);
+
+module.exports = router;

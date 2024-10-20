@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const connectToDB = require('./db');
 const userRoutes = require('./routes/userRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
 
 const dotenv = require('dotenv');
 
@@ -11,8 +12,9 @@ const app = express();
 app.use(express.json());
 
 
-// User routes
-app.use('/api/Users', userRoutes);
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 // Connect to MongoDB
 connectToDB();
