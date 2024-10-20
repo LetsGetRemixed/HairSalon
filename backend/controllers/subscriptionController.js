@@ -22,17 +22,22 @@ exports.createMembership = async (req, res) => {
           isActive: true
         });
         await newSubscription.save();
-        res.status(201).json({ message: 'Subscription created', subscription: newSubscription });
+        return res.status(201).json({ message: 'Subscription created', subscription: newSubscription });
       } else {
         console.log('Extending subscription now');
-        // User already has a membership so extend membership by one month
-        currentSubscription.expiresAt = new Date(currentSubscription.expiresAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+        if (!currentSubscription.isActive) {
+            currentSubscription.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        } else {
+            // User already has a membership so extend membership by one month
+            currentSubscription.expiresAt = new Date(currentSubscription.expiresAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+        }
         currentSubscription.membershipType = membershipType;
+        currentSubscription.isActive = true;
         await currentSubscription.save();
 
-        res.status(200).json({ message: 'Subscription extended', subscription: currentSubscription });
+        return res.status(200).json({ message: 'Subscription extended', subscription: currentSubscription });
       }
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   };
