@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../Universal/Navbar';
 import Header from './Header';
+import Footer from '../Universal/Footer';
 
 const Home = () => {
   return (
@@ -11,9 +12,9 @@ const Home = () => {
 
 
           <Header />
-      Home Page
+      PRODUCTS
     </div>
-
+        <Footer />
     </div>
   );
 };
