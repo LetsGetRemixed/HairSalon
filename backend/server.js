@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const connectToDB = require('./db');
 const userRoutes = require('./routes/userRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const dotenv = require('dotenv');
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/items', inventoryRoutes);
 
 // Connect to MongoDB
 connectToDB();
