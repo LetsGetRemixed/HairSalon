@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Inventory = require('../models/inventory');
 
+
 // Get all inventory
 exports.getAllInventory = async (req, res) => {
     const { category } = req.query; 
