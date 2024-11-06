@@ -7,6 +7,9 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 
 const dotenv = require('dotenv');
 
+const {onRequest} = require("firebase-functions/v2/https");
+const logger = require("firebase-functions/logger");
+
 dotenv.config();
 
 const app = express();
