@@ -1,13 +1,33 @@
 const mongoose = require('mongoose');
 
 const inventorySchema = new mongoose.Schema({
-    itemName: { type: String, required: true },
-    category: { type: String, required: true },
-    quantity: { type: Number, required: false },
-    price: { type: Number, required: false, default: null },
-    description: { type: String, default: "" } 
+  category: {
+    type: String,
+    enum: ['Blonde', 'Dark', 'Mix'],
+    required: true
+  },
+  productName: {
+    type: String,
+    required: true
+  },
+  imageUrl: {
+    type: String,
+    required: true // Set to true if each product should have an image
+  },
+  variants: [
+    {
+      length: { type: String, required: true }, // 18in, 20in, 22in, 24in
+      weftsPerPack: { type: Number, required: true }, // 6 or 5 per pack
+      prices: {
+        suggestedRetailPrice: { type: Number, required: true },
+        ambassadorPrice: { type: Number, required: true },
+        stylistPrice: { type: Number, required: true }
+      }
+    }
+  ],
+  recommendedNames: [
+    { type: String }  // Example: ["Alivia", "Chloe", "Kylie", "Kaitlyn", "Loren", "Kaiden", "Mila"]
+  ]
 });
 
-
-const Inventory = mongoose.model('Inventory', inventorySchema);
-module.exports = Inventory;
+module.exports = mongoose.model('Inventory', inventorySchema);
