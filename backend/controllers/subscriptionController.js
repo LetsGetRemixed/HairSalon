@@ -32,7 +32,7 @@ exports.createMembership = async (req, res) => {
     }
   };
 
-  // Update membership
+// Update membership
 exports.updateMembership = async (req, res) => {
   const { userId } = req.params;
   const { membershipType } = req.body;
