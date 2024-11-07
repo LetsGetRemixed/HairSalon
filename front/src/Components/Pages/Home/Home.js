@@ -1,25 +1,24 @@
 import React from 'react';
-import Navbar from '../Universal/Navbar';
 import Header from './Header';
 import Footer from '../Universal/Footer';
+import Navbar2 from '../Universal/Navbar2';
+
 
 const Home = () => {
   return (
     <div>
 
-    <Navbar />
-    <div className="font-mainfont text-3xl ">
+      <Navbar2 />
+                <div className="font-cinzel text-3xl ">
 
-
-          <Header />
-          <div class="product">
-  <h1>Product Name</h1>
-  <p>Description of the product.</p>
-  <img src="https://drive.google.com/uc?export=view&id=1VXNuLhv7QLBBjwygVEuoQgrElHFQRudy
-" alt="Product Image" />
-</div>
-
-    </div>
+                      <Header />
+                      <div className="font-cinzel text-3xl bg-mainBackground  py-24">
+                         PRODUCTS
+                         <div className="font-cinze flex items-center justify-center text-2xl bg-mainBackground py-24">
+                          Hair Extensions
+                         </div>
+                      </div>
+                </div>
         <Footer />
     </div>
   );

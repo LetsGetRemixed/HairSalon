@@ -45,7 +45,7 @@ const Header = () => {
             />
             <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white px-4">
               <h2 className="text-3xl font-bold mb-2">{deal.title}</h2>
-              <p className="text-lg">{deal.description}</p>
+              <p className="text-lg font-mainfont">{deal.description}</p>
             </div>
           </div>
         ))}
