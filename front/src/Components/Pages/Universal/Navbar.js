@@ -20,9 +20,9 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex-grow flex justify-center">
           <img
-            src="/logo.png" // Replace with your logo path
+            src="/hairLogo.png" // Replace with your logo path
             alt="Logo"
-            className="h-12"
+            className="md:h-32  h-20"
           />
         </div>
 
