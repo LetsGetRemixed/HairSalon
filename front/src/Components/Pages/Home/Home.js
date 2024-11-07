@@ -12,7 +12,13 @@ const Home = () => {
 
 
           <Header />
-      PRODUCTS
+          <div class="product">
+  <h1>Product Name</h1>
+  <p>Description of the product.</p>
+  <img src="https://drive.google.com/uc?export=view&id=1VXNuLhv7QLBBjwygVEuoQgrElHFQRudy
+" alt="Product Image" />
+</div>
+
     </div>
         <Footer />
     </div>

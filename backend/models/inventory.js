@@ -10,10 +10,6 @@ const inventorySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  imageUrl: {
-    type: String,
-    required: true // Set to true if each product should have an image
-  },
   variants: [
     {
       length: { type: String, required: true }, // 18in, 20in, 22in, 24in
