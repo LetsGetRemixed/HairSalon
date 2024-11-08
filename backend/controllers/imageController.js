@@ -24,5 +24,26 @@ exports.getImages = async (req, res) => {
   }
 };
 
+exports.getCategory = async (req, res) => {
+  const category = req.params.category;
+  console.log(category);
+  try {
+    const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+    const [files] = await bucket.getFiles({ prefix: `${category}/` }); 
+
+    const imageUrls = await Promise.all(files.map(async (file) => {
+      const [url] = await file.getSignedUrl({
+        action: 'read',
+        expires: '03-09-2500' 
+      });
+      return url;
+    }));
+
+    res.json({ images: imageUrls });
+  } catch (error) {
+    console.error('Error fetching images from category:', error);
+    res.status(500).json({ error: 'Failed to retrieve images' });
+  }
+}
 
   //const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
