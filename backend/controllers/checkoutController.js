@@ -29,8 +29,6 @@ exports.createCheckout = async (req, res) => {
               success_url: `http://localhost:5100/success`,  // Temp
               cancel_url: `http://localhost:5100/cancel`,    // Temp
         });
-        const taxAmount = session.total_details.amount_tax;
-        console.log("Calculated Tax Amount:", taxAmount);
         res.json({ url: session.url });
     } catch (error) {
         res.status(500).send({ error: error.message });
