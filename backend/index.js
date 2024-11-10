@@ -5,6 +5,7 @@ const userRoutes = require('./routes/userRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const imageRoutes = require('./routes/imageRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
 
 const dotenv = require('dotenv');
 
@@ -30,6 +31,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/checkout', checkoutRoutes);
 
 // Connect to MongoDB
 connectToDB();
