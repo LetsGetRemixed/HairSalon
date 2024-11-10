@@ -46,4 +46,4 @@ exports.getCategory = async (req, res) => {
   }
 }
 
-  //const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+  
