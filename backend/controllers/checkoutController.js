@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const Transactions = require('../models/transactionsModel');
 
 exports.createCheckout = async (req, res) => {
     const { cartItems } = req.body;
@@ -15,9 +17,9 @@ exports.createCheckout = async (req, res) => {
               product_data: {
                 name: item.name,
                 description: item.description || '', 
-                tax_code: item.taxCode // Using item.taxCode here
+                tax_code: item.taxCode 
               },
-              unit_amount: item.amount, // Amount in cents
+              unit_amount: item.amount, 
             },
             quantity: item.quantity,
         }));
@@ -26,7 +28,8 @@ exports.createCheckout = async (req, res) => {
             line_items: lineItems,
               mode: 'payment',
               automatic_tax: { enabled: true },
-              success_url: `http://localhost:5100/success`,  // Temp
+              shipping_address_collection: { allowed_countries: ['US', 'CA'] },
+              success_url: `http://localhost:5100/`,  // Temp
               cancel_url: `http://localhost:5100/cancel`,    // Temp
         });
         res.json({ url: session.url });
@@ -34,3 +37,4 @@ exports.createCheckout = async (req, res) => {
         res.status(500).send({ error: error.message });
       }
 };
+
