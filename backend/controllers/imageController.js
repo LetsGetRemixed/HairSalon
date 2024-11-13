@@ -31,13 +31,16 @@ exports.getCategory = async (req, res) => {
     const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
     const [files] = await bucket.getFiles({ prefix: `${category}/` }); 
 
-    const imageUrls = await Promise.all(files.map(async (file) => {
-      const [url] = await file.getSignedUrl({
-        action: 'read',
-        expires: '03-09-2500' 
-      });
-      return url;
-    }));
+    const imageUrls = await Promise.all(files
+      .filter(file => file.name.match(/\.(tif|tiff)$/i)) // Only include .tif/.tiff files
+      .map(async (file) => {
+        const [url] = await file.getSignedUrl({
+          action: 'read',
+          expires: '03-09-2500' 
+        });
+        return url;
+      })
+    );
 
     res.json({ images: imageUrls });
   } catch (error) {
