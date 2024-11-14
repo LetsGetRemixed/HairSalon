@@ -2,16 +2,14 @@
 const mongoose = require('mongoose');
 
 const transactionSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Inventory',
-    required: true
-  },
-  variant: {
-    length: { type: String, required: true },
-    weftsPerPack: { type: Number, required: true },
-    pricePaid: { type: Number, required: true }
-  },
+  products: [
+    {
+      category: { type: String, required: true },
+      length: { type: String, required: true },
+      quantity: { type: Number, required: true, min: 1},
+      totalAmount: { type: Number, required: true }
+    }
+  ],
   buyer: {
     name: { type: String, required: true },
     email: { type: String, required: true }
@@ -24,19 +22,9 @@ const transactionSchema = new mongoose.Schema({
     postal_code: { type: String, required: true },
     country: { type: String, required: true }
   },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1
-  },
-  totalAmount: {
-    type: Number,
-    required: true
-  },
-  purchaseDate: {
-    type: Date,
-    default: Date.now
-  }
+  quantity: { type: Number, required: true, min: 1 },
+  totalAmount: { type: Number, required: true },
+  purchaseDate: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);
