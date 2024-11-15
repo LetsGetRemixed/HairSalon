@@ -42,7 +42,7 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
-app.use('/api/images', imageRoutes);
+app.use('/api/inventory', imageRoutes);
 app.use('/api/checkout', checkoutRoutes);
 
 // Connect to MongoDB
