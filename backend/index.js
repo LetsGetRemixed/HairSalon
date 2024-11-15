@@ -6,7 +6,9 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
 
 const {onRequest} = require("firebase-functions/v2/https");
@@ -44,6 +46,7 @@ app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/checkout', checkoutRoutes);
+app.use('/api/transaction', transactionRoutes);
 
 // Connect to MongoDB
 connectToDB();
