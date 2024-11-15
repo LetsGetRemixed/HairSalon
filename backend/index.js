@@ -6,7 +6,7 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
-
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
@@ -45,8 +45,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
 app.use('/api/images', imageRoutes);
-//app.use('/api', webhookRoutes);
 app.use('/api/checkout', checkoutRoutes);
+app.use('/api/transaction', transactionRoutes);
 
 // Connect to MongoDB
 connectToDB();
