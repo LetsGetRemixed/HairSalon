@@ -18,12 +18,11 @@ const inventorySchema = new mongoose.Schema({
         suggestedRetailPrice: { type: Number, required: true },
         ambassadorPrice: { type: Number, required: true },
         stylistPrice: { type: Number, required: true }
-      }
+      },
+      quantity: { type: Number },
     }
   ],
-  recommendedNames: [
-    { type: String }  // Example: ["Alivia", "Chloe", "Kylie", "Kaitlyn", "Loren", "Kaiden", "Mila"]
-  ]
+  imageUrl: { type: String },
 });
 
 module.exports = mongoose.model('Inventory', inventorySchema);
