@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Footer from '../Universal/Footer';
 import Navbar2 from '../Universal/Navbar2';
+import Products from '../Products/ProductsHome';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -24,22 +25,11 @@ const Home = () => {
   return (
     <div>
       <Navbar2 />
-      <div className="font-cinzel text-3xl">
-        <Header />
-        <div className="font-cinzel text-3xl bg-mainBackground py-24">
-          <h1>PRODUCTS</h1>
-          <div className="font-cinze flex flex-col items-center justify-center text-2xl bg-mainBackground py-24">
-            <h2>Hair Extensions</h2>
-            <div className="grid grid-cols-3 gap-4 mt-8">
-              {products.map((product) => (
-                <div key={product._id} className="border rounded-lg p-4">
-                  <img
-                    src={product.imageUrl}
-                    
-                    className="w-full h-auto object-cover rounded-md"
-                  />
-                  <h3 className="mt-4 text-lg">{product.name}</h3>
-                  
+                <div className="font-cinzel text-3xl ">
+                      <Header />
+                      
+                      <Products />
+
                 </div>
               ))}
             </div>

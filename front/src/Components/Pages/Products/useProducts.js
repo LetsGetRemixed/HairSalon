@@ -1,66 +1,37 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const useProducts = () => {
+const useProducts = (category = null) => {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [sortOption, setSortOption] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch categories dynamically from the backend
-    axios
-      .get('/api/inventory/categories')
-      .then((response) => setCategories(response.data))
-      .catch((error) => console.error('Error fetching categories:', error));
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/api/items/allItems${category ? `?category=${category}` : ''}`
+        );
+        setProducts(response.data);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Fetch products based on selected category and sort options
     fetchProducts();
-  }, [selectedCategory, sortOption]);
+  }, [category]);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get('/api/inventory/allItems');
-      let items = response.data;
-
-      // Filter by category
-      if (selectedCategory) {
-        items = items.filter((item) => item.category === selectedCategory);
-      }
-
-      // Sort items based on sortOption
-      if (sortOption === 'price_asc') {
-        items = items.sort(
-          (a, b) =>
-            a.variants[0].prices.suggestedRetailPrice -
-            b.variants[0].prices.suggestedRetailPrice
-        );
-      } else if (sortOption === 'price_desc') {
-        items = items.sort(
-          (a, b) =>
-            b.variants[0].prices.suggestedRetailPrice -
-            a.variants[0].prices.suggestedRetailPrice
-        );
-      } else if (sortOption === 'name_asc') {
-        items = items.sort((a, b) => a.productName.localeCompare(b.productName));
-      } else if (sortOption === 'name_desc') {
-        items = items.sort((a, b) => b.productName.localeCompare(a.productName));
-      }
-
-      setProducts(items);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
-  };
-
-  return {
-    products,
-    categories,
-    selectedCategory,
-    setSelectedCategory,
-    sortOption,
-    setSortOption,
-  };
+  return { products, loading, error };
 };
 
 export default useProducts;
+
+
+
+
+
+
+
