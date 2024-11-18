@@ -24,3 +24,27 @@ exports.createTransaction = async (req, res) => {
         res.status(500).json({ message: 'Failed to save transaction', error: error.message });
     }
 }
+
+// Fetch all transactions, optionally filter by date range
+exports.getAllTransactions = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        let query = {};
+        if (startDate || endDate) {
+            query.purchaseDate = {};
+            if (startDate) {
+                query.purchaseDate.$gte = new Date(startDate); 
+            }
+            if (endDate) {
+                query.purchaseDate.$lte = new Date(endDate); 
+            }
+        }
+
+        const transactions = await Transaction.find(query);
+        res.status(200).json(transactions);
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+        res.status(500).json({ message: 'Failed to fetch transactions', error: error.message });
+    }
+};
