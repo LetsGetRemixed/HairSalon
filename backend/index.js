@@ -4,7 +4,6 @@ const connectToDB = require('./db');
 const userRoutes = require('./routes/userRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
-const imageRoutes = require('./routes/imageRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 
@@ -44,7 +43,6 @@ app.use(cors());
 app.use('/api/users', userRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
-app.use('/api/images', imageRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/transaction', transactionRoutes);
 
