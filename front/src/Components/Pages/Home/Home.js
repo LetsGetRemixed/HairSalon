@@ -31,11 +31,6 @@ const Home = () => {
                       <Products />
 
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
       <Footer />
     </div>
   );
