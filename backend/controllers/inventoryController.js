@@ -58,10 +58,7 @@ exports.getInventoryByCategoey = async (req, res) => {
             }
         })
     );
-      res.json({
-        message: 'Inventory updated with image URLs successfully.',
-        updatedProducts,
-      });
+      res.json(updatedProducts);
     } catch (error) {
         res.status(500).send('Error fetching inventory: ' + error.message);
     }
