@@ -1,45 +1,84 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import useProducts from './useProducts';
 
 const ProductsHome = () => {
   const { products, loading, error } = useProducts();
+  const [sortCategory, setSortCategory] = useState('');
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>Error: {error}</p>;
 
+  // Filter and sort products by category (color)
+  const filteredProducts = sortCategory
+    ? products.filter((product) => product.category === sortCategory)
+    : products;
+
+  // Show only the first 6 products
+  const displayedProducts = filteredProducts.slice(0, 6);
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-4">
-      {products.map((product) => (
-        <div
-          key={product._id}
-          className="border rounded-lg shadow-lg p-4 hover:shadow-2xl transition duration-300"
+    <div className="p-6">
+      {/* Sort Filter */}
+      <div className="mb-6">
+        <label htmlFor="sort" className="block text-lg font-medium text-gray-800 mb-2">
+          Sort by Color:
+        </label>
+        <select
+          id="sort"
+          value={sortCategory}
+          onChange={(e) => setSortCategory(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-black"
         >
-          <img
-            src={product.imageUrl}
-            alt={product.productName}
-            className="w-full h-48 object-cover mb-4 rounded"
-          />
-          <h2 className="text-lg font-bold mb-2">{product.productName}</h2>
-          <p className="text-sm text-gray-500">{product.category}</p>
-          <ul className="mt-2">
-            {product.variants.map((variant, index) => (
-              <li key={index} className="text-sm">
-                {variant.length} - ${variant.prices.suggestedRetailPrice}
-              </li>
-            ))}
-          </ul>
-          {product.recommendedNames.length > 0 && (
-            <p className="text-xs text-gray-400 mt-2">
-              Recommended Names: {product.recommendedNames.join(', ')}
-            </p>
-          )}
-        </div>
-      ))}
+          <option value="">All Colors</option>
+          {Array.from(new Set(products.map((product) => product.category))).map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {displayedProducts.map((product) => (
+          <div
+            key={product._id}
+            className="relative group border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300"
+          >
+            {/* Product Image */}
+            <img
+              src={product.imageUrl}
+              alt={product.productName}
+              className="w-full h-64 object-cover"
+            />
+
+            {/* Product Details */}
+            <div className="p-4">
+              <h2 className="text-lg font-bold text-gray-800 mb-2 uppercase tracking-wide">
+                {product.productName}
+              </h2>
+              <p className="text-sm text-gray-600">Color: {product.category}</p>
+            </div>
+
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <Link
+                to={`/product/${product._id}`}
+                className="text-white text-lg font-semibold border border-white px-6 py-2 rounded-md hover:bg-white hover:text-black transition-colors"
+              >
+                View Pricing and Sizing
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
 export default ProductsHome;
+
 
 
 
