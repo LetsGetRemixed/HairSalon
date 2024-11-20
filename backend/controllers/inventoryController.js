@@ -12,10 +12,10 @@ const getInventory = async (category) => {
 
         await Promise.all(
         files
-            .filter(file => file.name.match(/\.(png)$/i)) // Only include .tif/.tiff files
+            .filter(file => file.name.match(/\.(webp)$/i)) // Only include .tif/.tiff files
             .map(async (file) => {
             const fileName = file.name.split('/').pop(); // Extract file name
-            const productName = fileName.replace(/\.(png)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
+            const productName = fileName.replace(/\.(webp)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
 
             // Generate signed URL
             const [url] = await file.getSignedUrl({
