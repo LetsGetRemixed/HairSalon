@@ -9,24 +9,40 @@ const Products = () => {
   const [sortOption, setSortOption] = useState('');
 
   useEffect(() => {
-    // Fetch categories from the backend
-    axios.get('/api/categories')
+    // Fetch categories dynamically from the backend
+    axios.get('/api/inventory/categories')
       .then(response => setCategories(response.data))
-      .catch(error => console.log(error));
+      .catch(error => console.error('Error fetching categories:', error));
 
     // Fetch products based on selected category and sort options
     fetchProducts();
   }, [selectedCategory, sortOption]);
 
-  const fetchProducts = () => {
-    const params = {
-      category: selectedCategory,
-      sort: sortOption
-    };
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('/api/inventory/allItems');
+      let items = response.data;
 
-    axios.get('/api/products', { params })
-      .then(response => setProducts(response.data))
-      .catch(error => console.log(error));
+      // Filter by category
+      if (selectedCategory) {
+        items = items.filter((item) => item.category === selectedCategory);
+      }
+
+      // Sort items based on sortOption
+      if (sortOption === 'price_asc') {
+        items = items.sort((a, b) => a.variants[0].prices.suggestedRetailPrice - b.variants[0].prices.suggestedRetailPrice);
+      } else if (sortOption === 'price_desc') {
+        items = items.sort((a, b) => b.variants[0].prices.suggestedRetailPrice - a.variants[0].prices.suggestedRetailPrice);
+      } else if (sortOption === 'name_asc') {
+        items = items.sort((a, b) => a.productName.localeCompare(b.productName));
+      } else if (sortOption === 'name_desc') {
+        items = items.sort((a, b) => b.productName.localeCompare(a.productName));
+      }
+
+      setProducts(items);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
   };
 
   return (
@@ -35,14 +51,23 @@ const Products = () => {
       <div className="w-full md:w-1/4 bg-gray-100 p-4 rounded-md">
         <h2 className="text-xl font-bold mb-4">Categories</h2>
         <ul className="space-y-2">
-          <li onClick={() => setSelectedCategory('')} className="cursor-pointer hover:text-blue-500">All Products</li>
+          <li
+            onClick={() => setSelectedCategory('')}
+            className={`cursor-pointer hover:text-blue-500 ${
+              !selectedCategory ? 'font-bold text-blue-500' : ''
+            }`}
+          >
+            All Products
+          </li>
           {categories.map((category) => (
             <li
-              key={category._id}
-              onClick={() => setSelectedCategory(category.name)}
-              className="cursor-pointer hover:text-blue-500"
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`cursor-pointer hover:text-blue-500 ${
+                selectedCategory === category ? 'font-bold text-blue-500' : ''
+              }`}
             >
-              {category.name}
+              {category}
             </li>
           ))}
         </ul>
@@ -69,9 +94,15 @@ const Products = () => {
         {products.map((product) => (
           <div key={product._id} className="border rounded-md p-4 shadow-sm hover:shadow-md transition">
             <Link to={`/product/${product._id}`}>
-              <img src={product.imageUrl} alt={product.name} className="w-full h-48 object-cover rounded-md mb-2" />
-              <h3 className="text-lg font-bold">{product.name}</h3>
-              <p className="text-gray-700">${product.price}</p>
+              <img
+                src={product.imageUrl || '/placeholder.png'} // Replace with actual image logic
+                alt={product.productName}
+                className="w-full h-48 object-cover rounded-md mb-2"
+              />
+              <h3 className="text-lg font-bold">{product.productName}</h3>
+              <p className="text-gray-700">
+                ${product.variants[0]?.prices.suggestedRetailPrice || 'N/A'}
+              </p>
             </Link>
           </div>
         ))}
@@ -81,3 +112,5 @@ const Products = () => {
 };
 
 export default Products;
+
+
