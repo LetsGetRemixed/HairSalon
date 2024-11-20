@@ -4,66 +4,69 @@ const Inventory = require('../models/inventoryModel');
 const { getStorage } = require("firebase-admin/storage");
 
 
-exports.getInventoryByCategoey = async (req, res) => {
-    const category = req.params.category;
-    console.log(category);
-    try {
+const getInventory = async (category) => {
         const products = await Inventory.find({ category: category });
         const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
         const [files] = await bucket.getFiles({ prefix: `${category}/` });
-        // Filter and generate signed URLs for .tif or .tiff files
-         // Filter and map images to product names
-    // Filter and map images to product names
-    const imagesByProduct = {};
+        const imagesByProduct = {};
 
-    await Promise.all(
-      files
-        .filter(file => file.name.match(/\.(tif|tiff)$/i)) // Only include .tif/.tiff files
-        .map(async (file) => {
-          const fileName = file.name.split('/').pop(); // Extract file name
-          const productName = fileName.replace(/\.(tif|tiff)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
+        await Promise.all(
+        files
+            .filter(file => file.name.match(/\.(tif|tiff)$/i)) // Only include .tif/.tiff files
+            .map(async (file) => {
+            const fileName = file.name.split('/').pop(); // Extract file name
+            const productName = fileName.replace(/\.(tif|tiff)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
 
-          // Generate signed URL
-          const [url] = await file.getSignedUrl({
-            action: 'read',
-            expires: '03-09-2500',
-          });
+            // Generate signed URL
+            const [url] = await file.getSignedUrl({
+                action: 'read',
+                expires: '03-09-2500',
+            });
 
-          // Group URLs by product name
-          if (!imagesByProduct[productName]) {
-            imagesByProduct[productName] = [];
-          }
-          imagesByProduct[productName].push(url);
-        })
-    );
-
-    // Convert imagesByProduct to an array format for easier frontend consumption
-    const result = Object.entries(imagesByProduct).map(([productName, images]) => ({
-      productName,
-      images,
-    }));
-    //console.log(result);
-    const inventoryItems = await Inventory.find();
-    const updatedProducts = [];
-    await Promise.all(
-        products.map(async (item) => {
-            const matchingProduct = result.find(r => r.productName === item.productName);
-            //console.log('here:', matchingProduct);
-            if (matchingProduct) {
-                 // Update with image URLs
-                item.imageUrl = matchingProduct.images[0];
-                await item.save(); // Save updated product
-                console.log(matchingProduct.images);
-                updatedProducts.push(item);
+            // Group URLs by product name
+            if (!imagesByProduct[productName]) {
+                imagesByProduct[productName] = [];
             }
-        })
-    );
-      res.json({
-        message: 'Inventory updated with image URLs successfully.',
-        updatedProducts,
-      });
+            imagesByProduct[productName].push(url);
+            })
+        );
+        
+        
+        const updatedProducts = [];
+        await Promise.all(
+            products.map(async (item) => {
+                const productName = item.productName; 
+                const matchingProduct = imagesByProduct[productName];
+                if (matchingProduct) {
+                    // Update with image URLs
+                    item.imageUrl = matchingProduct[0];
+                    await item.save(); 
+                    updatedProducts.push(item);
+                }
+            })
+        );
+      return updatedProducts;
+};
+
+exports.getInventoryByCategory = async (req, res) => {
+    const category = req.params.category;
+    try {
+        const updatedProducts = await getInventory(category);
+        res.json(updatedProducts);
     } catch (error) {
         res.status(500).send('Error fetching inventory: ' + error.message);
+    }
+};
+
+exports.getAllInventory = async (req, res) => {
+    const categories = ['Blonde', 'Mix', 'Dark']; 
+    try {
+        const allProducts = await Promise.all(
+            categories.map(category => getInventory(category)) // Fetch all categories in parallel
+        );
+        res.json(allProducts.flat()); // Flatten the result to a single array
+    } catch (error) {
+        res.status(500).send('Error fetching all inventory: ' + error.message);
     }
 };
 

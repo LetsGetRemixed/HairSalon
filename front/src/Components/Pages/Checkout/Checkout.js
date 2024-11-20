@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+//const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+const stripePromise = 'pk_test_51QHD0NEnsP1F5DSTcre8eMS6aj0EXbWRn8BXpoCP9HtajcjO9Jpa9RscFUzL9ErD9Vjbs0mVH6smsspjIGwvTNym00wzka5HLW';
 const inputStyle = {
     width: '100%',
     padding: '10px',
