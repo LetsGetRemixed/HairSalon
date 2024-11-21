@@ -42,10 +42,10 @@ const ProductsHome = () => {
   return (
     <div className="p-4 sm:p-6">
       {/* Category Buttons */}
-      <div className="flex flex-wrap gap-2 justify-center mb-6">
+      <div className="flex flex-wrap gap-4 justify-center mb-6">
         <button
           onClick={() => handleCategoryChange('')}
-          className={`px-4 py-2 text-sm sm:text-lg font-semibold rounded-full transition-transform duration-300 ${
+          className={`px-4 py-2 text-sm sm:text-lg font-semibold  transition-transform duration-300 ${
             sortCategory === ''
               ? 'bg-black text-white transform scale-105 shadow-lg'
               : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -57,7 +57,7 @@ const ProductsHome = () => {
           <button
             key={category}
             onClick={() => handleCategoryChange(category)}
-            className={`px-4 py-2 text-sm sm:text-lg font-semibold rounded-full transition-transform duration-300 ${
+            className={`px-4 py-2 text-sm sm:text-lg font-semibold transition-transform duration-300 ${
               sortCategory === category
                 ? 'bg-black text-white transform scale-105 shadow-lg'
                 : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
@@ -119,7 +119,7 @@ const ProductsHome = () => {
         <div className="text-center mt-8">
           <button
             onClick={handleViewMore}
-            className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-lg font-semibold rounded-full bg-black text-white hover:bg-gray-800 transition-colors duration-300"
+            className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-lg font-semibold bg-black text-white hover:bg-gray-800 transition-colors duration-300"
           >
             View More
           </button>

@@ -15,7 +15,7 @@ const SubscriptionHome = () => {
     >
       <div className="max-w-7xl mx-auto flex justify-center items-center">
         <p className="text-lg sm:text-xl font-bold text-gray-700 uppercase tracking-wide">
-          Subscribe now for better prices!
+          Subscribe now for BOLD Deals!
         </p>
       </div>
     </div>
