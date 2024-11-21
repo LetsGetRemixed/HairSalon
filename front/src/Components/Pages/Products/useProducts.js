@@ -6,7 +6,7 @@ const useProducts = (category = null) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   console.log('URL: ',`${process.env.REACT_APP_BACKEND_URL}/items/get-all-inventory`)
-
+// hey
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
