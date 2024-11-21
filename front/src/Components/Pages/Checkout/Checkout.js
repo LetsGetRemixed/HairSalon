@@ -15,7 +15,7 @@ const inputStyle = {
     background: '#f9f9f9',
     outline: 'none'
 };
-
+// hey man
 function CheckoutForm() {
     const stripe = useStripe();
     const elements = useElements();
