@@ -32,6 +32,7 @@ jobs:
           TOKEN_URI: ${{ secrets.TOKEN_URI }}
           TYPE: ${{ secrets.TYPE }}
           UNIVERSE_DOMAIN: ${{ secrets.UNIVERSE_DOMAIN }}
+          REACT_APP_STRIPE_PUBLIC_KEY: ${{ secrets.REACT_APP_STRIPE_PUBLIC_KEY }}
         run: |
           npm ci
           npm run build

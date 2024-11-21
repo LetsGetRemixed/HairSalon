@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-//const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-const stripePromise = 'pk_test_51QHD0NEnsP1F5DSTcre8eMS6aj0EXbWRn8BXpoCP9HtajcjO9Jpa9RscFUzL9ErD9Vjbs0mVH6smsspjIGwvTNym00wzka5HLW';
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+console.log("Stripe promise",process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+
 const inputStyle = {
     width: '100%',
     padding: '10px',
@@ -20,10 +21,7 @@ function CheckoutForm() {
     const [clientSecret, setClientSecret] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [message, setMessage] = useState('');
-    const [cartItems, setCartItems] = useState([
-        { category: 'Blonde', length: '20 inches', quantity: 2, totalAmount: 5000 },
-        { category: 'Dark', length: '18 inches', quantity: 1, totalAmount: 2500 }
-    ]);
+    const [cartItems, setCartItems] = useState([]);
     const [buyerDetails, setBuyerDetails] = useState({
         name: '',
         email: '',
@@ -37,7 +35,19 @@ function CheckoutForm() {
     });
 
     useEffect(() => {
-        // Calculate total amount for the cart
+        const fetchCartData = () => {
+            //const response = await fetch('/api/cart');
+            //const data = await response.json();
+            //setCartItems(data.items); // Updates the state
+            // Calculate total amount for the cart
+        setCartItems([
+            { category: 'Blonde', length: '20 inches', quantity: 2, totalAmount: 5000 },
+            { category: 'Dark', length: '18 inches', quantity: 1, totalAmount: 2500 }
+        ]);
+        };
+    
+        fetchCartData();
+        
         const totalAmount = cartItems.reduce((sum, item) => sum + item.totalAmount, 0);
 
         fetch('http://localhost:5100/api/checkout/checkout-session', {
