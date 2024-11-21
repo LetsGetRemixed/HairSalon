@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 import axios from 'axios';
+import Footer from '../Universal/Footer';
+import Navbar from '../Universal/Navbar2';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,7 +24,11 @@ const Login = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+    <div>
+
+        <Navbar />
+
+    <div className="max-w-md mx-auto my-60 p-6 font-cinzel bg-white shadow-md rounded-md">
       <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleLogin}>
@@ -50,6 +56,10 @@ const Login = () => {
           Login
         </button>
       </form>
+    </div>
+
+        <Footer />
+
     </div>
   );
 };
