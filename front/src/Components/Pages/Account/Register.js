@@ -5,6 +5,8 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     street: '',
     city: '',
     state: '',
@@ -16,15 +18,31 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    // Format phone number as (---) --- ---
+    if (name === 'phone') {
+      const formattedPhone = value
+        .replace(/\D/g, '') // Remove non-numeric characters
+        .replace(/(\d{3})(\d{3})(\d{3})/, '($1) $2 $3')
+        .slice(0, 15); // Limit to (---) --- ---
+      setFormData({ ...formData, phone: formattedPhone });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       const payload = {
         name: formData.name,
         email: formData.email,
+        password: formData.password,
         phone: formData.phone,
         address: {
           street: formData.street,
@@ -70,53 +88,27 @@ const Register = () => {
             required
           />
         </div>
-        <div className="mb-4 grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Street</label>
-            <input
-              type="text"
-              name="street"
-              value={formData.street}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">City</label>
-            <input
-              type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
         </div>
-        <div className="mb-4 grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">State</label>
-            <input
-              type="text"
-              name="state"
-              value={formData.state}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Zip</label>
-            <input
-              type="text"
-              name="zip"
-              value={formData.zip}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Confirm Password</label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
         </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2">Phone</label>
@@ -124,6 +116,63 @@ const Register = () => {
             type="text"
             name="phone"
             value={formData.phone}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            placeholder="(---) --- ---"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Street</label>
+          <input
+            type="text"
+            name="street"
+            value={formData.street}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">City</label>
+          <input
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">State</label>
+          <select
+            name="state"
+            value={formData.state}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+            required
+          >
+            <option value="">Select State</option>
+            {[
+              'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+              'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+              'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+              'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+              'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY',
+            ].map((state) => (
+              <option key={state} value={state}>
+                {state}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Zip</label>
+          <input
+            type="text"
+            name="zip"
+            value={formData.zip}
             onChange={handleInputChange}
             className="w-full p-2 border border-gray-300 rounded-md"
             required
@@ -138,4 +187,5 @@ const Register = () => {
 };
 
 export default Register;
+
 
