@@ -39,7 +39,7 @@ const Register = () => {
       setError('Passwords do not match');
       return;
     }
-
+  
     try {
       const payload = {
         name: formData.name,
@@ -53,14 +53,15 @@ const Register = () => {
           zip: formData.zip,
         },
       };
-
-      await axios.post('http://localhost:5100/api/users/register', payload);
+  
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/users/register`, payload);
       setSuccess('Registration successful!');
       setError('');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
   };
+  
 
   return (
     <div>

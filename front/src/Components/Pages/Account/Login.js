@@ -15,7 +15,10 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5100/api/users/login', { email, password });
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/users/login`, 
+        { email, password }
+      );
       setUser(response.data); // Save user data to context
       navigate('/'); // Redirect to account page
     } catch (err) {

@@ -16,14 +16,14 @@ const Account = () => {
     const fetchAccountDetails = async () => {
       try {
         if (user) {
-          const response = await axios.get(`http://localhost:5100/api/users/${user.userId}`);
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`);
           setAccountDetails(response.data);
         }
       } catch (error) {
         console.error('Error fetching account details:', error);
       }
     };
-
+  
     fetchAccountDetails();
   }, [user]);
 
