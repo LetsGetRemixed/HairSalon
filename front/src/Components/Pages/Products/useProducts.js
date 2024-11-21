@@ -11,7 +11,7 @@ const useProducts = (category = null) => {
       setLoading(true);
       try {
         const response = await axios.get(
-          'http://localhost:5100/api/items/get-all-inventory'
+          `${process.env.REACT_APP_BACKEND_URL}/items/get-all-inventory`
         );
         setProducts(response.data);
       } catch (err) {
