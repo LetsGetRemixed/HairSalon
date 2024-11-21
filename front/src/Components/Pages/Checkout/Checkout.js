@@ -4,7 +4,7 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 console.log("Stripe promise",process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-console.log("Other url: ", process.env.REACT_APP_BACKEND_URL);
+console.log("Other url: ", process.env.CLIENT_EMAIL);
 
 const inputStyle = {
     width: '100%',
