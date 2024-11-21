@@ -1,53 +1,130 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import useProducts from './useProducts';
+import Footer from '../Universal/Footer';
+import Navbar from '../Universal/Navbar2';
 
 const SingleProduct = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const { products, loading, error } = useProducts();
+  const [selectedLength, setSelectedLength] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    // Fetch product details by ID
-    axios.get(`/api/products/${id}`)
-      .then(response => setProduct(response.data))
-      .catch(error => console.log(error));
-  }, [id]);
+  // Find the specific product by ID
+  const product = products.find((item) => item._id === id);
 
-  if (!product) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <p>Loading product details...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!product) return <p>Product not found.</p>;
+
+  // Handle Modal Open/Close
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+  // Handle Length Selection
+  const selectedVariant = product.variants.find(
+    (variant) => variant.length === selectedLength
+  );
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col md:flex-row items-center">
-        {/* Product Image */}
-        <div className="w-full md:w-1/2 p-4">
-          <img src={product.imageUrl} alt={product.name} className="w-full h-auto rounded-md shadow-md" />
+
+    <div>
+
+      <Navbar />
+
+    <div className="p-6 max-w-6xl mx-auto">
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Image Section */}
+        <div className="flex-1">
+          <img
+            src={product.imageUrl}
+            alt={product.productName}
+            className="w-full max-h-[600px] object-contain cursor-pointer rounded-lg shadow-lg"
+            onClick={toggleModal}
+          />
+          {/* Modal */}
+          {isModalOpen && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+              onClick={toggleModal} // Close on click anywhere
+            >
+              <div className="relative">
+                <img
+                  src={product.imageUrl}
+                  alt={product.productName}
+                  className="w-auto max-h-[90vh] max-w-[90vw] rounded-lg"
+                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image
+                />
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Product Details */}
-        <div className="w-full md:w-1/2 p-4">
-          <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
-          <p className="text-gray-700 mb-2">${product.price}</p>
-          <p className="text-gray-600 mb-4">{product.description}</p>
+        {/* Product Details Section */}
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-gray-800 mb-4">
+            {product.productName}
+          </h1>
+          <p className="text-gray-600 text-sm mb-4">Category: {product.category}</p>
 
-          {/* Additional Information */}
-          <div className="bg-gray-100 p-4 rounded-md mb-4">
-            <h3 className="text-lg font-bold mb-2">Product Details</h3>
-            <ul>
-              {product.details.map((detail, index) => (
-                <li key={index} className="text-gray-700">{detail}</li>
+          {/* Length Selection */}
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Length:</h2>
+            <div className="flex gap-4 flex-wrap">
+              {product.variants.map((variant) => (
+                <button
+                  key={variant.length}
+                  onClick={() => setSelectedLength(variant.length)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    selectedLength === variant.length
+                      ? 'bg-black text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  }`}
+                >
+                  {variant.length}
+                </button>
               ))}
-            </ul>
+            </div>
           </div>
 
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">
-            Add to Cart
-          </button>
+          {/* Pricing Details */}
+          {selectedVariant ? (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
+              <ul className="text-gray-700">
+                <li>
+                  Suggested Retail: $
+                  {selectedVariant.prices.suggestedRetailPrice}
+                </li>
+                <li>
+                  Ambassador Price: $
+                  {selectedVariant.prices.ambassadorPrice}
+                </li>
+                <li>
+                  Stylist Price: $
+                  {selectedVariant.prices.stylistPrice}
+                </li>
+              </ul>
+              <p className="mt-4 text-sm text-gray-600">
+                Wefts per Pack: {selectedVariant.weftsPerPack}
+              </p>
+              <p className="text-sm text-gray-600">
+                Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
+          )}
         </div>
       </div>
+    </div>
+          <Footer />
     </div>
   );
 };
 
 export default SingleProduct;
+
+
+
+
+
