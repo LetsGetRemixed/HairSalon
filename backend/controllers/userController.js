@@ -48,13 +48,13 @@ exports.deleteUser = async (req, res) => {
   };
 
   exports.login = async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ message: "Username and password are required." });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required." });
   }
     try {
 
-      const user = await User.findOne({ username: username });
+      const user = await User.findOne({ email: email });
 
       if (!user) {
           return res.status(404).json({ message: "User not found." });

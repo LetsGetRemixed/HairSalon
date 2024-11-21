@@ -13,9 +13,9 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5100/api/auth/login', { email, password });
+      const response = await axios.post('http://localhost:5100/api/users/login', { email, password });
       setUser(response.data); // Save user data to context
-      navigate('/account'); // Redirect to account page
+      navigate('/'); // Redirect to account page
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }
