@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
 
@@ -6,6 +7,11 @@ exports.createMembership = async (req, res) => {
     const { userId } = req.params;
     const { membershipType } = req.body;
     console.log('Creating membership type', membershipType);
+
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
     try {
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ message: 'User not found' });
@@ -36,6 +42,11 @@ exports.createMembership = async (req, res) => {
 exports.updateMembership = async (req, res) => {
   const { userId } = req.params;
   const { membershipType } = req.body;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
   console.log('This is teh membership type: ', membershipType);
   try {
     const user = await User.findById(userId);
@@ -65,3 +76,29 @@ exports.updateMembership = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+exports.getSubscriptionByUserId = async (req, res) => {
+  const { userId } = req.params;
+  
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log('Not found');
+      return res.status(404).json({ message: 'User not found' });
+     } else {
+      console.log('User found');
+     }
+
+    const subscription = await Subscription.findOne({ user: userId });
+    if (!subscription) {
+      return res.status(200).json('Bronze');
+    }
+    res.status(200).json(subscription.membershipType);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching subscriptions", error });
+  }
+}
