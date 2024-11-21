@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Footer from '../Universal/Footer';
+import Navbar from '../Universal/Navbar2';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +63,11 @@ const Register = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-md">
+    <div>
+
+            <Navbar />
+
+    <div className="max-w-md mx-auto my-20 p-6 bg-white font-cinzel shadow-md rounded-md">
       <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {success && <p className="text-green-500 mb-4">{success}</p>}
@@ -182,6 +188,10 @@ const Register = () => {
           Register
         </button>
       </form>
+    </div>
+
+                <Footer />
+
     </div>
   );
 };
