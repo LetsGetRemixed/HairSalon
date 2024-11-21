@@ -5,6 +5,7 @@ const useProducts = (category = null) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  console.log('URL: ',process.env.REACT_APP_BACKEND_URL)
 
   useEffect(() => {
     const fetchProducts = async () => {
