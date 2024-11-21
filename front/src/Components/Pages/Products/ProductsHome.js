@@ -4,7 +4,7 @@ import useProducts from './useProducts';
 
 const ProductsHome = () => {
   const { products, loading, error } = useProducts();
-  console.log(useProducts);
+  console.log(products);
   const [sortCategory, setSortCategory] = useState('');
   const [visibleProducts, setVisibleProducts] = useState(6);
   const [isAnimating, setIsAnimating] = useState(false);
