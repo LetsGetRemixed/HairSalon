@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaBars } from 'react-icons/fa';
+import { AuthContext } from '../Account/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const { user } = useContext(AuthContext); // Access user data from AuthContext
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const toggleAccountMenu = () => {
+    setIsAccountMenuOpen(!isAccountMenuOpen);
+  };
+
   return (
     <div>
-      {/* Subscribe Now Bar */}
-     
-
       {/* Navbar */}
       <nav className="bg-gradient-to-r from-white via-mainBackground to-white shadow-md border-b-2 font-cinzel border-black">
-        <div className="container mx-auto  border-black px-4 py-2 flex items-center justify-between">
+        <div className="container mx-auto border-black px-4 py-2 flex items-center justify-between">
           {/* Left Side: Logo */}
           <Link to="/" className="flex items-center">
             <img src="/hairLogo.png" alt="Logo" className="md:h-12 h-14" />
@@ -53,10 +57,66 @@ const Navbar = () => {
               <FaBars />
             </button>
 
-            {/* Account and Cart Icons */}
-            <Link to="/account" className="hidden md:block text-gray-900 text-xl">
-              <FaUserCircle />
-            </Link>
+            {/* Account Dropdown */}
+            <div className="relative">
+              <button
+                onClick={toggleAccountMenu}
+                className="text-gray-900 text-xl flex items-center"
+              >
+                <FaUserCircle />
+              </button>
+              {isAccountMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
+                  {user ? (
+                    <ul>
+                      <li>
+                        <Link
+                          to="/account"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                        >
+                          My Account
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          className="w-full text-left block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => {
+                            localStorage.removeItem('authToken'); // Remove token
+                            window.location.reload(); // Reload to reset context
+                          }}
+                        >
+                          Logout
+                        </button>
+                      </li>
+                    </ul>
+                  ) : (
+                    <ul>
+                      <li>
+                        <Link
+                          to="/login"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                        >
+                          Login
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          to="/register"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setIsAccountMenuOpen(false)}
+                        >
+                          Sign Up
+                        </Link>
+                      </li>
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Cart Icon */}
             <Link to="/cart" className="text-gray-900 text-xl">
               <FaShoppingCart />
             </Link>
