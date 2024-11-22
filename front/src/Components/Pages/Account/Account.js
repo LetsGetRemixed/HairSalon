@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { FaUserCircle, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaUserCircle, FaEnvelope, FaPhone, FaMapMarkerAlt, FaMedal } from 'react-icons/fa';
 import axios from 'axios';
 import Navbar from '../Universal/Navbar2';
 import Footer from '../Universal/Footer';
@@ -9,21 +9,27 @@ import Footer from '../Universal/Footer';
 const Account = () => {
   const { user, setUser } = useContext(AuthContext);
   const [accountDetails, setAccountDetails] = useState(null);
+  const [subscription, setSubscription] = useState(null); // State for subscription
   const navigate = useNavigate();
 
-  // Fetch account details if the user is logged in
+  // Fetch account details and subscription if the user is logged in
   useEffect(() => {
     const fetchAccountDetails = async () => {
       try {
         if (user) {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`);
-          setAccountDetails(response.data);
+          const accountResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`);
+          setAccountDetails(accountResponse.data);
+
+          const subscriptionResponse = await axios.get(
+            `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
+          );
+          setSubscription(subscriptionResponse.data || 'Bronze'); // Default to Bronze if no subscription
         }
       } catch (error) {
-        console.error('Error fetching account details:', error);
+        console.error('Error fetching account details or subscription:', error);
       }
     };
-  
+
     fetchAccountDetails();
   }, [user]);
 
@@ -76,6 +82,13 @@ const Account = () => {
               <p><strong>Zip:</strong> {accountDetails.address.zip}</p>
             </div>
           </div>
+          {/* Subscription Section */}
+          {subscription && (
+            <div className="flex items-center">
+              <FaMedal className="text-yellow-500 mr-3" />
+              <p><strong>Subscription:</strong> {subscription}</p>
+            </div>
+          )}
         </div>
         <div className="mt-6 space-y-4">
           <button
@@ -98,4 +111,5 @@ const Account = () => {
 };
 
 export default Account;
+
 
