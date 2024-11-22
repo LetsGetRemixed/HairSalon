@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from './SubscriptionContext';
 import { AuthContext } from '../Account/AuthContext';
+import Footer from '../Universal/Footer';
+import Navbar from '../Universal/Navbar2';
 
 const SubscriptionPage = () => {
   const { subscription, setSubscription } = useSubscription();
@@ -69,6 +71,10 @@ const SubscriptionPage = () => {
   };
 
   return (
+    <div>
+
+        <Navbar />
+
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
       <h1 className="text-2xl font-bold mb-4 text-center">Choose Your Plan</h1>
       {subscription && subscription !== 'Bronze' && (
@@ -101,6 +107,10 @@ const SubscriptionPage = () => {
       >
         {loading ? 'Processing...' : 'Submit Membership'}
       </button>
+    </div>
+
+            <Footer />
+
     </div>
   );
 };

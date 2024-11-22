@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
 
@@ -189,6 +190,13 @@ const Register = () => {
           Register
         </button>
       </form>
+
+      <p className="text-center text-sm mt-4 text-gray-600">
+          Already have an account with us?{' '}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Login Now!
+          </Link>
+        </p>
     </div>
 
                 <Footer />
