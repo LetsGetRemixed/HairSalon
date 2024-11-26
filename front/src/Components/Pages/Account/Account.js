@@ -34,8 +34,8 @@ const Account = () => {
   }, [user]);
 
   const handleLogout = () => {
-    setUser(null); // Clear user data
-    localStorage.removeItem('authToken'); // Clear any stored token
+    setUser(null); // Clear user state
+    localStorage.removeItem('authUser'); // Remove from localStorage
     navigate('/login'); // Redirect to login page
   };
 

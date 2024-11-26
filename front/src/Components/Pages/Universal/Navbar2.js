@@ -6,7 +6,7 @@ import { AuthContext } from '../Account/AuthContext';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const { user } = useContext(AuthContext); // Access user data from AuthContext
+  const { user, setUser } = useContext(AuthContext); // Access user data from AuthContext
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -82,7 +82,8 @@ const Navbar = () => {
                         <button
                           className="w-full text-left block px-4 py-2 text-gray-700 hover:bg-gray-100"
                           onClick={() => {
-                            localStorage.removeItem('authToken'); // Remove token
+                            setUser(null); // Clear user state
+                            localStorage.removeItem('authUser'); // Remove token
                             window.location.reload(); // Reload to reset context
                           }}
                         >

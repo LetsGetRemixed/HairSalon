@@ -16,10 +16,11 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/users/login`, 
+        `${process.env.REACT_APP_BACKEND_URL}/users/login`,
         { email, password }
       );
-      setUser(response.data); // Save user data to context
+      const userData = response.data; // Assuming the response contains user data
+      setUser(userData); // Update context and localStorage
       navigate('/'); // Redirect to account page
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
