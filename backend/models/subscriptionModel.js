@@ -8,7 +8,7 @@ const subscriptionSchema = new mongoose.Schema({
         required: true,
       },
       startDate: { type: Date, default: Date.now },
-      expiresAt: { type: Date, required: true },
+      expiresAt: { type: Date },
       isActive: { 
         type: Boolean, 
         default: function() {
