@@ -61,13 +61,15 @@ exports.updateMembership = async (req, res) => {
     } else {
       console.log('Extending subscription now');
       if (!currentSubscription.isActive) {
+        console.log('They had a non-active membership');
           currentSubscription.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+          currentSubscription.isActive = true;
       } else {
+        console.log('They already had a actiev membership');
           // User already has a membership so extend membership by one month
           currentSubscription.expiresAt = new Date(currentSubscription.expiresAt.getTime() + 30 * 24 * 60 * 60 * 1000);
       }
       currentSubscription.membershipType = membershipType;
-      currentSubscription.isActive = true;
       await currentSubscription.save();
 
       return res.status(200).json({ message: 'Subscription extended', subscription: currentSubscription });
@@ -102,3 +104,43 @@ exports.getSubscriptionByUserId = async (req, res) => {
     res.status(500).json({ message: "Error fetching subscriptions", error });
   }
 }
+
+exports.checkAndUpdateSubscription = async (req, res) => {
+  const { userId } = req.params;
+
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const subscription = await Subscription.findOne({ user: userId });
+    if (!subscription) {
+      return res.status(200).json({ message: 'No active subscription. Defaulting to Bronze.' });
+    }
+
+    // Check if the subscription has expired
+    if (new Date(subscription.expiresAt) <= new Date()) {
+      // Update to Bronze subscription
+      subscription.membershipType = 'Bronze';
+      subscription.expiresAt = null; 
+      subscription.isActive = false;
+      await subscription.save();
+
+      return res.status(200).json({ 
+        message: 'Subscription expired. Downgraded to Bronze.', 
+        subscription 
+      });
+    }
+
+    // If subscription is still active
+    return res.status(200).json({ 
+      message: 'Subscription is still active.', 
+      subscription 
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error checking subscription', error });
+  }
+};
