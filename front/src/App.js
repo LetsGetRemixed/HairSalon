@@ -10,11 +10,14 @@ import Account from './Components/Pages/Account/Account';
 import { AuthProvider } from './Components/Pages/Account/AuthContext';
 import { SubscriptionProvider } from './Components/Pages/Sucbription/SubscriptionContext';
 import SubscriptionPage from './Components/Pages/Sucbription/SubscriptionPage';
+import { CartProvider } from './Components/Pages/Checkout/CartContext';
+import Cart from './Components/Pages/Checkout/Cart';
 
 function App() {
   return (
     <AuthProvider>
         <SubscriptionProvider>
+            <CartProvider>
                 <Router>
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -25,8 +28,10 @@ function App() {
                               <Route path="/register" element={<Register />} />
                               <Route path="/account" element={<Account />} />
                               <Route path="/subscribe" element={<SubscriptionPage />} />
+                              <Route path="/cart" element={<Cart />} />
                   </Routes>
                 </Router>
+            </CartProvider>
        </SubscriptionProvider>
     </AuthProvider>
   );

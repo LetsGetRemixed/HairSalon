@@ -1,14 +1,16 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useProducts from './useProducts';
 import { useSubscription } from '../Sucbription/SubscriptionContext'; // Import SubscriptionContext
 import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
+import { useCart } from '../Checkout/CartContext';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const { products, loading, error } = useProducts();
   const { subscription } = useSubscription(); // Get subscription tier
+  const { addToCart} = useCart();
   const [selectedLength, setSelectedLength] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -38,6 +40,23 @@ const SingleProduct = () => {
       default:
         return prices.suggestedRetailPrice;
     }
+  };
+
+
+  const handleAddToCart = () => {
+    if (!selectedLength) {
+      alert('Please select a length before adding to the cart.');
+      return;
+    }
+    const productToAdd = {
+      id: product._id,
+      name: product.productName,
+      category: product.category,
+      length: selectedVariant.length,
+      price: selectedVariant.prices.suggestedRetailPrice, // Adjust based on subscription
+    };
+    addToCart(productToAdd);
+    alert('Product added to cart!');
   };
 
   return (
@@ -123,6 +142,14 @@ const SingleProduct = () => {
               <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
             )}
           </div>
+
+                              {/* Add to Cart Button */}
+                    <button
+                      onClick={handleAddToCart}
+                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Add to Cart
+                    </button>
         </div>
       </div>
       <Footer />
