@@ -17,7 +17,7 @@ exports.addToCart = async (req, res) => {
     const user = await User.findById(req.params.userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const { id, name, length, price } = req.body;
+    const { id, name, length, imageUrl, price } = req.body;
 
     // Check if item already exists in the cart
     const existingItem = user.cart.find((item) => item.id === id && item.length === length);
@@ -27,7 +27,7 @@ exports.addToCart = async (req, res) => {
       existingItem.quantity += 1;
     } else {
       // Add new item to the cart
-      user.cart.push({ id, name, length, price });
+      user.cart.push({ id, name, length, imageUrl, price });
     }
 
     await user.save();

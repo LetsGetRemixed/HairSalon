@@ -87,17 +87,17 @@ const Cart = () => {
               className="flex justify-between items-center p-4 border rounded shadow mb-4"
             >
               <div className="flex items-center space-x-4">
-  <img
-    src={item.imageUrl || '/placeholder.jpg'} // Ensure the correct field is used
-    alt={item.name || 'Product Image'}
-    className="w-20 h-20 object-cover rounded"
-  />
-  <div>
-    <p className="font-semibold">{item.name}</p>
-    <p className="text-gray-500 text-sm">Length: {item.length}</p>
-    <p className="text-gray-500 text-sm">Price: ${item.price.toFixed(2)}</p>
-  </div>
-</div>
+                    <img
+                        src={item.imageUrl || '/placeholder.jpg'} // Ensure the correct field is used
+                        alt={item.name || 'Product Image'}
+                        className="w-20 h-20 object-cover rounded"
+                    />
+                    <div>
+                        <p className="font-semibold">{item.name}</p>
+                        <p className="text-gray-500 text-sm">Length: {item.length}</p>
+                        <p className="text-gray-500 text-sm">Price: ${item.price.toFixed(2)}</p>
+                    </div>
+                    </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => handleQuantityChange(item.id, -1)}
