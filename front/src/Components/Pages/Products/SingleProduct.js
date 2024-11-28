@@ -55,19 +55,20 @@ const SingleProduct = () => {
     const productToAdd = {
       id: product._id,
       name: product.productName,
-      imageUrl: product.imageUrl, // Add the imageUrl here
+      imageUrl: product.imageUrl, // Ensure this is provided and not undefined
       length: selectedVariant.length,
-      price: selectedVariant.prices.suggestedRetailPrice, // Adjust based on subscription
+      price: selectedVariant.prices.suggestedRetailPrice,
+      quantity: 1,
     };
+  
+    console.log('Product to Add:', productToAdd); // Debugging log to verify request data
   
     try {
       await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/cart/${user.userId}`,
         productToAdd
-        
       );
       alert('Product added to cart!');
-      console.log('Product to Add:', productToAdd);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }

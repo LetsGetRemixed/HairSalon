@@ -14,6 +14,8 @@ exports.getCart = async (req, res) => {
 // Add to Cart
 exports.addToCart = async (req, res) => {
     const { userId } = req.params;
+    console.log('Request Body:', req.body); // Log request body for debugging
+  
     const { id, name, length, price, imageUrl, quantity } = req.body;
   
     // Validate required fields
@@ -36,7 +38,7 @@ exports.addToCart = async (req, res) => {
       await user.save();
       res.status(200).json({ message: 'Cart updated successfully', cart: user.cart });
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('Error adding to cart:', error); // Log the error to get more details
       res.status(500).json({ message: 'Internal Server Error', error });
     }
   };
