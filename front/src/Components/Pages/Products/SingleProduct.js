@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import useProducts from './useProducts';
+import { AuthContext } from '../Account/AuthContext';
 import { useSubscription } from '../Sucbription/SubscriptionContext'; // Import SubscriptionContext
 import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
 import { useCart } from '../Checkout/CartContext';
+import axios from 'axios';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const { products, loading, error } = useProducts();
   const { subscription } = useSubscription(); // Get subscription tier
   const { addToCart} = useCart();
+  const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -43,20 +46,31 @@ const SingleProduct = () => {
   };
 
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedLength) {
       alert('Please select a length before adding to the cart.');
       return;
     }
+  
     const productToAdd = {
       id: product._id,
       name: product.productName,
-      category: product.category,
+      imageUrl: product.imageUrl, // Add the imageUrl here
       length: selectedVariant.length,
       price: selectedVariant.prices.suggestedRetailPrice, // Adjust based on subscription
     };
-    addToCart(productToAdd);
-    alert('Product added to cart!');
+  
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/cart/${user.userId}`,
+        productToAdd
+        
+      );
+      alert('Product added to cart!');
+      console.log('Product to Add:', productToAdd);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   };
 
   return (

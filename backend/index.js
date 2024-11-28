@@ -45,6 +45,7 @@ app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/transaction', transactionRoutes);
+app.use('/api/cart', require('./routes/cartRoutes'));
 
 // Connect to MongoDB
 connectToDB();
