@@ -53,11 +53,10 @@ const SingleProduct = () => {
     }
   
     const productToAdd = {
-      id: product._id,
       name: product.productName,
-      imageUrl: product.imageUrl, // Ensure this is provided and not undefined
       length: selectedVariant.length,
       price: selectedVariant.prices.suggestedRetailPrice,
+      imageUrl: product.imageUrl, // Ensure this is provided and not undefined
       quantity: 1,
     };
   
@@ -65,7 +64,7 @@ const SingleProduct = () => {
   
     try {
       await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/cart/${user.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/cart/add-to-cart/${user.userId}`,
         productToAdd
       );
       alert('Product added to cart!');

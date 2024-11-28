@@ -1,11 +1,21 @@
+const Cart = require('../models/cartModel');
 const User = require('../models/userModel');
+const mongoose = require('mongoose');
 
 // Get Cart
 exports.getCart = async (req, res) => {
+  const { userId } = req.params;
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
   try {
-    const user = await User.findById(req.params.userId);
+    const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    res.status(200).json(user.cart);
+
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(200).json({ message: 'Cart is empty', cart: [] });
+    res.status(200).json(cart.cart);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -14,29 +24,37 @@ exports.getCart = async (req, res) => {
 // Add to Cart
 exports.addToCart = async (req, res) => {
     const { userId } = req.params;
-    console.log('Request Body:', req.body); // Log request body for debugging
-  
-    const { id, name, length, price, imageUrl, quantity } = req.body;
-  
-    // Validate required fields
-    if (!id || !name || !length || !price || !imageUrl || !quantity) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    if (!mongoose.isValidObjectId(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
     }
+
+    const { name, length, price, imageUrl, quantity } = req.body;
+  
+    if (!name || !length || !price || !imageUrl || quantity == null) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
   
     try {
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ message: 'User not found' });
   
-      const existingItem = user.cart.find((item) => item.id === id && item.length === length);
+      let cart = await Cart.findOne({ user: userId });
+      if (!cart) {
+        // Create a new cart if it doesn't exist
+        cart = new Cart({ user: userId, cart: [] });
+      }
+      const existingItem = cart.cart.find(
+        (item) => item.name === name && item.length === length
+      );
   
       if (existingItem) {
-        existingItem.quantity += quantity; // Update quantity
+        existingItem.quantity += quantity; 
       } else {
-        user.cart.push({ id, name, length, price, imageUrl, quantity }); // Add new item
+        cart.cart.push({ name, length, price, imageUrl, quantity }); 
       }
   
-      await user.save();
-      res.status(200).json({ message: 'Cart updated successfully', cart: user.cart });
+      await cart.save();
+      res.status(200).json({ message: 'Cart updated successfully', cart: cart.cart });
     } catch (error) {
       console.error('Error adding to cart:', error); // Log the error to get more details
       res.status(500).json({ message: 'Internal Server Error', error });
@@ -46,15 +64,26 @@ exports.addToCart = async (req, res) => {
 
 // Remove from Cart
 exports.removeFromCart = async (req, res) => {
+  const { userId } = req.params;
+  const { productId } = req.body;
+  console.log('Calling remove item functipn', typeof productId);
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+  if (!productId) {
+    return res.status(400).json({ message: 'Missing product ID' });
+  }
+
   try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
+    console.log('cart typeof is', typeof cart.cart[0]._id);
 
-    const { itemId } = req.body;
-    user.cart = user.cart.filter((item) => item.id !== itemId);
-    await user.save();
+    cart.cart = cart.cart.filter((item) => item._id.toString() !== productId);
+    console.log('New cart: ', cart.cart);
+    await cart.save();
 
-    res.status(200).json(user.cart);
+    res.status(200).json({ message: 'Item removed from cart', cart: cart.cart });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -62,13 +91,17 @@ exports.removeFromCart = async (req, res) => {
 
 // Clear Cart
 exports.clearCart = async (req, res) => {
+  const { userId } = req.params;
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
   try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const cart = await Cart.findOne({ user: userId });
+    if (!cart) return res.status(404).json({ message: 'Cart not found' });
 
-    user.cart = [];
-    await user.save();
-    res.status(200).json({ message: 'Cart cleared' });
+    cart.cart = []; 
+    await cart.save();
+    res.status(200).json({ message: 'Cart cleared', cart: cart.cart });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

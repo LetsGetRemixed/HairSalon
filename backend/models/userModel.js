@@ -12,16 +12,6 @@ const userSchema = new mongoose.Schema({
     },
     phone: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
-    cart: [
-      {
-        id: { type: String, required: true },
-        name: { type: String, required: true },
-        length: { type: String, required: true },
-        price: { type: Number, required: true },
-        imageUrl: { type: String, required: true },
-        quantity: { type: Number, default: 1 },
-      },
-    ],
   });
   
   const User = mongoose.model('User', userSchema);

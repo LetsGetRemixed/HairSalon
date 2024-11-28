@@ -6,17 +6,41 @@ import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const { user } = useAuth();
-  const { cart, setCart, clearCart, removeFromCart } = useCart();
+  const { cart, setCart } = useCart();
   const [loading, setLoading] = useState(true);
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const navigate = useNavigate();
 
+  const removeFromCart = async (productId) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}`,
+        { data: { productId } }
+      );
+      console.log('Removing items: ', productId);
+      setCart((prevCart) => prevCart.filter((item) => item.product_id !== productId));
+    } catch (error) {
+      console.error('Error removing product:', error);
+    }
+  };
+
+  const clearCart = async () => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/cart/clear-cart/${user.userId}`);
+      setCart([]); 
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+  
+
+
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/cart/${user.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/cart/get-cart/${user.userId}`
         );
         setCart(response.data);
       } catch (error) {
@@ -83,7 +107,7 @@ const Cart = () => {
         <div className="lg:col-span-2">
           {cart.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="flex justify-between items-center p-4 border rounded shadow mb-4"
             >
               <div className="flex items-center space-x-4">
@@ -100,21 +124,21 @@ const Cart = () => {
                     </div>
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => handleQuantityChange(item.id, -1)}
+                  onClick={() => handleQuantityChange(item._id, -1)}
                   className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                 >
                   -
                 </button>
                 <span>{item.quantity}</span>
                 <button
-                  onClick={() => handleQuantityChange(item.id, 1)}
+                  onClick={() => handleQuantityChange(item._id, 1)}
                   className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                 >
                   +
                 </button>
               </div>
               <button
-                onClick={() => removeFromCart(item.id)}
+                onClick={() => removeFromCart(item._id)}
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
               >
                 Remove
