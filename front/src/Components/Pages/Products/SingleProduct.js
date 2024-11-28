@@ -12,7 +12,7 @@ const SingleProduct = () => {
   const { id } = useParams();
   const { products, loading, error } = useProducts();
   const { subscription } = useSubscription(); // Get subscription tier
-  const { addToCart} = useCart();
+  
   const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

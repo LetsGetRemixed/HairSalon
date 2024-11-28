@@ -13,29 +13,34 @@ exports.getCart = async (req, res) => {
 
 // Add to Cart
 exports.addToCart = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    const { id, name, length, imageUrl, price } = req.body;
-
-    // Check if item already exists in the cart
-    const existingItem = user.cart.find((item) => item.id === id && item.length === length);
-
-    if (existingItem) {
-      // Increase the quantity if the item exists
-      existingItem.quantity += 1;
-    } else {
-      // Add new item to the cart
-      user.cart.push({ id, name, length, imageUrl, price });
+    const { userId } = req.params;
+    const { id, name, length, price, imageUrl, quantity } = req.body;
+  
+    // Validate required fields
+    if (!id || !name || !length || !price || !imageUrl || !quantity) {
+      return res.status(400).json({ message: 'Missing required fields' });
     }
-
-    await user.save();
-    res.status(200).json(user.cart);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ message: 'User not found' });
+  
+      const existingItem = user.cart.find((item) => item.id === id && item.length === length);
+  
+      if (existingItem) {
+        existingItem.quantity += quantity; // Update quantity
+      } else {
+        user.cart.push({ id, name, length, price, imageUrl, quantity }); // Add new item
+      }
+  
+      await user.save();
+      res.status(200).json({ message: 'Cart updated successfully', cart: user.cart });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ message: 'Internal Server Error', error });
+    }
+  };
+  
 
 // Remove from Cart
 exports.removeFromCart = async (req, res) => {
