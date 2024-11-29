@@ -19,7 +19,7 @@ const Cart = () => {
         { data: { productId } }
       );
       console.log('Removing items: ', productId);
-      setCart((prevCart) => prevCart.filter((item) => item.product_id !== productId));
+      setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
     } catch (error) {
       console.error('Error removing product:', error);
     }
@@ -56,7 +56,7 @@ const Cart = () => {
   const handleQuantityChange = (itemId, delta) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item.id === itemId
+        item._id === itemId
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
       )

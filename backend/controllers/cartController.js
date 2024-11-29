@@ -66,7 +66,7 @@ exports.addToCart = async (req, res) => {
 exports.removeFromCart = async (req, res) => {
   const { userId } = req.params;
   const { productId } = req.body;
-  console.log('Calling remove item functipn', typeof productId);
+  
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
@@ -77,10 +77,8 @@ exports.removeFromCart = async (req, res) => {
   try {
     const cart = await Cart.findOne({ user: userId });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
-    console.log('cart typeof is', typeof cart.cart[0]._id);
 
     cart.cart = cart.cart.filter((item) => item._id.toString() !== productId);
-    console.log('New cart: ', cart.cart);
     await cart.save();
 
     res.status(200).json({ message: 'Item removed from cart', cart: cart.cart });
@@ -106,3 +104,4 @@ exports.clearCart = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
