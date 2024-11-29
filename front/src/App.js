@@ -8,21 +8,31 @@ import Login from './Components/Pages/Account/Login';
 import Register from './Components/Pages/Account/Register';
 import Account from './Components/Pages/Account/Account';
 import { AuthProvider } from './Components/Pages/Account/AuthContext';
+import { SubscriptionProvider } from './Components/Pages/Sucbription/SubscriptionContext';
+import SubscriptionPage from './Components/Pages/Sucbription/SubscriptionPage';
+import { CartProvider } from './Components/Pages/Checkout/CartContext';
+import Cart from './Components/Pages/Checkout/Cart';
 
 function App() {
   return (
     <AuthProvider>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path='/checkout' element={<Checkout/>} />
-        <Route path="/product/:id" element={<SingleProduct />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/account" element={<Account />} />
-      </Routes>
-    </Router>
+        <SubscriptionProvider>
+            <CartProvider>
+                <Router>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path='/checkout' element={<Checkout/>} />
+                    <Route path="/product/:id" element={<SingleProduct />} />
+                              <Route path="/login" element={<Login />} />
+                              <Route path="/register" element={<Register />} />
+                              <Route path="/account" element={<Account />} />
+                              <Route path="/subscribe" element={<SubscriptionPage />} />
+                              <Route path="/cart" element={<Cart />} />
+                  </Routes>
+                </Router>
+            </CartProvider>
+       </SubscriptionProvider>
     </AuthProvider>
   );
 }

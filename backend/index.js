@@ -6,6 +6,7 @@ const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
@@ -45,6 +46,7 @@ app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/items', inventoryRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/transaction', transactionRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Connect to MongoDB
 connectToDB();

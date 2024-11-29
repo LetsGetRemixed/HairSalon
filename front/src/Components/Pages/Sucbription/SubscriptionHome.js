@@ -5,7 +5,7 @@ const SubscriptionHome = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/subscription'); // Redirect to the subscription page
+    navigate('/subscribe'); // Redirect to the subscription page
   };
 
   return (

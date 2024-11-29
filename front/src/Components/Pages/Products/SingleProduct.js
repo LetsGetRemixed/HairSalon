@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import useProducts from './useProducts';
+import { AuthContext } from '../Account/AuthContext';
+import { useSubscription } from '../Sucbription/SubscriptionContext'; // Import SubscriptionContext
 import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
+import { useCart } from '../Checkout/CartContext';
+import axios from 'axios';
 
 const SingleProduct = () => {
   const { id } = useParams();
   const { products, loading, error } = useProducts();
+  const { subscription } = useSubscription(); // Get subscription tier
+  
+  const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,104 +32,147 @@ const SingleProduct = () => {
     (variant) => variant.length === selectedLength
   );
 
+  // Determine the applicable price based on subscription
+  const getApplicablePrice = (prices) => {
+    switch (subscription) {
+      case 'Gold':
+        return prices.ambassadorPrice;
+      case 'Silver':
+        return prices.stylistPrice;
+      case 'Bronze':
+      default:
+        return prices.suggestedRetailPrice;
+    }
+  };
+
+
+  const handleAddToCart = async () => {
+    if (!selectedLength) {
+      alert('Please select a length before adding to the cart.');
+      return;
+    }
+  
+    const productToAdd = {
+      name: product.productName,
+      length: selectedVariant.length,
+      price: selectedVariant.prices.suggestedRetailPrice,
+      imageUrl: product.imageUrl, // Ensure this is provided and not undefined
+      quantity: 1,
+    };
+  
+    console.log('Product to Add:', productToAdd); // Debugging log to verify request data
+  
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/cart/add-to-cart/${user.userId}`,
+        productToAdd
+      );
+      alert('Product added to cart!');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
+
   return (
-
     <div>
-
       <Navbar />
-
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-8 items-start">
-        {/* Image Section */}
-        <div className="flex-1">
-          <img
-            src={product.imageUrl}
-            alt={product.productName}
-            className="w-full max-h-[600px] object-contain cursor-pointer rounded-lg shadow-lg"
-            onClick={toggleModal}
-          />
-          {/* Modal */}
-          {isModalOpen && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
-              onClick={toggleModal} // Close on click anywhere
-            >
-              <div className="relative">
-                <img
-                  src={product.imageUrl}
-                  alt={product.productName}
-                  className="w-auto max-h-[90vh] max-w-[90vw] rounded-lg"
-                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image
-                />
+      <div className="p-6 max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
+          {/* Image Section */}
+          <div className="flex-1">
+            <img
+              src={product.imageUrl}
+              alt={product.productName}
+              className="w-full max-h-[600px] object-contain cursor-pointer rounded-lg shadow-lg"
+              onClick={toggleModal}
+            />
+            {/* Modal */}
+            {isModalOpen && (
+              <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+                onClick={toggleModal} // Close on click anywhere
+              >
+                <div className="relative">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.productName}
+                    className="w-auto max-h-[90vh] max-w-[90vw] rounded-lg"
+                    onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image
+                  />
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Product Details Section */}
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {product.productName}
-          </h1>
-          <p className="text-gray-600 text-sm mb-4">Category: {product.category}</p>
-
-          {/* Length Selection */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Length:</h2>
-            <div className="flex gap-4 flex-wrap">
-              {product.variants.map((variant) => (
-                <button
-                  key={variant.length}
-                  onClick={() => setSelectedLength(variant.length)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
-                    selectedLength === variant.length
-                      ? 'bg-black text-white'
-                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                  }`}
-                >
-                  {variant.length}
-                </button>
-              ))}
-            </div>
+            )}
           </div>
 
-          {/* Pricing Details */}
-          {selectedVariant ? (
+          {/* Product Details Section */}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-800 mb-4">
+              {product.productName}
+            </h1>
+            <p className="text-gray-600 text-sm mb-4">Category: {product.category}</p>
+
+            {/* Length Selection */}
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
-              <ul className="text-gray-700">
-                <li>
-                  Suggested Retail: $
-                  {selectedVariant.prices.suggestedRetailPrice}
-                </li>
-                <li>
-                  Ambassador Price: $
-                  {selectedVariant.prices.ambassadorPrice}
-                </li>
-                <li>
-                  Stylist Price: $
-                  {selectedVariant.prices.stylistPrice}
-                </li>
-              </ul>
-              <p className="mt-4 text-sm text-gray-600">
-                Wefts per Pack: {selectedVariant.weftsPerPack}
-              </p>
-              <p className="text-sm text-gray-600">
-                Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
-              </p>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Length:</h2>
+              <div className="flex gap-4 flex-wrap">
+                {product.variants.map((variant) => (
+                  <button
+                    key={variant.length}
+                    onClick={() => setSelectedLength(variant.length)}
+                    className={`px-4 py-2 rounded-md text-sm font-medium ${
+                      selectedLength === variant.length
+                        ? 'bg-black text-white'
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                    }`}
+                  >
+                    {variant.length}
+                  </button>
+                ))}
+              </div>
             </div>
-          ) : (
-            <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
-          )}
+
+            {/* Pricing Details */}
+            {selectedVariant ? (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
+                <ul className="text-gray-700 space-y-2">
+                  {subscription !== 'Bronze' && (
+                    <li className="text-red-500 line-through">
+                      Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
+                    </li>
+                  )}
+                  <li className="text-green-600 font-bold">
+                    Your Price: ${getApplicablePrice(selectedVariant.prices)}
+                  </li>
+                </ul>
+                <p className="mt-4 text-sm text-gray-600">
+                  Wefts per Pack: {selectedVariant.weftsPerPack}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
+                </p>
+              </div>
+            ) : (
+              <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
+            )}
+          </div>
+
+                              {/* Add to Cart Button */}
+                    <button
+                      onClick={handleAddToCart}
+                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                      Add to Cart
+                    </button>
         </div>
       </div>
-    </div>
-          <Footer />
+      <Footer />
     </div>
   );
 };
 
 export default SingleProduct;
+
 
 
 
