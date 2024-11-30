@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import useProducts from './useProducts';
 import { AuthContext } from '../Account/AuthContext';
 import { useSubscription } from '../Sucbription/SubscriptionContext'; // Import SubscriptionContext
@@ -10,11 +10,13 @@ import axios from 'axios';
 
 const SingleProduct = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { products, loading, error } = useProducts();
   const { subscription } = useSubscription(); // Get subscription tier
   
   const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Find the specific product by ID
@@ -45,8 +47,12 @@ const SingleProduct = () => {
     }
   };
 
-
   const handleAddToCart = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
     if (!selectedLength) {
       alert('Please select a length before adding to the cart.');
       return;
@@ -57,7 +63,7 @@ const SingleProduct = () => {
       length: selectedVariant.length,
       price: selectedVariant.prices.suggestedRetailPrice,
       imageUrl: product.imageUrl, // Ensure this is provided and not undefined
-      quantity: 1,
+      quantity: selectedQuantity,
     };
   
     console.log('Product to Add:', productToAdd); // Debugging log to verify request data
@@ -105,65 +111,79 @@ const SingleProduct = () => {
           </div>
 
           {/* Product Details Section */}
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              {product.productName}
-            </h1>
-            <p className="text-gray-600 text-sm mb-4">Category: {product.category}</p>
+          <div className="flex-1 flex flex-col justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-4">
+                {product.productName}
+              </h1>
+              <p className="text-gray-600 text-sm mb-4">Category: {product.category}</p>
 
-            {/* Length Selection */}
-            <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Length:</h2>
-              <div className="flex gap-4 flex-wrap">
-                {product.variants.map((variant) => (
-                  <button
-                    key={variant.length}
-                    onClick={() => setSelectedLength(variant.length)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium ${
-                      selectedLength === variant.length
-                        ? 'bg-black text-white'
-                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-                    }`}
-                  >
-                    {variant.length}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Pricing Details */}
-            {selectedVariant ? (
+              {/* Length Selection */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
-                <ul className="text-gray-700 space-y-2">
-                  {subscription !== 'Bronze' && (
-                    <li className="text-red-500 line-through">
-                      Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
-                    </li>
-                  )}
-                  <li className="text-green-600 font-bold">
-                    Your Price: ${getApplicablePrice(selectedVariant.prices)}
-                  </li>
-                </ul>
-                <p className="mt-4 text-sm text-gray-600">
-                  Wefts per Pack: {selectedVariant.weftsPerPack}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
-                </p>
-              </div>
-            ) : (
-              <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
-            )}
-          </div>
-
-                              {/* Add to Cart Button */}
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Length:</h2>
+                <div className="flex gap-4 flex-wrap">
+                  {product.variants.map((variant) => (
                     <button
-                      onClick={handleAddToCart}
-                      className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      key={variant.length}
+                      onClick={() => setSelectedLength(variant.length)}
+                      className={`px-4 py-2 rounded-md text-sm font-medium ${
+                        selectedLength === variant.length
+                          ? 'bg-black text-white'
+                          : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                      }`}
                     >
-                      Add to Cart
+                      {variant.length}
                     </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quantity Selection */}
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Quantity:</h2>
+                <input
+                  type="number"
+                  min="1"
+                  value={selectedQuantity}
+                  onChange={(e) => setSelectedQuantity(Number(e.target.value))}
+                  className="w-20 p-2 border rounded-md"
+                />
+              </div>
+
+              {/* Pricing Details */}
+              {selectedVariant ? (
+                <div className="mb-6">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
+                  <ul className="text-gray-700 space-y-2">
+                    {subscription !== 'Bronze' && (
+                      <li className="text-red-500 line-through">
+                        Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
+                      </li>
+                    )}
+                    <li className="text-green-600 font-bold">
+                      Your Price: ${getApplicablePrice(selectedVariant.prices)}
+                    </li>
+                  </ul>
+                  <p className="mt-4 text-sm text-gray-600">
+                    Wefts per Pack: {selectedVariant.weftsPerPack}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
+              )}
+            </div>
+            
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              className="mt-8 px-4 py-3 bg-black text-white rounded hover:bg-gray-800"
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
       <Footer />
@@ -172,6 +192,8 @@ const SingleProduct = () => {
 };
 
 export default SingleProduct;
+
+
 
 
 
