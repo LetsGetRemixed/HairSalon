@@ -17,11 +17,10 @@ const Cart = () => {
   const removeFromCart = async (productId) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}`,
-        { data: { productId } }
+        `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}/${productId}`
       );
       console.log('Removing items: ', productId);
-      setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
+      setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
     } catch (error) {
       console.error('Error removing product:', error);
     }
@@ -42,7 +41,18 @@ const Cart = () => {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/cart/get-cart/${user.userId}`
         );
-        setCart(response.data);
+        const cartWithDetails = await Promise.all(response.data.map(async (item) => {
+          const productResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/products/${item.productId}`);
+          const product = productResponse.data;
+          const applicablePrice = product.prices[user.subscription] || product.prices.suggestedRetailPrice;
+          return {
+            ...item,
+            name: product.productName,
+            price: applicablePrice,
+            imageUrl: product.imageUrl,
+          };
+        }));
+        setCart(cartWithDetails);
       } catch (error) {
         console.error('Error fetching cart:', error);
       } finally {
@@ -56,7 +66,7 @@ const Cart = () => {
   const handleQuantityChange = (itemId, delta) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
-        item._id === itemId
+        item.productId === itemId
           ? { ...item, quantity: Math.max(1, item.quantity + delta) }
           : item
       )
@@ -136,7 +146,7 @@ const Cart = () => {
             <div className="lg:col-span-2">
               {cart.map((item) => (
                 <div
-                  key={item._id}
+                  key={item.productId}
                   className="flex justify-between items-center p-4 border rounded shadow mb-4"
                 >
                   <div className="flex items-center space-x-4">
@@ -153,21 +163,21 @@ const Cart = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => handleQuantityChange(item._id, -1)}
+                      onClick={() => handleQuantityChange(item.productId, -1)}
                       className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                     >
                       -
                     </button>
                     <span>{item.quantity}</span>
                     <button
-                      onClick={() => handleQuantityChange(item._id, 1)}
+                      onClick={() => handleQuantityChange(item.productId, 1)}
                       className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
                     >
                       +
                     </button>
                   </div>
                   <button
-                    onClick={() => removeFromCart(item._id)}
+                    onClick={() => removeFromCart(item.productId)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     Remove
@@ -227,6 +237,8 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
 
 
 

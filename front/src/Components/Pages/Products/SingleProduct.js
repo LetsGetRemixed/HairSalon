@@ -34,19 +34,6 @@ const SingleProduct = () => {
     (variant) => variant.length === selectedLength
   );
 
-  // Determine the applicable price based on subscription
-  const getApplicablePrice = (prices) => {
-    switch (subscription) {
-      case 'Gold':
-        return prices.ambassadorPrice;
-      case 'Silver':
-        return prices.stylistPrice;
-      case 'Bronze':
-      default:
-        return prices.suggestedRetailPrice;
-    }
-  };
-
   const handleAddToCart = async () => {
     if (!user) {
       navigate('/login');
@@ -59,14 +46,12 @@ const SingleProduct = () => {
     }
   
     const productToAdd = {
-      name: product.productName,
+      productId: id, // Ensure the ID matches the expected product ID in MongoDB
       length: selectedVariant.length,
-      price: selectedVariant.prices.suggestedRetailPrice,
-      imageUrl: product.imageUrl, // Ensure this is provided and not undefined
       quantity: selectedQuantity,
     };
   
-    console.log('Product to Add:', productToAdd); // Debugging log to verify request data
+    console.log('Product to Add:', productToAdd); // Debugging log to verify request data // Debugging log to verify request data
   
     try {
       await axios.post(
@@ -149,31 +134,6 @@ const SingleProduct = () => {
                   className="w-20 p-2 border rounded-md"
                 />
               </div>
-
-              {/* Pricing Details */}
-              {selectedVariant ? (
-                <div className="mb-6">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
-                  <ul className="text-gray-700 space-y-2">
-                    {subscription !== 'Bronze' && (
-                      <li className="text-red-500 line-through">
-                        Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
-                      </li>
-                    )}
-                    <li className="text-green-600 font-bold">
-                      Your Price: ${getApplicablePrice(selectedVariant.prices)}
-                    </li>
-                  </ul>
-                  <p className="mt-4 text-sm text-gray-600">
-                    Wefts per Pack: {selectedVariant.weftsPerPack}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
-                  </p>
-                </div>
-              ) : (
-                <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
-              )}
             </div>
             
             {/* Add to Cart Button */}
