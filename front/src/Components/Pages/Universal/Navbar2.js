@@ -1,12 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaBars } from 'react-icons/fa';
 import { AuthContext } from '../Account/AuthContext';
+import { useCart } from '../Checkout/CartContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const { user, setUser } = useContext(AuthContext); // Access user data from AuthContext
+  const { cart, fetchCart } = useCart(); // Access cart data from CartContext
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -15,6 +18,20 @@ const Navbar = () => {
   const toggleAccountMenu = () => {
     setIsAccountMenuOpen(!isAccountMenuOpen);
   };
+
+  const handleCartClick = () => {
+    if (!user) {
+      navigate('/login');
+    } else {
+      navigate('/cart');
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchCart(); // Ensure the cart is fetched only if the user is logged in
+    }
+  }, [user]);
 
   return (
     <div>
@@ -118,9 +135,14 @@ const Navbar = () => {
             </div>
 
             {/* Cart Icon */}
-            <Link to="/cart" className="text-gray-900 text-xl">
+            <button onClick={handleCartClick} className="relative text-gray-900 text-xl">
               <FaShoppingCart />
-            </Link>
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
+                  {cart.length}
+                </span>
+              )}
+            </button>
           </div>
         </div>
 
@@ -182,3 +204,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
