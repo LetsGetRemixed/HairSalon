@@ -12,6 +12,7 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [cartFetched, setCartFetched] = useState(false);
   const navigate = useNavigate();
 
   const removeFromCart = async (productId) => {
@@ -35,24 +36,50 @@ const Cart = () => {
     }
   };
 
+  const getApplicablePrice = (prices, subscription) => {
+    switch (subscription) {
+      case 'Gold':
+        return prices.ambassadorPrice;
+      case 'Silver':
+        return prices.stylistPrice;
+      case 'Bronze':
+      default:
+        return prices.suggestedRetailPrice;
+    }
+  };
+
   useEffect(() => {
     const fetchCart = async () => {
+      console.log('Fetching cart...');
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_BACKEND_URL}/cart/get-cart/${user.userId}`
         );
         const cartWithDetails = await Promise.all(response.data.map(async (item) => {
-          const productResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/products/${item.productId}`);
-          const product = productResponse.data;
-          const applicablePrice = product.prices[user.subscription] || product.prices.suggestedRetailPrice;
-          return {
-            ...item,
-            name: product.productName,
-            price: applicablePrice,
-            imageUrl: product.imageUrl,
-          };
+          try {
+            const productResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/items/getItem/${item.productId}`);
+            console.log('Fetched product details:', productResponse.data);
+            const product = productResponse.data;
+            const applicablePrice = getApplicablePrice(product.variants[0].prices, user.subscription);
+            return {
+              ...item,
+              name: product.productName,
+              price: applicablePrice,
+              imageUrl: product.imageUrl,
+            };
+          } catch (error) {
+            console.error('Error fetching product details:', error);
+            return item;
+          }
         }));
-        setCart(cartWithDetails);
+
+        // Only update the cart if the new data is different
+        console.log('Current cart:', cart);
+        console.log('New cart details:', cartWithDetails);
+        if (JSON.stringify(cart) !== JSON.stringify(cartWithDetails)) {
+          console.log('Updating cart state with new details:', cartWithDetails);
+          setCart(cartWithDetails);
+        }
       } catch (error) {
         console.error('Error fetching cart:', error);
       } finally {
@@ -60,45 +87,32 @@ const Cart = () => {
       }
     };
 
-    if (user) fetchCart();
-  }, [user]);
+    if (user && !cartFetched) {
+      fetchCart();
+      setCartFetched(true);
+    }
+  }, [user, cartFetched]);
 
-  const handleQuantityChange = (itemId, delta) => {
+  const handleQuantityChange = async (itemId, delta) => {
+    const newQuantity = Math.max(1, cart.find((item) => item.productId === itemId).quantity + delta);
     setCart((prevCart) =>
       prevCart.map((item) =>
         item.productId === itemId
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+          ? { ...item, quantity: newQuantity }
           : item
       )
     );
-  };
 
-  const saveCartToBackend = async () => {
-    if (user) {
-      try {
-        await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/cart/update-cart/${user.userId}`,
-          { cart }
-        );
-        console.log('Cart saved to backend');
-      } catch (error) {
-        console.error('Error saving cart to backend:', error);
-      }
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_BACKEND_URL}/cart/update-quantity/${user.userId}`,
+        { productId: itemId, newQuantity }
+      );
+      console.log('Quantity updated successfully');
+    } catch (error) {
+      console.error('Error updating quantity:', error);
     }
   };
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      saveCartToBackend();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      saveCartToBackend();
-    };
-  }, [cart]);
 
   const handlePromoCode = () => {
     if (promoCode === 'DISCOUNT10') {
@@ -114,7 +128,7 @@ const Cart = () => {
 
   const calculateTotal = () => {
     const subtotal = cart.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total, item) => total + (item.price || 0) * item.quantity,
       0
     );
     return subtotal - discount;
@@ -158,7 +172,7 @@ const Cart = () => {
                     <div>
                       <p className="font-semibold">{item.name}</p>
                       <p className="text-gray-500 text-sm">Length: {item.length}</p>
-                      <p className="text-gray-500 text-sm">Price: ${item.price.toFixed(2)}</p>
+                      <p className="text-gray-500 text-sm">Price: ${item.price ? item.price.toFixed(2) : 'N/A'}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -191,7 +205,7 @@ const Cart = () => {
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
               <div className="flex justify-between mb-2">
                 <span>Subtotal:</span>
-                <span>${cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</span>
+                <span>${cart.reduce((total, item) => total + (item.price || 0) * item.quantity, 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Discount:</span>
@@ -237,6 +251,13 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
+
+
+
+
+
 
 
 
