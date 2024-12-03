@@ -18,10 +18,11 @@ const Cart = () => {
   const removeFromCart = async (productId) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}/${productId}`
+        `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}`,
+        { data: { productId } }
       );
       console.log('Removing items: ', productId);
-      setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
+      setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
     } catch (error) {
       console.error('Error removing product:', error);
     }
@@ -159,10 +160,12 @@ const Cart = () => {
             {/* Cart Items */}
             <div className="lg:col-span-2">
               {cart.map((item) => (
+                
                 <div
                   key={item.productId}
                   className="flex justify-between items-center p-4 border rounded shadow mb-4"
                 >
+                  {console.log('here try tghis', item.name)}
                   <div className="flex items-center space-x-4">
                     <img
                       src={item.imageUrl || '/placeholder.jpg'} // Ensure the correct field is used
