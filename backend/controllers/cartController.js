@@ -77,7 +77,8 @@ exports.addToCart = async (req, res) => {
 
 // Remove from Cart
 exports.removeFromCart = async (req, res) => {
-  const { userId, productId } = req.params;
+  const { userId } = req.params;
+  const { productId } = req.body;
   console.log('Calling remove item function', productId);
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
