@@ -42,7 +42,8 @@ const Cart = () => {
               `${process.env.REACT_APP_BACKEND_URL}/items/getItem/${item.productId}`
             );
             const product = productResponse.data;
-            const applicablePrice = getApplicablePrice(product.variants[0].prices, subscription);
+            const selectedVariant = product.variants.find(variant => variant.length === item.length);
+            const applicablePrice = getApplicablePrice(selectedVariant.prices, subscription);
             console.log('Applicable price:', applicablePrice);
             return {
               ...item,
