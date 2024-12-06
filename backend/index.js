@@ -7,6 +7,7 @@ const inventoryRoutes = require('./routes/inventoryRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const fedExRoutes = require('./routes/fedexShippingRoutes');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
@@ -47,6 +48,7 @@ app.use('/api/items', inventoryRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/transaction', transactionRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/fedex', fedExRoutes);
 
 // Connect to MongoDB
 connectToDB();
