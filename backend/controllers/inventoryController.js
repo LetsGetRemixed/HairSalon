@@ -10,13 +10,14 @@ const getInventory = async (category) => {
         const [files] = await bucket.getFiles({ prefix: `${category}/` });
         const imagesByProduct = {};
 
+        // Add all of the file names into array
         await Promise.all(
         files
             .filter(file => file.name.match(/\.(webp)$/i)) // Only include .tif/.tiff files
             .map(async (file) => {
             const fileName = file.name.split('/').pop(); // Extract file name
-            const productName = fileName.replace(/\.(webp)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
-
+            const productFileName = fileName.replace(/\.(webp)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
+            console.log('File name',fileName);
             // Generate signed URL
             const [url] = await file.getSignedUrl({
                 action: 'read',
@@ -24,19 +25,19 @@ const getInventory = async (category) => {
             });
 
             // Group URLs by product name
-            if (!imagesByProduct[productName]) {
-                imagesByProduct[productName] = [];
+            if (!imagesByProduct[productFileName]) {
+                imagesByProduct[productFileName] = [];
             }
-            imagesByProduct[productName].push(url);
+            imagesByProduct[productFileName].push(url);
             })
         );
         
-        
+        // Update the image URLs
         const updatedProducts = [];
         await Promise.all(
             products.map(async (item) => {
-                const productName = item.productName; 
-                const matchingProduct = imagesByProduct[productName];
+                const productFileName = item.productFileName;
+                const matchingProduct = imagesByProduct[productFileName];
                 if (matchingProduct) {
                     // Update with image URLs
                     item.imageUrl = matchingProduct[0];
@@ -88,7 +89,6 @@ exports.getOneItem = async (req, res) => {
 // Add a new item to the inventory
 exports.addItem = async (req, res) => {
     const { category, productName, variants, imageUrl } = req.body;
-    console.log("Image url is", imageUrl);
     try {
         const newItem = new Inventory({
             productName,

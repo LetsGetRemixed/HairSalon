@@ -3,8 +3,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-console.log("Stripe promise",process.env.REACT_APP_STRIPE_PUBLIC_KEY);
-console.log("Other url: ", process.env.CLIENT_EMAIL);
 
 const inputStyle = {
     width: '100%',
@@ -15,7 +13,7 @@ const inputStyle = {
     background: '#f9f9f9',
     outline: 'none'
 };
-// hey man
+
 function CheckoutForm() {
     const stripe = useStripe();
     const elements = useElements();
