@@ -10,6 +10,9 @@ const inventorySchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  productFileName : {
+    type: String
+  },
   variants: [
     {
       length: { type: String, required: true }, // 18in, 20in, 22in, 24in
