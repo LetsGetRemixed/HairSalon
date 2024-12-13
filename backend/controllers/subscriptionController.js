@@ -142,6 +142,10 @@ exports.checkAndUpdateSubscription = async (req, res) => {
       return res.status(200).json({ message: 'No active subscription. Defaulting to Bronze.' });
     }
 
+    if (subscription.membershipType === 'Bronze') {
+      return res.status(200).json({ message: 'Membership is already Bronze', subscription });
+    }
+
     // Check if the subscription has expired
     if (new Date(subscription.expiresAt) <= new Date()) {
       // Update to Bronze subscription

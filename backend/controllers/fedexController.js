@@ -31,8 +31,6 @@ async function getFedexToken() {
 
 // Controller function for calculating shipping costs
 exports.calculateShippingCost = async (req, res) => {
-  console.log("FedEx API Key:", process.env.FEDEX_API_KEY);
-console.log("FedEx Secret:", process.env.FEDEX_SECRET_KEY);
   const { origin, destination, weight, dimensions, serviceType } = req.body;
 
   const fedexRequest = {
@@ -110,7 +108,7 @@ console.log("FedEx Secret:", process.env.FEDEX_SECRET_KEY);
       service: detail.serviceType || "Unknown",
       transitTime: detail.commitDetails?.[0]?.commitTimestamp || "Unknown"
   }));
-    console.log('Full FedEx Response:', JSON.stringify(response.data, null, 2));
+    //console.log('Full FedEx Response:', JSON.stringify(response.data, null, 2));
 
     res.json({ success: true, results });
   } catch (error) {
