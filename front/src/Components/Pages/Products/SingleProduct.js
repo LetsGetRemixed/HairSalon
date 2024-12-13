@@ -7,6 +7,7 @@ import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
 import { useCart } from '../Checkout/CartContext';
 import axios from 'axios';
+import AfterAdd from './AfterAdd';
 
 const SingleProduct = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ const SingleProduct = () => {
   const [selectedLength, setSelectedLength] = useState(null);
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAfterAddOpen, setIsAfterAddOpen] = useState(false);
 
   // Find the specific product by ID
   const product = products.find((item) => item._id === id);
@@ -71,7 +73,7 @@ const SingleProduct = () => {
         `${process.env.REACT_APP_BACKEND_URL}/cart/add-to-cart/${user.userId}`,
         productToAdd
       );
-      alert('Product added to cart!');
+      setIsAfterAddOpen(true);
     } catch (error) {
       console.error('Error adding to cart:', error);
     }
@@ -81,7 +83,7 @@ const SingleProduct = () => {
     <div>
       <Navbar />
       <div className="p-6 max-w-6xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-8 items-start font-cinzel">
           {/* Image Section */}
           <div className="flex-1">
             <img
@@ -173,6 +175,14 @@ const SingleProduct = () => {
                 <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
               )}
             </div>
+
+            {/* Product Description */}
+            <div className="mt-6 font-cinzel">
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">About {product.productName}:</h2>
+              <p className="text-gray-600 text-md">
+                {product.description || 'No description available for this product.'}
+              </p>
+            </div>
             
             {/* Add to Cart Button */}
             <button
@@ -185,6 +195,12 @@ const SingleProduct = () => {
         </div>
       </div>
       <Footer />
+
+                 {/* AfterAdd Lightbox */}
+                  <AfterAdd
+                    isOpen={isAfterAddOpen}
+                    onClose={() => setIsAfterAddOpen(false)}
+                  />
     </div>
   );
 };

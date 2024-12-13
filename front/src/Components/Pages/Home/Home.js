@@ -13,7 +13,9 @@ const Home = () => {
                 <div className="font-cinzel text-3xl ">
                       <Header />
                       <SubscriptionHome />
-                      <Products />
+                            <div id="products">
+                              <Products />
+                            </div>
 
                 </div>
       <Footer />

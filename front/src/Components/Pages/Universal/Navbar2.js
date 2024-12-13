@@ -46,7 +46,7 @@ const Navbar = () => {
           {/* Center: Desktop Menu */}
           <ul className="hidden md:flex space-x-8">
             <li>
-              <Link to="/products" className="text-gray-700 hover:text-gray-900">
+              <Link to="/#products" className="text-gray-700 hover:text-gray-900">
                 Products
               </Link>
             </li>
@@ -152,7 +152,7 @@ const Navbar = () => {
             <ul className="flex flex-col space-y-2 py-4">
               <li>
                 <Link
-                  to="/products"
+                  to="/#products"
                   className="block px-4 text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
