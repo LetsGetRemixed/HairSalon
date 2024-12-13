@@ -5,7 +5,6 @@ const User = require('../models/userModel');
 // Create a new user
 exports.createUser = async (req, res) => {
     try {
-      console.log("Hey man", req.body);
       const newUser = new User(req.body);
       await newUser.save();
       res.status(201).send('User added successfully');

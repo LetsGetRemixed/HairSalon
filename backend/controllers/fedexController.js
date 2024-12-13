@@ -4,7 +4,8 @@ require("dotenv").config();
 const FEDEX_OAUTH_URL = 'https://apis-sandbox.fedex.com/oauth/token';
 const FEDEX_API_URL = 'https://apis-sandbox.fedex.com/rate/v1/rates/quotes';
 
-const FEDEX_SECRET_KEY='a492ff6136d4427f936d9c87f15d3997'
+const FEDEX_SECRET_KEY='a492ff6136d4427f936d9c87f15d3997';
+
 // Function to fetch a valid FedEx token
 async function getFedexToken() {
   try {

@@ -86,21 +86,6 @@ exports.getOneItem = async (req, res) => {
 };
 
 
-// Add a new item to the inventory
-exports.addItem = async (req, res) => {
-    const { category, productName, variants, imageUrl } = req.body;
-    try {
-        const newItem = new Inventory({
-            productName,
-            category,
-            variants,
-            imageUrl: imageUrl         
-        });
-        await newItem.save();
-        res.status(201).send('Item added successfully');
-    } catch (error) {
-        res.status(400).send('Error adding item: ' + error.message);
-    }
-};
+
 
 
