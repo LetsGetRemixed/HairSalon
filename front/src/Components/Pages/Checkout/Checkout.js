@@ -34,30 +34,32 @@ function CheckoutForm() {
     });
 
     useEffect(() => {
-        const fetchCartData = () => {
-            //const response = await fetch('/api/cart');
-            //const data = await response.json();
-            //setCartItems(data.items); // Updates the state
-            // Calculate total amount for the cart
-        setCartItems([
-            { category: 'Blonde', length: '20 inches', quantity: 2, totalAmount: 5000 },
-            { category: 'Dark', length: '18 inches', quantity: 1, totalAmount: 2500 }
-        ]);
-        };
-    
-        fetchCartData();
-        
-        const totalAmount = cartItems.reduce((sum, item) => sum + item.totalAmount, 0);
-
-        fetch('http://localhost:5100/api/checkout/checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: totalAmount, currency: 'usd' })
-        })
-        .then(res => res.json())
-        .then(data => setClientSecret(data.clientSecret))
-        .catch(error => setMessage('Failed to load payment details. Please try again.'));
-    }, [cartItems]);
+      const fetchCartData = async () => {
+          // Simulated fetch for cart items
+          const mockCartData = [
+              { category: 'Blonde', length: '20 inches', quantity: 2, totalAmount: 5000 },
+              { category: 'Dark', length: '18 inches', quantity: 1, totalAmount: 2500 }
+          ];
+          setCartItems(mockCartData);
+  
+          // Calculate total amount for the cart
+          const totalAmount = mockCartData.reduce((sum, item) => sum + item.totalAmount, 0);
+  
+          try {
+              const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ amount: totalAmount, currency: 'usd' })
+              });
+              const data = await response.json();
+              setClientSecret(data.clientSecret);
+          } catch (error) {
+              setMessage('Failed to load payment details. Please try again.');
+          }
+      };
+  
+      fetchCartData();
+  }, []); // Empty dependency array ensures this runs only once
 
     const handleSubmit = async (e) => {
         e.preventDefault();
