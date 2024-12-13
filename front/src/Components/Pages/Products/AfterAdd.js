@@ -36,7 +36,7 @@ const AfterAdd = ({ isOpen, onClose }) => {
           </button>
           <button
             className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
-            onClick={() => navigate('/checkout')}
+            onClick={() => navigate('/cart')}
           >
             Checkout Now
           </button>

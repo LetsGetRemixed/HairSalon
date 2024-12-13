@@ -89,20 +89,23 @@ const Cart = () => {
     }
   };
 
-  const handleQuantityChange = async (itemId, delta) => {
+  const handleQuantityChange = async (itemId, length, delta) => {
     const updatedCart = cart.map((item) =>
-      item.productId === itemId
+      item.productId === itemId && item.length === length
         ? { ...item, quantity: Math.max(1, item.quantity + delta) }
         : item
     );
     setCart(updatedCart);
-
+  
     try {
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/cart/update-quantity/${user.userId}`,
         {
           productId: itemId,
-          newQuantity: updatedCart.find((item) => item.productId === itemId).quantity,
+          length,
+          newQuantity: updatedCart.find(
+            (item) => item.productId === itemId && item.length === length
+          ).quantity,
         }
       );
     } catch (error) {
@@ -158,14 +161,14 @@ const Cart = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => handleQuantityChange(item.productId, -1)}
+                    onClick={() => handleQuantityChange(item.productId, item.length, -1)}
                     className="px-2 py-1 bg-gray-300 rounded"
                   >
                     -
                   </button>
                   <span>{item.quantity}</span>
                   <button
-                    onClick={() => handleQuantityChange(item.productId, 1)}
+                    onClick={() => handleQuantityChange(item.productId, item.length, 1)}
                     className="px-2 py-1 bg-gray-300 rounded"
                   >
                     +
