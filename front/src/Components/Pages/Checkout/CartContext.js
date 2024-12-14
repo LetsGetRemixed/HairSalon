@@ -84,20 +84,28 @@ export const CartProvider = ({ children }) => {
 
   const updateCartItemQuantity = async (itemId, length, newQuantity) => {
     if (!user) return;
+  
     try {
+      // Optimistic update only if necessary
       const updatedCart = cart.map((item) =>
         item.productId === itemId && item.length === length
           ? { ...item, quantity: newQuantity }
           : item
       );
+  
       setCart(updatedCart);
-
-      await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}/cart/update-quantity/${user.userId}`,
-        { productId: itemId, length, newQuantity }
-      );
+  
+      // Perform the API call
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/cart/update-quantity/${user.userId}`, {
+        productId: itemId,
+        length,
+        newQuantity,
+      });
     } catch (error) {
       console.error('Error updating quantity:', error);
+  
+      // Optional: Revert to the original cart state if API fails
+      await fetchCart(user.subscription); // Refetch cart to ensure consistency
     }
   };
 
@@ -116,9 +124,8 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     setLoading(false);
-    console.log('CartContext updated:', cart);
-    
-  }, [user, cart]);
+    console.log("hello");
+  }, [user]);
 
   return (
     <CartContext.Provider

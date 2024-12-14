@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaBars } from 'react-icons/fa';
 import { AuthContext } from '../Account/AuthContext';
@@ -27,12 +27,7 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchCart(); // Ensure the cart is fetched only if the user is logged in
-    }
-  }, [user]);
-
+ 
   return (
     <div>
       {/* Navbar */}
