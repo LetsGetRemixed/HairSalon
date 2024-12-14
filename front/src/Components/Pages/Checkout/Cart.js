@@ -49,6 +49,7 @@ const Cart = () => {
 
   const subtotal = calculateSubtotal();
   const total = calculateTotal();
+  const isCartEmpty = cart.length === 0;
 
   return (
     <div>
@@ -58,48 +59,54 @@ const Cart = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2">
-            {cart.map((item) => (
-              <div
-                key={`${item.productId}-${item.length}`}
-                className="flex justify-between items-center p-4 border rounded shadow mb-4"
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={item.imageUrl || '/placeholder.jpg'}
-                    alt={item.name || 'Product Image'}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                  <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-gray-500 text-sm">Length: {item.length}</p>
-                    <p className="text-gray-500 text-sm">
-                      Price: ${item.price ? item.price.toFixed(2) : 'N/A'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleQuantityChange(item.productId, item.length, -1)}
-                    className="px-2 py-1 bg-gray-300 rounded"
-                  >
-                    -
-                  </button>
-                  <span>{item.quantity}</span>
-                  <button
-                    onClick={() => handleQuantityChange(item.productId, item.length, 1)}
-                    className="px-2 py-1 bg-gray-300 rounded"
-                  >
-                    +
-                  </button>
-                </div>
-                <button
-                  onClick={() => removeFromCart(item.productId)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Remove
-                </button>
+            {isCartEmpty ? (
+              <div className="flex items-center justify-center h-64">
+                <h2 className="text-4xl font-bold text-gray-600">Your cart is empty</h2>
               </div>
-            ))}
+            ) : (
+              cart.map((item) => (
+                <div
+                  key={`${item.productId}-${item.length}`}
+                  className="flex justify-between items-center p-4 border rounded shadow mb-4"
+                >
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={item.imageUrl || '/placeholder.jpg'}
+                      alt={item.name || 'Product Image'}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                    <div>
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-gray-500 text-sm">Length: {item.length}</p>
+                      <p className="text-gray-500 text-sm">
+                        Price: ${item.price ? item.price.toFixed(2) : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handleQuantityChange(item.productId, item.length, -1)}
+                      className="px-2 py-1 bg-gray-300 rounded"
+                    >
+                      -
+                    </button>
+                    <span>{item.quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(item.productId, item.length, 1)}
+                      className="px-2 py-1 bg-gray-300 rounded"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => removeFromCart(item.productId)}
+                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))
+            )}
           </div>
 
           {/* Cart Summary */}
@@ -132,15 +139,15 @@ const Cart = () => {
                 Apply
               </button>
             </div>
-            <button
-              onClick={clearCart}
-              className="w-full mb-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Clear Cart
-            </button>
+           
             <button
               onClick={handleCheckout}
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={isCartEmpty} // Disable the button if the cart is empty
+              className={`w-full px-4 py-2 rounded ${
+                isCartEmpty
+                  ? 'bg-gray-300 text-gray-400 cursor-not-allowed'
+                  : 'bg-black hover:bg-gray-800 text-white'
+              }`}
             >
               Checkout
             </button>
@@ -153,6 +160,8 @@ const Cart = () => {
 };
 
 export default Cart;
+
+
 
 
 

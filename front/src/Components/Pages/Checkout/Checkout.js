@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useCart } from './CartContext';
@@ -26,75 +26,76 @@ const CheckoutForm = () => {
     },
   });
 
-  useEffect(() => {
-    const fetchPaymentIntent = async () => {
-      const totalAmount = calculateSubtotal();
-      console.log('Cart Data:', cart);
-      try {
-        const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: totalAmount * 100, currency: 'usd' }),
-        });
-        const data = await response.json();
-        setClientSecret(data.clientSecret);
-      } catch (error) {
-        setMessage('Failed to load payment details. Please try again.');
-      }
-    };
-
-    fetchPaymentIntent();
-  }, [calculateSubtotal, cart]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!stripe || !elements || !clientSecret) return;
+    if (!stripe || !elements) {
+      setMessage('Stripe has not loaded yet.');
+      return;
+    }
 
     setIsProcessing(true);
     setMessage('Processing payment...');
 
-    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-      payment_method: {
-        card: elements.getElement(CardElement),
-        billing_details: {
-          name: shippingInfo.name,
-          email: shippingInfo.email,
-          address: shippingInfo.address,
+    // Step 1: Fetch the Payment Intent from your backend
+    const totalAmount = calculateSubtotal();
+    try {
+      const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: totalAmount * 100, currency: 'usd' }), // Convert to cents
+      });
+
+      const data = await response.json();
+      setClientSecret(data.clientSecret);
+
+      // Step 2: Confirm the payment with Stripe
+      const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+          billing_details: {
+            name: shippingInfo.name,
+            email: shippingInfo.email,
+            address: shippingInfo.address,
+          },
         },
-      },
-    });
+      });
 
-    if (error) {
-      setMessage(`Payment failed: ${error.message}`);
-      setIsProcessing(false);
-      return;
-    }
-
-    if (paymentIntent && paymentIntent.status === 'succeeded') {
-      setMessage('Payment successful! Saving transaction...');
-
-      const transactionData = {
-        products: cart,
-        buyer: {
-          name: shippingInfo.name,
-          email: shippingInfo.email,
-        },
-        shippingAddress: shippingInfo.address,
-        totalAmount: paymentIntent.amount / 100, // Convert to dollars
-      };
-
-      try {
-        await fetch('http://localhost:5100/api/transaction/save-transaction', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(transactionData),
-        });
-        setMessage('Transaction saved successfully!');
-        clearCart();
-      } catch (error) {
-        console.error('Error saving transaction:', error.message);
+      if (error) {
+        setMessage(`Payment failed: ${error.message}`);
+        setIsProcessing(false);
+        return;
       }
+
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        setMessage('Payment successful! Saving transaction...');
+
+        // Step 3: Save the transaction in your backend
+        const transactionData = {
+          products: cart,
+          buyer: {
+            name: shippingInfo.name,
+            email: shippingInfo.email,
+          },
+          shippingAddress: shippingInfo.address,
+          totalAmount: paymentIntent.amount / 100, // Convert to dollars
+        };
+
+        try {
+          await fetch('http://localhost:5100/api/transaction/save-transaction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(transactionData),
+          });
+          setMessage('Transaction saved successfully!');
+          clearCart();
+        } catch (error) {
+          console.error('Error saving transaction:', error.message);
+        }
+      }
+    } catch (error) {
+      setMessage('Failed to process payment. Please try again.');
+      console.error('Error fetching payment intent:', error);
     }
 
     setIsProcessing(false);
@@ -231,16 +232,15 @@ const CheckoutForm = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Cart Summary</h3>
           <ul className="divide-y">
-                  {cart.map((item, index) => (
-                    <li key={index} className="flex justify-between py-2">
-                      <span>
-                        {item.name} - {item.length} (x{item.quantity})
-                      </span>
-                      
-                      <span>${item.price?.toFixed(2) || 'N/A'}</span>
-                    </li>
-                  ))}
-                </ul>
+            {cart.map((item, index) => (
+              <li key={index} className="flex justify-between py-2">
+                <span>
+                  {item.name} - {item.length} (x{item.quantity})
+                </span>
+                <span>${item.price?.toFixed(2) || 'N/A'}</span>
+              </li>
+            ))}
+          </ul>
           <div className="flex justify-between font-bold text-lg mt-4">
             <span>Total:</span>
             <span>${calculateSubtotal().toFixed(2)}</span>
@@ -273,3 +273,4 @@ export default function Checkout() {
     </div>
   );
 }
+
