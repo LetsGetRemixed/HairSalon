@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaUserCircle, FaBars } from 'react-icons/fa';
 import { AuthContext } from '../Account/AuthContext';
@@ -27,12 +27,7 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchCart(); // Ensure the cart is fetched only if the user is logged in
-    }
-  }, [user]);
-
+ 
   return (
     <div>
       {/* Navbar */}
@@ -46,7 +41,7 @@ const Navbar = () => {
           {/* Center: Desktop Menu */}
           <ul className="hidden md:flex space-x-8">
             <li>
-              <Link to="/products" className="text-gray-700 hover:text-gray-900">
+              <Link to="/#products" className="text-gray-700 hover:text-gray-900">
                 Products
               </Link>
             </li>
@@ -152,7 +147,7 @@ const Navbar = () => {
             <ul className="flex flex-col space-y-2 py-4">
               <li>
                 <Link
-                  to="/products"
+                  to="/#products"
                   className="block px-4 text-gray-700 hover:bg-gray-100"
                   onClick={() => setIsMenuOpen(false)}
                 >
