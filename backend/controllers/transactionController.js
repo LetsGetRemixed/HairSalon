@@ -1,18 +1,25 @@
 const Transaction = require('../models/transactionsModel');
+const User = require('../models/userModel');
 
 
 exports.createTransaction = async (req, res) => {
     try {
-        console.log('BODY: ', req.body);
-        const { products, buyer, shippingAddress, quantity, totalAmount } = req.body;
+        const { products, buyerId, shippingAddress, quantity, totalAmount } = req.body;
         
-        if (!products || !buyer || !shippingAddress || !quantity || !totalAmount) {
+        if (!products || !buyerId || !shippingAddress || !quantity || !totalAmount) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
+
+        // Verify user
+        const user = await User.findById(buyerId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
         // Add transaction record
         const transaction = new Transaction({
             products,
-            buyer,
+            buyerId,
             shippingAddress,
             quantity,
             totalAmount
@@ -28,7 +35,8 @@ exports.createTransaction = async (req, res) => {
 // Fetch all transactions, optionally filter by date range
 exports.getAllTransactions = async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
+        const { startDate, endDate, buyerId } = req.query;
+        
 
         let query = {};
         if (startDate || endDate) {
@@ -41,7 +49,13 @@ exports.getAllTransactions = async (req, res) => {
             }
         }
 
+        // Filter by buyer's email if provided
+        if (buyerId) {
+            query.buyerId = buyerId;
+        }
+
         const transactions = await Transaction.find(query);
+        console.log('Here is the transaction', transactions);
         res.status(200).json(transactions);
     } catch (error) {
         console.error('Error fetching transactions:', error);

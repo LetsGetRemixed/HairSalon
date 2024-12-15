@@ -4,7 +4,8 @@ require("dotenv").config();
 const FEDEX_OAUTH_URL = 'https://apis-sandbox.fedex.com/oauth/token';
 const FEDEX_API_URL = 'https://apis-sandbox.fedex.com/rate/v1/rates/quotes';
 
-const FEDEX_SECRET_KEY='a492ff6136d4427f936d9c87f15d3997'
+const FEDEX_SECRET_KEY='a492ff6136d4427f936d9c87f15d3997';
+
 // Function to fetch a valid FedEx token
 async function getFedexToken() {
   try {
@@ -30,8 +31,6 @@ async function getFedexToken() {
 
 // Controller function for calculating shipping costs
 exports.calculateShippingCost = async (req, res) => {
-  console.log("FedEx API Key:", process.env.FEDEX_API_KEY);
-console.log("FedEx Secret:", process.env.FEDEX_SECRET_KEY);
   const { origin, destination, weight, dimensions, serviceType } = req.body;
 
   const fedexRequest = {
@@ -109,7 +108,7 @@ console.log("FedEx Secret:", process.env.FEDEX_SECRET_KEY);
       service: detail.serviceType || "Unknown",
       transitTime: detail.commitDetails?.[0]?.commitTimestamp || "Unknown"
   }));
-    console.log('Full FedEx Response:', JSON.stringify(response.data, null, 2));
+    //console.log('Full FedEx Response:', JSON.stringify(response.data, null, 2));
 
     res.json({ success: true, results });
   } catch (error) {

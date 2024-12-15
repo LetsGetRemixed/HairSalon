@@ -10,9 +10,10 @@ const transactionSchema = new mongoose.Schema({
       totalAmount: { type: Number, required: true }
     }
   ],
-  buyer: {
-    name: { type: String, required: true },
-    email: { type: String, required: true }
+  buyerId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
   },
   shippingAddress: {
     line1: { type: String, required: true },
