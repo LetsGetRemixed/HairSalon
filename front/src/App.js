@@ -12,6 +12,7 @@ import { SubscriptionProvider } from './Components/Pages/Sucbription/Subscriptio
 import SubscriptionPage from './Components/Pages/Sucbription/SubscriptionPage';
 import { CartProvider } from './Components/Pages/Checkout/CartContext';
 import Cart from './Components/Pages/Checkout/Cart';
+import Admin from './Components/Admin/AdminDashboard';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
                               <Route path="/account" element={<Account />} />
                               <Route path="/subscribe" element={<SubscriptionPage />} />
                               <Route path="/cart" element={<Cart />} />
+                              <Route path="/admin" element={<Admin />} />
                   </Routes>
                 </Router>
             </CartProvider>

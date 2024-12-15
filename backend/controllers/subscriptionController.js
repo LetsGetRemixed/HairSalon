@@ -2,6 +2,16 @@ const mongoose = require('mongoose');
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
 
+exports.getAllSubscriptions = async (req, res) => {
+  try {
+    const subscriptions = await Subscription.find();
+    console.log('Trying nowowowowow');
+    res.status(200).json(subscriptions);
+  } catch (error) {
+    res.status(500).json({ message: error.message }); 
+  }
+}
+
 // Create Membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
@@ -102,6 +112,7 @@ exports.updateMembership = async (req, res) => {
 
 exports.getSubscriptionByUserId = async (req, res) => {
   const { userId } = req.params;
+  console.log('why here');
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
