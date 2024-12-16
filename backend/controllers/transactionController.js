@@ -1,14 +1,17 @@
 const Transaction = require('../models/transactionsModel');
 const User = require('../models/userModel');
+const mongoose = require('mongoose');
 
 
 exports.createTransaction = async (req, res) => {
     try {
-        const { products, buyerId, shippingAddress, quantity, totalAmount } = req.body;
+        const { products, buyerId, shippingAddress, totalAmount } = req.body;
+        console.log('Calling transaction', req.body);
         
-        if (!products || !buyerId || !shippingAddress || !quantity || !totalAmount) {
+        if (!products || !buyerId || !shippingAddress || !totalAmount) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
+        const buyerObjectId = new mongoose.Types.ObjectId(buyerId);
 
         // Verify user
         const user = await User.findById(buyerId);
@@ -19,9 +22,8 @@ exports.createTransaction = async (req, res) => {
         // Add transaction record
         const transaction = new Transaction({
             products,
-            buyerId,
+            buyerId: buyerObjectId,
             shippingAddress,
-            quantity,
             totalAmount
         });
         const savedTransaction = await transaction.save();

@@ -4,10 +4,8 @@ const mongoose = require('mongoose');
 const transactionSchema = new mongoose.Schema({
   products: [
     {
-      category: { type: String, required: true },
       length: { type: String, required: true },
       quantity: { type: Number, required: true, min: 1},
-      totalAmount: { type: Number, required: true }
     }
   ],
   buyerId: { 
@@ -23,7 +21,6 @@ const transactionSchema = new mongoose.Schema({
     postal_code: { type: String, required: true },
     country: { type: String, required: true }
   },
-  quantity: { type: Number, required: true, min: 1 },
   totalAmount: { type: Number, required: true },
   purchaseDate: { type: Date, default: Date.now }
 });

@@ -124,7 +124,6 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     setLoading(false);
-    console.log("hello");
   }, [user]);
 
   return (
