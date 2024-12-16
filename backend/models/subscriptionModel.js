@@ -7,7 +7,6 @@ const subscriptionSchema = new mongoose.Schema({
         enum: ['Bronze', 'Silver', 'Gold'],
         required: true,
       },
-      startDate: { type: Date, default: Date.now },
       expiresAt: { type: Date },
       isActive: { 
         type: Boolean, 
