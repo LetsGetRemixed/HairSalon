@@ -6,10 +6,12 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 exports.createCheckout = async (req, res) => {
   try {
       const { amount, currency } = req.body;  // Retrieve amount and currency from request
+      //console.log('amount is', amount);
 
       // Create a Payment Intent with the specified amount and currency
+      const amountInCents = Math.round(amount);
       const paymentIntent = await stripe.paymentIntents.create({
-          amount: amount, // amount in cents
+          amount: amountInCents, // amount in cents
           currency: currency,
           metadata: {
               description: "Custom checkout purchase"

@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useCart } from './CartContext';
 import Navbar from '../Universal/Navbar2';
 import Footer from '../Universal/Footer';
+import { AuthContext } from '../Account/AuthContext';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
+  const { user } = useContext(AuthContext);
   const { cart, calculateSubtotal, clearCart } = useCart();
   const [clientSecret, setClientSecret] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -39,6 +41,7 @@ const CheckoutForm = () => {
 
     // Step 1: Fetch the Payment Intent from your backend
     const totalAmount = calculateSubtotal();
+    console.log('Total amount is ', totalAmount);
     try {
       const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
         method: 'POST',
@@ -47,6 +50,7 @@ const CheckoutForm = () => {
       });
 
       const data = await response.json();
+      
       setClientSecret(data.clientSecret);
 
       // Step 2: Confirm the payment with Stripe
@@ -73,13 +77,11 @@ const CheckoutForm = () => {
         // Step 3: Save the transaction in your backend
         const transactionData = {
           products: cart,
-          buyer: {
-            name: shippingInfo.name,
-            email: shippingInfo.email,
-          },
+          buyerId: user.userId,
           shippingAddress: shippingInfo.address,
           totalAmount: paymentIntent.amount / 100, // Convert to dollars
         };
+        console.log('Here is the transaction data: ', transactionData);
 
         try {
           await fetch('http://localhost:5100/api/transaction/save-transaction', {
