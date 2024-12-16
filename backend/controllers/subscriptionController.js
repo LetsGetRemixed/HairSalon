@@ -4,7 +4,8 @@ const User = require('../models/userModel');
 
 exports.getAllSubscriptions = async (req, res) => {
   try {
-    const subscriptions = await Subscription.find();
+    //const subscriptions = await Subscription.find();
+    const subscriptions = await Subscription.find().populate('user', 'name email');
     console.log('Trying nowowowowow');
     res.status(200).json(subscriptions);
   } catch (error) {

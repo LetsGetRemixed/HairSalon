@@ -87,6 +87,7 @@ const AdminDashboard = () => {
                                 <td>{subscription.membershipType}</td>
                                 <td>{new Date(subscription.expiresAt).toLocaleDateString()}</td>
                                 <td>{subscription.isActive ? 'Yes' : 'No'}</td>
+                                <td>{subscription.user?._id || 'NA'}</td>
                             </tr>
                         ))}
                     </tbody>
