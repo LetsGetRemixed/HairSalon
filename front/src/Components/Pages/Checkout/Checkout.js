@@ -27,9 +27,60 @@ const CheckoutForm = () => {
       country: '',
     },
   });
+  const [shippingCost, setShippingCost] = useState(0);
+   // Fetch Shipping Cost
+   const fetchShippingCost = async () => {
+    const requestPayload = {
+      origin: {
+        street: "123 Main St",
+        city: "Memphis",
+        state: "TN",
+        zip: "38116",
+        country: "US",
+      },
+      destination: {
+        street: "456 Elm St",
+        city: "Dallas",
+        state: "TX",
+        zip: "75201",
+        country: "US",
+        residential: true,
+      },
+      weight: 1, // in pounds
+      dimensions: {
+        length: 12,
+        width: 10,
+        height: 8,
+      },
+      serviceType: "STANDARD_OVERNIGHT",
+    };
 
+    try {
+      const response = await fetch('http://localhost:5100/api/fedex/get-shipping', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestPayload),
+      });
+
+      const data = await response.json();
+      console.log('Here is the data: ', data);
+
+      if (data.success && data.results.length > 0) {
+        const cost = data.results[0].cost;
+        console.log('Here is the cost: ', cost);
+        setShippingCost(cost);
+      } else {
+        setMessage('Failed to fetch shipping cost. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error fetching shipping cost:', error);
+      setMessage('Error calculating shipping. Please check your address and try again.');
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    fetchShippingCost();
+    console.log('Shipping cost is: ', shippingCost);
 
     if (!stripe || !elements) {
       setMessage('Stripe has not loaded yet.');
@@ -40,7 +91,7 @@ const CheckoutForm = () => {
     setMessage('Processing payment...');
 
     // Step 1: Fetch the Payment Intent from your backend
-    const totalAmount = calculateSubtotal();
+    const totalAmount = calculateSubtotal() + shippingCost;
     console.log('Total amount is ', totalAmount);
     try {
       const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
