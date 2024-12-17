@@ -6,7 +6,6 @@ exports.getAllSubscriptions = async (req, res) => {
   try {
     //const subscriptions = await Subscription.find();
     const subscriptions = await Subscription.find().populate('user', 'name email');
-    console.log('Trying nowowowowow');
     res.status(200).json(subscriptions);
   } catch (error) {
     res.status(500).json({ message: error.message }); 
