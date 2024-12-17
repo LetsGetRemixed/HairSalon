@@ -26,7 +26,8 @@ const inventorySchema = new mongoose.Schema({
     }
   ],
   imageUrl: { type: String },
-  description: { type: String }
+  description: { type: String },
+  weight: { type: Number }
 });
 
 module.exports = mongoose.model('Inventory', inventorySchema);

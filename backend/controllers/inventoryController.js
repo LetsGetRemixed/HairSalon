@@ -85,6 +85,47 @@ exports.getOneItem = async (req, res) => {
     }
 };
 
+exports.updateInventory = async (req, res) => {
+    const { inventoryId } = req.params; // Get inventory ID from URL params
+    const updateFields = req.body; // Get the fields to be updated from the request body
+    console.log('Body is', updateFields);
+    // Validate that at least one field is provided
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "At least one field is required to update" });
+    }
+  
+    try {
+      const inventoryItem = await Inventory.findById(inventoryId);
+  
+      if (!inventoryItem) {
+        return res.status(404).json({ message: "Inventory item not found" });
+      }
+  
+      // Update variants only if provided
+    if (updateFields.variants) {
+        updateFields.variants.forEach(({ _id, quantity }) => {
+          const variant = inventoryItem.variants.find(v => v._id.toString() === _id);
+          if (variant && quantity !== undefined) {
+            variant.quantity = quantity;
+          }
+        });
+      }
+  
+      // Update other fields 
+      Object.keys(updateFields).forEach(key => {
+        if (key !== "variants") {
+          inventoryItem[key] = updateFields[key];
+        }
+      });
+      
+      const updatedInventory = await inventoryItem.save();
+  
+      return res.status(200).json(updatedInventory);
+    } catch (error) {
+      console.error("Error updating inventory:", error);
+      return res.status(500).json({ message: "Server error", error });
+    }
+  };
 
 
 

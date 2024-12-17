@@ -71,4 +71,40 @@ exports.deleteUser = async (req, res) => {
   }
   }
 
+  exports.updateUser = async (req, res) => {
+    const { userId } = req.params; 
+    const updateFields = req.body; 
+    console.log("heijbiobde");
   
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "At least one field is required to update" });
+    }
+  
+    try {
+      const user = await User.findById(userId); 
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      // Check if the address is part of the fields to update
+      if (updateFields.address) {
+        const { street, city, state, zip } = updateFields.address;
+        if (street) user.address.street = street;
+        if (city) user.address.city = city;
+        if (state) user.address.state = state;
+        if (zip) user.address.zip = zip;
+      }
+
+      // Update other fields in the user document
+      Object.keys(updateFields).forEach(key => {
+        if (key !== 'address' && user[key] !== undefined) { // Prevent overriding the entire address
+          user[key] = updateFields[key];
+        }
+      });
+  
+      const updatedUser = await user.save(); 
+      return res.status(200).json(updatedUser); 
+    } catch (error) {
+      console.error("Error updating user:", error);
+      return res.status(500).json({ message: "Server error", error });
+    }
+  };
