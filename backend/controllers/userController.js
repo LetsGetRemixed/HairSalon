@@ -1,5 +1,7 @@
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
+const Transaction = require('../models/transactionsModel');
+
 
 
 // Create a new user
