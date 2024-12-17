@@ -105,7 +105,8 @@ const AdminDashboard = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>Buyer ID</th>
+                            <th>Buyer Name</th>
+                            <th>Buyher email</th>
                             <th>Products</th>
                             <th>Total Quantity</th>
                             <th>Total Amount</th>
@@ -116,7 +117,8 @@ const AdminDashboard = () => {
                     <tbody>
                         {transactions.map((transaction) => (
                             <tr key={transaction._id}>
-                                <td>{transaction.buyerId}</td>
+                                <td>{transaction.buyerId?.name}</td>
+                                <td>{transaction.buyerId?.email}</td>
                                 <td>
                                     {transaction.products.map((product, index) => (
                                         <div key={index}>

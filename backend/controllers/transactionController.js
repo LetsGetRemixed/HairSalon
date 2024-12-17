@@ -56,7 +56,7 @@ exports.getAllTransactions = async (req, res) => {
             query.buyerId = buyerId;
         }
 
-        const transactions = await Transaction.find(query);
+        const transactions = await Transaction.find(query).populate('buyerId', 'name email');
         console.log('Here is the transaction', transactions);
         res.status(200).json(transactions);
     } catch (error) {

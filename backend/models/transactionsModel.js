@@ -8,11 +8,7 @@ const transactionSchema = new mongoose.Schema({
       quantity: { type: Number, required: true, min: 1},
     }
   ],
-  buyerId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User', 
-    required: true 
-  },
+  buyerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   shippingAddress: {
     line1: { type: String, required: true },
     line2: { type: String },
