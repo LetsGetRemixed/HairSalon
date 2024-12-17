@@ -35,54 +35,52 @@ exports.calculateShippingCost = async (req, res) => {
 
   const fedexRequest = {
     accountNumber: {
-      value: process.env.FEDEX_ACCOUNT_NUMBER
+        value: process.env.FEDEX_ACCOUNT_NUMBER
     },
     rateRequestControlParameters: {
-      returnTransitTimes: true,
+        returnTransitTimes: true,
     },
     requestedShipment: {
-      shipper: {
-        address: {
-          streetLines: [origin.street],
-          city: origin.city,
-          stateOrProvinceCode: origin.state,
-          postalCode: origin.zip,
-          countryCode: origin.country
-        }
-      },
-      recipient: {
-        address: {
-          streetLines: [destination.street],
-          city: destination.city,
-          stateOrProvinceCode: destination.state,
-          postalCode: destination.zip,
-          countryCode: destination.country,
-          residential: destination.residential || false
-        }
-      },
-      serviceType: serviceType || "GROUND_HOME_DELIVERY",
-      preferredCurrency: "USD",
-      rateRequestType: ["LIST", "ACCOUNT"],
-      shipDateStamp: new Date().toISOString().split('T')[0],
-      pickupType: "DROPOFF_AT_FEDEX_LOCATION",
-      requestedPackageLineItems: [
-        {
-          weight: {
-            units: "LB",
-            value: weight
-          },
-          dimensions: {
-            length: dimensions.length,
-            width: dimensions.width,
-            height: dimensions.height,
-            units: "IN"
-          }
-        }
-      ],
-      totalPackageCount: 1
-    },
-    
-  };
+        shipper: {
+            address: {
+                streetLines: [origin.street],
+                city: origin.city,
+                stateOrProvinceCode: origin.state,
+                postalCode: origin.zip,
+                countryCode: origin.country
+            }
+        },
+        recipient: {
+            address: {
+                streetLines: [destination.street],
+                city: destination.city,
+                stateOrProvinceCode: destination.state,
+                postalCode: destination.zip,
+                countryCode: destination.country,
+                residential: destination.residential || false
+            }
+        },
+        preferredCurrency: "USD",
+        rateRequestType: ["LIST", "ACCOUNT"], // Ensure we get both list and account rates
+        shipDateStamp: new Date().toISOString().split('T')[0],
+        pickupType: "DROPOFF_AT_FEDEX_LOCATION", // Cheapest option
+        requestedPackageLineItems: [
+            {
+                weight: {
+                    units: "LB",
+                    value: weight
+                },
+                dimensions: {
+                    length: dimensions.length,
+                    width: dimensions.width,
+                    height: dimensions.height,
+                    units: "IN"
+                }
+            }
+        ],
+        totalPackageCount: 1
+    }
+};
 
   try {
     const token = await getFedexToken();
