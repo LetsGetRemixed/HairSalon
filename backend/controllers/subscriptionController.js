@@ -15,7 +15,7 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
-  const { membershipType } = req.body;
+  const { membershipType, monthsToExtend = 1 } = req.body;
 
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -29,30 +29,15 @@ exports.createMembership = async (req, res) => {
 
     let currentSubscription = await Subscription.findOne({ user: userId });
 
-    // If the user has an existing subscription (even inactive), handle it
     if (currentSubscription) {
-      if (currentSubscription.membershipType === membershipType) {
-        return res.status(400).json({ message: 'You already have this membership.' });
-      }
-
-      // Reactivate or upgrade the existing subscription
-      currentSubscription.membershipType = membershipType;
-      currentSubscription.isActive = true;
-      currentSubscription.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // One month from now
-      await currentSubscription.save();
-
-      return res.status(200).json({
-        message: 'Subscription upgraded successfully!',
-        subscription: currentSubscription,
-      });
+      return res.status(200).json({ message: 'User already has a membership or had one', subscription: currentSubscription });
     }
 
-    // Otherwise, create a new subscription
     const newSubscription = new Subscription({
       user: userId,
       membershipType,
       startDate: new Date(),
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // One month from now
+      expiresAt: new Date(new Date().setMonth(new Date().getMonth() + monthsToExtend)),
       isActive: true,
     });
 
@@ -69,7 +54,7 @@ exports.createMembership = async (req, res) => {
 // Update membership
 exports.updateMembership = async (req, res) => {
   const { userId } = req.params;
-  const { membershipType } = req.body;
+  const { membershipType, monthsToExtend = 1 } = req.body;
 
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -88,14 +73,19 @@ exports.updateMembership = async (req, res) => {
       return res.status(404).json({ message: 'No active subscription found. Please create one first.' });
     }
 
+    const baseDate = currentSubscription.expiresAt > new Date()
+        ? new Date(currentSubscription.expiresAt)
+        : new Date();
+
     // Handle upgrading or reactivating a subscription
     if (currentSubscription.membershipType === membershipType) {
-      return res.status(400).json({ message: 'You already have this membership.' });
+      currentSubscription.expiresAt = new Date(baseDate.setMonth(baseDate.getMonth() + monthsToExtend));
+    } else {
+      // Update the subscription 
+      currentSubscription.membershipType = membershipType;
+      currentSubscription.isActive = true;
+      currentSubscription.expiresAt = new Date(baseDate.setMonth(baseDate.getMonth() + monthsToExtend));
     }
-
-    currentSubscription.membershipType = membershipType;
-    currentSubscription.isActive = true;
-    currentSubscription.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // Extend by one month
 
     await currentSubscription.save();
 
@@ -112,7 +102,6 @@ exports.updateMembership = async (req, res) => {
 
 exports.getSubscriptionByUserId = async (req, res) => {
   const { userId } = req.params;
-  console.log('why here');
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
