@@ -122,8 +122,8 @@ const AdminDashboard = () => {
                                         <div key={index}>
                                             <p>Category: {product.category}</p>
                                             <p>Length: {product.length}</p>
-                                            <p>Quantity: {product.quantity}</p>
-                                            <p>Total: ${product.totalAmount.toFixed(2)}</p>
+                                            
+                                           
                                         </div>
                                     ))}
                                 </td>
