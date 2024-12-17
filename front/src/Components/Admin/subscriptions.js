@@ -32,8 +32,11 @@ const Subscriptions = () => {
   const handleSort = () => {
     const sorted = [...subscriptions].sort((a, b) => {
       if (sortField === "expiresAt") {
-        const dateA = new Date(a.expiresAt.split("/").reverse().join("-"));
-        const dateB = new Date(b.expiresAt.split("/").reverse().join("-"));
+        //const dateA = new Date(a.expiresAt.split("/").reverse().join("-"));
+        //const dateB = new Date(b.expiresAt.split("/").reverse().join("-"));
+        const dateA = a.expiresAt == null ? new Date(0) : new Date(a.expiresAt.split("/").reverse().join("-"));
+        const dateB = b.expiresAt == null ? new Date(0) : new Date(b.expiresAt.split("/").reverse().join("-"));
+      
         return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       } else if (sortField === "membershipType") {
         const typeOrder = { Bronze: 1, Silver: 2, Gold: 3 };
@@ -57,7 +60,8 @@ const Subscriptions = () => {
   };
 
   const filteredSubscriptions = handleSort().filter((sub) => {
-    const subDate = new Date(sub.expiresAt.split("/").reverse().join("-"));
+    //const subDate = new Date(sub.expiresAt.split("/").reverse().join("-"));
+    const subDate = sub.expiresAt == null ? null : new Date(sub.expiresAt.split("/").reverse().join("-"));
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
     const dateInRange = (!start || subDate >= start) && (!end || subDate <= end);
@@ -192,9 +196,9 @@ const Subscriptions = () => {
                   {sub.membershipType}
                 </td>
                 <td className="px-4 py-2 border-b text-gray-600">
-                  {new Date(
-                    sub.expiresAt.split("/").reverse().join("-")
-                  ).toLocaleDateString()}
+                  {sub.expiresAt == null
+                    ? "Membership expired"
+                    : new Date(sub.expiresAt.split("/").reverse().join("-")).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-2 border-b">
                   <span
