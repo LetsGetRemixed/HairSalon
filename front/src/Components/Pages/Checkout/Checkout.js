@@ -46,13 +46,13 @@ const CheckoutForm = () => {
         country: "US",
         residential: true,
       },
-      weight: 1, // in pounds
+      weight: 0.32125, 
       dimensions: {
-        length: 12,
-        width: 10,
-        height: 8,
+        length: 11.31,
+        width: 8.75,
+        height: 4.33071,
       },
-      serviceType: "STANDARD_OVERNIGHT",
+      
     };
 
     try {
