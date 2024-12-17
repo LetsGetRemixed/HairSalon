@@ -12,10 +12,18 @@ import { SubscriptionProvider } from './Components/Pages/Sucbription/Subscriptio
 import SubscriptionPage from './Components/Pages/Sucbription/SubscriptionPage';
 import { CartProvider } from './Components/Pages/Checkout/CartContext';
 import Cart from './Components/Pages/Checkout/Cart';
-import Admin from './Components/Admin/AdminDashboard';
+import AdminDashboard from './Components/Admin/AdminDashboard';
+import Users from './Components/Admin/users';
+import Subscriptions from './Components/Admin/subscriptions';
+import Transactions from './Components/Admin/transactions';
+import ProductInventory from './Components/Admin/inventory';
+import ProtectedRoute from './Components/Admin/ProtectedRoute';
+import { AdminAuthProvider } from './Components/Admin//AdminAuthProvider';
+import AdminLogin from './Components/Admin/AdminLogin';
 
 function App() {
   return (
+    <AdminAuthProvider>
     <AuthProvider>
         <SubscriptionProvider>
             <CartProvider>
@@ -25,17 +33,23 @@ function App() {
                     <Route path="/about" element={<About />} />
                     <Route path='/checkout' element={<Checkout/>} />
                     <Route path="/product/:id" element={<SingleProduct />} />
-                              <Route path="/login" element={<Login />} />
-                              <Route path="/register" element={<Register />} />
-                              <Route path="/account" element={<Account />} />
-                              <Route path="/subscribe" element={<SubscriptionPage />} />
-                              <Route path="/cart" element={<Cart />} />
-                              <Route path="/admin" element={<Admin />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/subscribe" element={<SubscriptionPage />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/adminlogin" element={<AdminLogin />} />
+                    <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/admin/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+                    <Route path="/admin/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
+                    <Route path="/admin/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+                    <Route path="/admin/inventory" element={<ProtectedRoute><ProductInventory /></ProtectedRoute>} />
                   </Routes>
                 </Router>
             </CartProvider>
        </SubscriptionProvider>
     </AuthProvider>
+    </AdminAuthProvider>
   );
 }
 export default App;

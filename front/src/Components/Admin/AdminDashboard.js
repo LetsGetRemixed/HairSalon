@@ -1,165 +1,52 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
-  const [users, setUsers] = useState([]);
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch all data on component load
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch users
-        const usersResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/all-users`);
-        setUsers(usersResponse.data);
-
-        const subs = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/subscription/get-all-subscriptions`);
-        setSubscriptions(subs.data);
-
-        // Fetch transactions
-        const transactionsResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/transaction/transactions`);
-        setTransactions(transactionsResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const sections = [
+    { title: 'Users', icon: '👤', route: '/admin/users' },
+    { title: 'Subscriptions', icon: '\uD83D\uDCB3', route: '/admin/subscriptions' },
+    { title: 'Transactions', icon: '\uD83D\uDCB8', route: '/admin/transactions' },
+    { title: 'Product Inventory', icon: '\uD83D\uDED2', route: '/admin/inventory' },
+  ];
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-
-      <section>
-        <h2>Users</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>
-                  <button onClick={() => handleDeleteUser(user._id)}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-     <section>
-     <div>
-            <h1>Subscriptions</h1>
-            {subscriptions.length === 0 ? (
-                <p>No subscriptions found</p>
-            ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Membership Type</th>
-                            <th>Expires At</th>
-                            <th>Is Active</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {subscriptions.map((subscription) => (
-                            <tr key={subscription._id}>
-                                <td>{subscription.user?.name || 'N/A'} ({subscription.user?.email || 'N/A'})</td>
-                                <td>{subscription.membershipType}</td>
-                                <td>{new Date(subscription.expiresAt).toLocaleDateString()}</td>
-                                <td>{subscription.isActive ? 'Yes' : 'No'}</td>
-                                <td>{subscription.user?._id || 'NA'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 to-gray-100 p-6">
+      {/* Dashboard Header */}
+      <header className="mb-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
         </div>
-     </section>
+        <Link
+          to="/"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300"
+        >
+          Back to Website
+        </Link>
+      </header>
 
-      <section>
-      <div>
-            <h1>Transactions</h1>
-            {transactions.length === 0 ? (
-                <p>No transactions found</p>
-            ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Buyer Name</th>
-                            <th>Buyher email</th>
-                            <th>Products</th>
-                            <th>Total Quantity</th>
-                            <th>Total Amount</th>
-                            <th>Shipping Address</th>
-                            <th>Purchase Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map((transaction) => (
-                            <tr key={transaction._id}>
-                                <td>{transaction.buyerId?.name}</td>
-                                <td>{transaction.buyerId?.email}</td>
-                                <td>
-                                    {transaction.products.map((product, index) => (
-                                        <div key={index}>
-                                            <p>Category: {product.category}</p>
-                                            <p>Length: {product.length}</p>
-                                            
-                                           
-                                        </div>
-                                    ))}
-                                </td>
-                                <td>{transaction.quantity}</td>
-                                <td>${transaction.totalAmount.toFixed(2)}</td>
-                                <td>
-                                    <p>{transaction.shippingAddress.line1}</p>
-                                    {transaction.shippingAddress.line2 && <p>{transaction.shippingAddress.line2}</p>}
-                                    <p>{transaction.shippingAddress.city}, {transaction.shippingAddress.state}</p>
-                                    <p>{transaction.shippingAddress.postal_code}, {transaction.shippingAddress.country}</p>
-                                </td>
-                                <td>{new Date(transaction.purchaseDate).toLocaleDateString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            )}
-        </div>
-      </section>
+      {/* Section Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {sections.map((section, index) => (
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-lg p-6 flex flex-col items-center justify-center hover:shadow-2xl transition duration-300"
+          >
+            <div className="text-6xl mb-4 text-blue-500">{section.icon}</div>
+            <h2 className="text-2xl font-semibold mb-2 text-gray-800">
+              {section.title}
+            </h2>
+            <Link
+              to={section.route}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300"
+            >
+              View {section.title}
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-// Handlers (example only)
-const handleDeleteUser = async (userId) => {
-  try {
-    await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/users/${userId}`);
-    alert("User deleted!");
-    // Refresh the users list
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    alert("Failed to delete user.");
-  }
-};
-
-
 export default AdminDashboard;
+
