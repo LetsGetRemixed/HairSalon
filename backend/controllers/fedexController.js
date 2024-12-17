@@ -38,10 +38,7 @@ exports.calculateShippingCost = async (req, res) => {
       value: process.env.FEDEX_ACCOUNT_NUMBER
     },
     rateRequestControlParameters: {
-      returnTransitTimes: false,
-      servicesNeededOnRateFailure: true,
-      variableOptions: "FREIGHT_GUARANTEE",
-      rateSortOrder: "SERVICENAMETRADITIONAL"
+      returnTransitTimes: true,
     },
     requestedShipment: {
       shipper: {
@@ -63,7 +60,7 @@ exports.calculateShippingCost = async (req, res) => {
           residential: destination.residential || false
         }
       },
-      serviceType: serviceType || "STANDARD_OVERNIGHT",
+      serviceType: serviceType || "GROUND_HOME_DELIVERY",
       preferredCurrency: "USD",
       rateRequestType: ["LIST", "ACCOUNT"],
       shipDateStamp: new Date().toISOString().split('T')[0],
@@ -82,10 +79,9 @@ exports.calculateShippingCost = async (req, res) => {
           }
         }
       ],
-      packagingType: "YOUR_PACKAGING",
       totalPackageCount: 1
     },
-    carrierCodes: ["FDXE", "FDXG"]
+    
   };
 
   try {
