@@ -63,7 +63,7 @@ exports.calculateShippingCost = async (req, res) => {
         preferredCurrency: "USD",
         rateRequestType: ["LIST", "ACCOUNT"], // Ensure we get both list and account rates
         shipDateStamp: new Date().toISOString().split('T')[0],
-        pickupType: "DROPOFF_AT_FEDEX_LOCATION", // Cheapest option
+        pickupType: "DROPOFF_AT_FEDEX_LOCATION", 
         requestedPackageLineItems: [
             {
                 weight: {
