@@ -239,22 +239,24 @@ const Account = () => {
           ) : (
             <button
               onClick={handleEditToggle}
-              className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 flex items-center justify-center"
+              className="w-full bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 flex items-center justify-center"
             >
               <FaEdit className="mr-2" /> Edit Info
             </button>
           )}
-          <button
-            onClick={handleLogout}
-            className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-700"
-          >
-            Logout
-          </button>
+          
           <button
             onClick={handleBackToHome}
             className="w-full bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700"
           >
             Back to Home
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-700"
+          >
+            Logout
           </button>
         </div>
       </div>
