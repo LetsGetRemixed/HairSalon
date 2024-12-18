@@ -20,6 +20,7 @@ import ProductInventory from './Components/Admin/inventory';
 import ProtectedRoute from './Components/Admin/ProtectedRoute';
 import { AdminAuthProvider } from './Components/Admin//AdminAuthProvider';
 import AdminLogin from './Components/Admin/AdminLogin';
+import Info from './Components/Admin/Info';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
                     <Route path="/admin/subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
                     <Route path="/admin/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
                     <Route path="/admin/inventory" element={<ProtectedRoute><ProductInventory /></ProtectedRoute>} />
+                    <Route path="/admin/info" element={<ProtectedRoute><Info /></ProtectedRoute>} />
                   </Routes>
                 </Router>
             </CartProvider>

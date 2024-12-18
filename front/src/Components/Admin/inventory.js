@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const Inventory = () => {
   const [inventory, setInventory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewProduct, setViewProduct] = useState(null);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({});
 
@@ -30,7 +31,6 @@ const Inventory = () => {
 
   const handleInputChange = (e, variantIndex, field, priceField) => {
     if (variantIndex !== undefined && field) {
-      // Update variants
       const updatedVariants = [...formData.variants];
       if (priceField) {
         updatedVariants[variantIndex].prices[priceField] = e.target.value;
@@ -39,7 +39,6 @@ const Inventory = () => {
       }
       setFormData((prev) => ({ ...prev, variants: updatedVariants }));
     } else {
-      // Update top-level fields
       const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -65,6 +64,19 @@ const Inventory = () => {
   const handleCancelEdit = () => {
     setEditingProduct(null);
     setFormData({});
+  };
+
+  const handleViewProduct = async (productId) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/items/getItem/${productId}`);
+      setViewProduct(response.data);
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+    }
+  };
+
+  const closeViewModal = () => {
+    setViewProduct(null);
   };
 
   if (loading)
@@ -114,6 +126,16 @@ const Inventory = () => {
               <textarea
                 name="description"
                 value={formData.description}
+                onChange={handleInputChange}
+                className="w-full mt-1 border rounded px-2 py-1"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Weight (lbs):</label>
+              <input
+                type="number"
+                name="weight"
+                value={formData.weight || ""}
                 onChange={handleInputChange}
                 className="w-full mt-1 border rounded px-2 py-1"
               />
@@ -207,7 +229,7 @@ const Inventory = () => {
               <tr className="bg-gray-200 text-gray-700">
                 <th className="px-4 py-2 text-left border-b">Product Name</th>
                 <th className="px-4 py-2 text-left border-b">Category</th>
-                <th className="px-4 py-2 text-left border-b">Description</th>
+                <th className="px-4 py-2 text-left border-b">Weight (lbs)</th>
                 <th className="px-4 py-2 text-left border-b">Actions</th>
               </tr>
             </thead>
@@ -216,8 +238,14 @@ const Inventory = () => {
                 <tr key={product._id} className="hover:bg-gray-100">
                   <td className="px-4 py-2 border-b">{product.productName}</td>
                   <td className="px-4 py-2 border-b">{product.category}</td>
-                  <td className="px-4 py-2 border-b">{product.description || "N/A"}</td>
+                  <td className="px-4 py-2 border-b">{product.weight || "N/A"}</td>
                   <td className="px-4 py-2 border-b">
+                    <button
+                      onClick={() => handleViewProduct(product._id)}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-1 rounded mr-2"
+                    >
+                      View Details
+                    </button>
                     <button
                       onClick={() => handleEditProduct(product)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded"
@@ -231,9 +259,48 @@ const Inventory = () => {
           </table>
         </div>
       )}
+
+      {/* View Product Modal */}
+      {viewProduct && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{viewProduct.productName}</h2>
+            <p className="text-gray-700 mb-2">
+              <strong>Category:</strong> {viewProduct.category}
+            </p>
+            <p className="text-gray-700 mb-2">
+              <strong>Description:</strong> {viewProduct.description || "N/A"}
+            </p>
+            <p className="text-gray-700 mb-2">
+              <strong>Weight:</strong> {viewProduct.weight || "N/A"} lbs
+            </p>
+            <h3 className="text-lg font-bold text-gray-700 mb-2">Variants:</h3>
+            {viewProduct.variants.map((variant, index) => (
+              <div key={index} className="border rounded p-2 mb-2">
+                <p><strong>Length:</strong> {variant.length}</p>
+                <p><strong>Wefts Per Pack:</strong> {variant.weftsPerPack}</p>
+                <p><strong>Retail Price:</strong> ${variant.prices.suggestedRetailPrice}</p>
+                <p><strong>Ambassador Price:</strong> ${variant.prices.ambassadorPrice}</p>
+                <p><strong>Stylist Price:</strong> ${variant.prices.stylistPrice}</p>
+                <p><strong>Quantity:</strong> {variant.quantity}</p>
+              </div>
+            ))}
+            <div className="flex justify-end">
+              <button
+                onClick={closeViewModal}
+                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Inventory;
+
+
 
