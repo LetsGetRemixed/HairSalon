@@ -3,6 +3,7 @@ const router = express.Router();
 const Inventory = require('../models/inventoryModel');
 const { getStorage } = require("firebase-admin/storage");
 const multer = require('multer');
+const sharp = require('sharp');
 
 // Configure Multer for file uploads
 const storage = multer.memoryStorage();
@@ -132,52 +133,53 @@ exports.updateInventory = async (req, res) => {
     }
   };
 
-
+  
   exports.addProduct = async (req, res) => {
     try {
-        const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
-        const { category, productName, description, weight, variants } = req.body;
-        console.log("Req body is ", req.body);
-
-        if (!req.file) {
-            return res.status(400).json({ error: 'Image is required.' });
-        }
-        const fileName = `${category}/${productName}-${Date.now()}.webp`;
-        console.log('Filename is ', fileName);
-        const file = bucket.file(fileName);
-        
-
-        // Upload the file to Firebase Storage
-        await file.save(req.file.buffer, {
-                metadata: {
-                contentType: req.file.mimetype,
-                },
-        });
-        // Generate a signed URL for the uploaded image
-        const [signedUrl] = await file.getSignedUrl({
-                action: 'read',
-                expires: '03-01-2030', 
-        });
-            
-        const product = new Inventory({
-            category,
-            productName,
-            description,
-            weight,
-            imageUrl: signedUrl,
-            variants: JSON.parse(variants), // Ensure variants are parsed as an array
-        });
-        console.log('Product: ', product);
-    
-        
-        await product.save();
-    
-        res.status(201).json({ message: 'Product added successfully', product });
+      const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+      const { category, productName, description, weight, variants } = req.body;
+  
+      if (!req.file) {
+        return res.status(400).json({ error: 'Image is required.' });
+      }
+  
+      const file = req.file;
+      // Convert file to .webp format
+      const convertedBuffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
+  
+      // Define the file path in Firebase
+      const filePath = `${category}/${productName}.webp`;
+      console.log('Filepath is ', filePath);
+  
+      // Upload the .webp file to Firebase
+      const fileRef = bucket.file(filePath);
+      await fileRef.save(convertedBuffer, {
+        metadata: { contentType: 'image/webp' },
+      });
+  
+      // Generate a signed URL for the uploaded image
+      const [signedUrl] = await fileRef.getSignedUrl({
+        action: 'read',
+        expires: '03-01-2030',
+      });
+  
+      // Save product details to the database
+      const product = new Inventory({
+        category,
+        productName,
+        productFileName: productName, // Save productName for matching in getInventory
+        description,
+        weight,
+        imageUrl: signedUrl,
+        variants: JSON.parse(variants), // Parse variants to array
+      });
+  
+      await product.save();
+  
+      res.status(201).json({ message: 'Product added successfully', product });
     } catch (error) {
       console.error('Error adding product:', error);
       res.status(500).json({ error: 'Failed to add product' });
     }
-  }
-
-
+  };
 
