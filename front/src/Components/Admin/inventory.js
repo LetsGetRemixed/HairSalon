@@ -4,6 +4,7 @@ import InventoryTable from "./InventoryTable";
 import EditProductForm from "./EditProductForm";
 import AddProductForm from "./AddProductForm";
 import ViewProductModal from "./ViewProductModal";
+import RemoveProduct from "./RemoveProduct";
 import { Link } from "react-router-dom";
 
 const Inventory = () => {
@@ -13,6 +14,7 @@ const Inventory = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({});
   const [addingProduct, setAddingProduct] = useState(false);
+  const [removeProductId, setRemoveProductId] = useState(null);
   const [newProductData, setNewProductData] = useState({
     category: "",
     productName: "",
@@ -38,6 +40,17 @@ const Inventory = () => {
 
     fetchInventory();
   }, []);
+
+  
+  
+  const openRemoveProductModal = (productId) => {
+    setRemoveProductId(productId);
+  };
+
+  const closeRemoveProductModal = () => {
+    setRemoveProductId(null);
+  };
+
 
   const handleEditProduct = (product) => {
     setEditingProduct(product._id);
@@ -239,11 +252,22 @@ const Inventory = () => {
             inventory={inventory}
             onViewProduct={handleViewProduct}
             onEditProduct={handleEditProduct}
+            onDeleteProduct={openRemoveProductModal}
           />
         </>
       )}
-      {viewProduct && (
-        <ViewProductModal product={viewProduct} onClose={closeViewModal} />
+      {viewProduct && <ViewProductModal product={viewProduct} onClose={closeViewModal} />}
+      {removeProductId && (
+        <RemoveProduct
+        productId={removeProductId}
+        onClose={closeRemoveProductModal}
+        onDelete={(deletedProductId) => {
+          // Remove the deleted product from the inventory state
+          setInventory((prevInventory) =>
+            prevInventory.filter((product) => product._id !== deletedProductId)
+          );
+        }}
+      />
       )}
     </div>
   );
