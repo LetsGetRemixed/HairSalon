@@ -184,3 +184,13 @@ exports.updateInventory = async (req, res) => {
     }
   };
 
+  exports.deleteItem = async (req, res) => {
+    try {
+      const itemToDelete = Inventory.findByIdAndDelete(req.params.id);
+      if (itemToDelete) return res.status(404).json({ message: 'User not found' });
+      res.json({ message: 'Item deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
