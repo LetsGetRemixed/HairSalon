@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Inventory = require('../models/inventoryModel');
 const { getStorage } = require("firebase-admin/storage");
+const multer = require('multer');
+
+// Configure Multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 
 const getInventory = async (category) => {
@@ -127,6 +132,52 @@ exports.updateInventory = async (req, res) => {
     }
   };
 
+
+  exports.addProduct = async (req, res) => {
+    try {
+        const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+        const { category, productName, description, weight, variants } = req.body;
+        console.log("Req body is ", req.body);
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'Image is required.' });
+        }
+        const fileName = `${category}/${productName}-${Date.now()}.webp`;
+        console.log('Filename is ', fileName);
+        const file = bucket.file(fileName);
+        
+
+        // Upload the file to Firebase Storage
+        await file.save(req.file.buffer, {
+                metadata: {
+                contentType: req.file.mimetype,
+                },
+        });
+        // Generate a signed URL for the uploaded image
+        const [signedUrl] = await file.getSignedUrl({
+                action: 'read',
+                expires: '03-01-2030', 
+        });
+            
+        const product = new Inventory({
+            category,
+            productName,
+            description,
+            weight,
+            imageUrl: signedUrl,
+            variants: JSON.parse(variants), // Ensure variants are parsed as an array
+        });
+        console.log('Product: ', product);
+    
+        
+        await product.save();
+    
+        res.status(201).json({ message: 'Product added successfully', product });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      res.status(500).json({ error: 'Failed to add product' });
+    }
+  }
 
 
 
