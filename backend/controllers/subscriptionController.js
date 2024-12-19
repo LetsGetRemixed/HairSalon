@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.getAllSubscriptions = async (req, res) => {
   try {
@@ -15,8 +16,9 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
-  const { membershipType, monthsToExtend = 1 } = req.body;
-
+  const { subscriptionId, subscriptionType, membershipType } = req.body;
+  console.log(req.body);
+  
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
@@ -35,9 +37,9 @@ exports.createMembership = async (req, res) => {
 
     const newSubscription = new Subscription({
       user: userId,
-      membershipType,
-      startDate: new Date(),
-      expiresAt: new Date(new Date().setMonth(new Date().getMonth() + monthsToExtend)),
+      membershipType: membershipType,
+      subscriptionId: subscriptionId,
+      subscriptionType: subscriptionType,
       isActive: true,
     });
 
@@ -126,46 +128,38 @@ exports.getSubscriptionByUserId = async (req, res) => {
   }
 }
 
-exports.checkAndUpdateSubscription = async (req, res) => {
-  const { userId } = req.params;
 
-  if (!mongoose.isValidObjectId(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
-  }
+exports.cancelSubscription = async (req, res) => {
+  const { subscriptionId } = req.params; 
+  console.log(subscriptionId);
+  const { subscriptionStripeId } = req.body;
 
   try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    const subscription = await Subscription.findOne({ user: userId });
+    console.log('Cancelling subscription:', subscriptionId);
+    /*
+    // Cancel the subscription
+    const updatedSubscription = await stripe.subscriptions.update(subscriptionStripeId, {
+      cancel_at_period_end: true,
+    });
+    */
+    // Update the subscription in the database
+    const objectId = new mongoose.Types.ObjectId(subscriptionId);
+    // Find subscription in the database
+    const subscription = await Subscription.findOne({ _id: objectId });
     if (!subscription) {
-      return res.status(200).json({ message: 'No active subscription. Defaulting to Bronze.' });
+      return res.status(404).json({ message: 'Subscription not found in database' });
     }
 
-    if (subscription.membershipType === 'Bronze') {
-      return res.status(200).json({ message: 'Membership is already Bronze', subscription });
-    }
+    subscription.isActive = false; // Mark as inactive
+    await subscription.save();
 
-    // Check if the subscription has expired
-    if (new Date(subscription.expiresAt) <= new Date()) {
-      // Update to Bronze subscription
-      subscription.membershipType = 'Bronze';
-      subscription.expiresAt = null; 
-      subscription.isActive = false;
-      await subscription.save();
-
-      return res.status(200).json({ 
-        message: 'Subscription expired. Downgraded to Bronze.', 
-        subscription 
-      });
-    }
-
-    // If subscription is still active
-    return res.status(200).json({ 
-      message: 'Subscription is still active.', 
-      subscription 
+    res.status(200).json({
+      message: 'Subscription will cancel at the end of the current billing period',
+      //updatedSubscription,
+      subscription,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Error checking subscription', error });
+    console.error('Error canceling subscription:', error);
+    res.status(500).json({ error: error.message });
   }
 };
