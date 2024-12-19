@@ -149,20 +149,36 @@ const Inventory = () => {
   };
 
   const handleVariantChange = (index, field, value) => {
+    console.log("Index:", index, "Field:", field, "Value:", value); // Debugging log
+  
+    // Validate field
+    if (!field) {
+      console.error("Field is undefined in handleVariantChange");
+      return;
+    }
+  
     const updatedVariants = [...newProductData.variants];
+  
     if (field.includes(".")) {
       const [nestedField, nestedKey] = field.split(".");
       updatedVariants[index] = {
         ...updatedVariants[index],
         [nestedField]: {
           ...updatedVariants[index][nestedField],
-          [nestedKey]: parseFloat(value) || 0,
+          [nestedKey]: value,
         },
       };
     } else {
-      updatedVariants[index] = { ...updatedVariants[index], [field]: value };
+      updatedVariants[index] = {
+        ...updatedVariants[index],
+        [field]: value,
+      };
     }
-    setNewProductData((prev) => ({ ...prev, variants: updatedVariants }));
+  
+    setNewProductData((prev) => ({
+      ...prev,
+      variants: updatedVariants,
+    }));
   };
 
   const handleAddVariant = () => {
@@ -214,62 +230,78 @@ const Inventory = () => {
     return <div className="text-center text-gray-700 font-bold text-lg">Loading...</div>;
 
   return (
-    <div className="container mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Inventory Management</h1>
+    <div className="container mx-auto p-6 bg-gray-50 rounded-xl shadow-lg">
+      {/* Header Section */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-extrabold text-gray-900">
+          <span className="text-indigo-600">Inventory</span> Management
+        </h1>
         <Link
           to="/admin"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition duration-300"
+          className="bg-indigo-500 hover:bg-indigo-600 text-white font-medium px-5 py-2 rounded-lg transition duration-300 shadow-md"
         >
           Back to Admin Dashboard
         </Link>
       </div>
-      {addingProduct ? (
-        <AddProductForm
-          newProductData={newProductData}
-          onInputChange={handleVariantChange}
-          onAddVariant={handleAddVariant}
-          onRemoveVariant={handleRemoveVariant}
-          onAddProduct={handleAddProduct}
-          onCancel={() => setAddingProduct(false)}
-        />
-      ) : editingProduct ? (
-        <EditProductForm
-          formData={formData}
-          onInputChange={handleInputChange}
-          onCancelEdit={handleCancelEdit}
-          onSaveChanges={handleSaveChanges}
-        />
-      ) : (
-        <>
-          <button
-            onClick={() => setAddingProduct(true)}
-            className="mb-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Add New Product
-          </button>
-          <InventoryTable
-            inventory={inventory}
-            onViewProduct={handleViewProduct}
-            onEditProduct={handleEditProduct}
-            onDeleteProduct={openRemoveProductModal}
+
+      {/* Main Section */}
+      <div className="bg-white p-6 rounded-xl shadow-lg">
+        {addingProduct ? (
+          <AddProductForm
+            newProductData={newProductData}
+            onInputChange={handleVariantChange}
+            onAddVariant={handleAddVariant}
+            onRemoveVariant={handleRemoveVariant}
+            onAddProduct={handleAddProduct}
+            onCancel={() => setAddingProduct(false)}
           />
-        </>
+        ) : editingProduct ? (
+          <EditProductForm
+            formData={formData}
+            onInputChange={handleInputChange}
+            onCancelEdit={handleCancelEdit}
+            onSaveChanges={handleSaveChanges}
+          />
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <button
+                onClick={() => setAddingProduct(true)}
+                className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-green-600 transition"
+              >
+                + Add New Product
+              </button>
+              <p className="text-gray-500 italic">
+                {inventory.length} items in the inventory.
+              </p>
+            </div>
+            <InventoryTable
+              inventory={inventory}
+              onViewProduct={handleViewProduct}
+              onEditProduct={handleEditProduct}
+              onDeleteProduct={openRemoveProductModal}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Modals */}
+      {viewProduct && (
+        <ViewProductModal product={viewProduct} onClose={closeViewModal} />
       )}
-      {viewProduct && <ViewProductModal product={viewProduct} onClose={closeViewModal} />}
       {removeProductId && (
         <RemoveProduct
-        productId={removeProductId}
-        onClose={closeRemoveProductModal}
-        onDelete={(deletedProductId) => {
-          // Remove the deleted product from the inventory state
-          setInventory((prevInventory) =>
-            prevInventory.filter((product) => product._id !== deletedProductId)
-          );
-        }}
-      />
+          productId={removeProductId}
+          onClose={closeRemoveProductModal}
+          onDelete={(deletedProductId) => {
+            setInventory((prevInventory) =>
+              prevInventory.filter((product) => product._id !== deletedProductId)
+            );
+          }}
+        />
       )}
     </div>
+    
   );
 };
 

@@ -68,60 +68,66 @@ const AddProductForm = ({
 
         <h3 className="text-xl font-bold text-gray-700 mb-4">Variants</h3>
         {newProductData.variants.map((variant, index) => (
-          <div key={index} className="mb-4 border p-4 rounded">
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Length"
-                value={variant.length}
-                onChange={(e) => onVariantChange(index, "length", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-              <input
-                type="number"
-                placeholder="Wefts Per Pack"
-                value={variant.weftsPerPack}
-                onChange={(e) => onVariantChange(index, "weftsPerPack", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-              <input
-                type="number"
-                placeholder="Retail Price"
-                value={variant.prices.suggestedRetailPrice}
-                onChange={(e) => onVariantChange(index, "prices.suggestedRetailPrice", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-              <input
-                type="number"
-                placeholder="Ambassador Price"
-                value={variant.prices.ambassadorPrice}
-                onChange={(e) => onVariantChange(index, "prices.ambassadorPrice", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-              <input
-                type="number"
-                placeholder="Stylist Price"
-                value={variant.prices.stylistPrice}
-                onChange={(e) => onVariantChange(index, "prices.stylistPrice", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-              <input
-                type="number"
-                placeholder="Quantity"
-                value={variant.quantity}
-                onChange={(e) => onVariantChange(index, "quantity", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={() => onRemoveVariant(index)}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded mt-2"
-            >
-              Remove Variant
-            </button>
-          </div>
-        ))}
+  <div key={index} className="mb-4 border p-4 rounded">
+    <div className="grid grid-cols-2 gap-4">
+      <input
+        type="text"
+        placeholder="Length"
+        value={variant.length || ""}
+        onChange={(e) => onVariantChange(index, "length", e.target.value)}
+        className="w-full border rounded px-2 py-1"
+      />
+      <input
+        type="number"
+        placeholder="Wefts Per Pack"
+        value={variant.weftsPerPack || ""}
+        onChange={(e) => onVariantChange(index, "weftsPerPack", e.target.value)}
+        className="w-full border rounded px-2 py-1"
+      />
+      <input
+        type="number"
+        placeholder="Retail Price"
+        value={variant.prices?.suggestedRetailPrice || ""}
+        onChange={(e) =>
+          onVariantChange(index, "prices.suggestedRetailPrice", e.target.value)
+        }
+        className="w-full border rounded px-2 py-1"
+      />
+      <input
+        type="number"
+        placeholder="Ambassador Price"
+        value={variant.prices?.ambassadorPrice || ""}
+        onChange={(e) =>
+          onVariantChange(index, "prices.ambassadorPrice", e.target.value)
+        }
+        className="w-full border rounded px-2 py-1"
+      />
+      <input
+        type="number"
+        placeholder="Stylist Price"
+        value={variant.prices?.stylistPrice || ""}
+        onChange={(e) =>
+          onVariantChange(index, "prices.stylistPrice", e.target.value)
+        }
+        className="w-full border rounded px-2 py-1"
+      />
+      <input
+        type="number"
+        placeholder="Quantity"
+        value={variant.quantity || ""}
+        onChange={(e) => onVariantChange(index, "quantity", e.target.value)}
+        className="w-full border rounded px-2 py-1"
+      />
+    </div>
+    <button
+      type="button"
+      onClick={() => onRemoveVariant(index)}
+      className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded mt-2"
+    >
+      Remove Variant
+    </button>
+  </div>
+))}
         <button
           type="button"
           onClick={onAddVariant}
