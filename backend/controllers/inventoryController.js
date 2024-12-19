@@ -111,7 +111,6 @@ exports.updateInventory = async (req, res) => {
     if (updateFields.variants) {
         updateFields.variants.forEach((updatedVariant) => {
           const variant = inventoryItem.variants.find(v => v._id.toString() === updatedVariant._id);
-          console.log('Variant is: ', variant);
           if (variant) {
             if (updatedVariant.length !== undefined) variant.length = updatedVariant.length;
             if (updatedVariant.weftsPerPack !== undefined) variant.weftsPerPack = updatedVariant.weftsPerPack
