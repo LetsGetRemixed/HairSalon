@@ -13,7 +13,7 @@ const Inventory = () => {
       category: "",
       productName: "",
       description: "",
-      weight: "",
+      weight: 0,
       variants: [],
       image: null,
     });

@@ -109,11 +109,26 @@ exports.updateInventory = async (req, res) => {
   
       // Update variants only if provided
     if (updateFields.variants) {
-        updateFields.variants.forEach(({ _id, quantity }) => {
-          const variant = inventoryItem.variants.find(v => v._id.toString() === _id);
-          if (variant && quantity !== undefined) {
-            variant.quantity = quantity;
+        updateFields.variants.forEach((updatedVariant) => {
+          const variant = inventoryItem.variants.find(v => v._id.toString() === updatedVariant._id);
+          console.log('Variant is: ', variant);
+          if (variant) {
+            if (updatedVariant.length !== undefined) variant.length = updatedVariant.length;
+            if (updatedVariant.weftsPerPack !== undefined) variant.weftsPerPack = updatedVariant.weftsPerPack
+            if (updatedVariant.prices) {
+              if (updatedVariant.prices.suggestedRetailPrice !== undefined) {
+                  variant.prices.suggestedRetailPrice = updatedVariant.prices.suggestedRetailPrice;
+                }
+              if (updatedVariant.prices.ambassadorPrice !== undefined) {
+                  variant.prices.ambassadorPrice = updatedVariant.prices.ambassadorPrice;
+                }
+              if (updatedVariant.prices.stylistPrice !== undefined) {
+                  variant.prices.stylistPrice = updatedVariant.prices.stylistPrice;
+                }
+            }
+            if (updatedVariant.quantity !== undefined) variant.quantity = updatedVariant.quantity;
           }
+          
         });
       }
   
