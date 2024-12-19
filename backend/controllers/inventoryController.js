@@ -200,7 +200,7 @@ exports.updateInventory = async (req, res) => {
 
   exports.deleteItem = async (req, res) => {
     try {
-      const itemToDelete = Inventory.findByIdAndDelete(req.params.id);
+      const itemToDelete = await Inventory.findByIdAndDelete(req.params.id);
       console.log('Hitting this route ', req.params.id);
       //console.log('Item to be deleteed is ', itemToDelete);
       if (!itemToDelete) return res.status(404).json({ message: 'Item not found' });
