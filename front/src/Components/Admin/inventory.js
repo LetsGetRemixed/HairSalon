@@ -3,11 +3,20 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Inventory = () => {
-  const [inventory, setInventory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [viewProduct, setViewProduct] = useState(null);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [formData, setFormData] = useState({});
+    const [inventory, setInventory] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [viewProduct, setViewProduct] = useState(null);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [addingProduct, setAddingProduct] = useState(false);
+    const [newProductData, setNewProductData] = useState({
+      category: "",
+      productName: "",
+      description: "",
+      weight: "",
+      variants: [],
+      image: null,
+    });
 
   useEffect(() => {
     const fetchInventory = async () => {
@@ -61,6 +70,58 @@ const Inventory = () => {
     }
   };
 
+  const handleAddProduct = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("category", newProductData.category);
+      formData.append("productName", newProductData.productName);
+      formData.append("description", newProductData.description);
+      formData.append("weight", newProductData.weight);
+      formData.append("variants", JSON.stringify(newProductData.variants));
+      formData.append("image", newProductData.image);
+
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/items/add-product`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      setInventory((prev) => [...prev, response.data.product]);
+      setAddingProduct(false);
+      setNewProductData({
+        category: "",
+        productName: "",
+        description: "",
+        weight: "",
+        variants: [],
+        image: null,
+      });
+      alert("Product added successfully!");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      alert("Failed to add product. Please try again.");
+    }
+  };
+
+  const handleVariantChange = (index, field, value) => {
+    const updatedVariants = [...newProductData.variants];
+    updatedVariants[index] = { ...updatedVariants[index], [field]: value };
+    setNewProductData((prev) => ({ ...prev, variants: updatedVariants }));
+  };
+
+  const handleAddVariant = () => {
+    setNewProductData((prev) => ({
+      ...prev,
+      variants: [...prev.variants, { length: "", weftsPerPack: "", prices: { suggestedRetailPrice: "", ambassadorPrice: "", stylistPrice: "" }, quantity: "" }],
+    }));
+  };
+
+  const handleRemoveVariant = (index) => {
+    const updatedVariants = [...newProductData.variants];
+    updatedVariants.splice(index, 1);
+    setNewProductData((prev) => ({ ...prev, variants: updatedVariants }));
+  };
+
   const handleCancelEdit = () => {
     setEditingProduct(null);
     setFormData({});
@@ -93,6 +154,159 @@ const Inventory = () => {
           Back to Admin Dashboard
         </Link>
       </div>
+
+
+
+      {addingProduct ? (
+        <div className="p-6 bg-gray-100 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">Add New Product</h2>
+          <form>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Category:</label>
+              <select
+                name="category"
+                value={newProductData.category}
+                onChange={(e) => setNewProductData((prev) => ({ ...prev, category: e.target.value }))}
+                className="w-full mt-1 border rounded px-2 py-1"
+              >
+                <option value="">Select Category</option>
+                <option value="Blonde">Blonde</option>
+                <option value="Dark">Dark</option>
+                <option value="Mix">Mix</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Product Name:</label>
+              <input
+                type="text"
+                name="productName"
+                value={newProductData.productName}
+                onChange={(e) => setNewProductData((prev) => ({ ...prev, productName: e.target.value }))}
+                className="w-full mt-1 border rounded px-2 py-1"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Description:</label>
+              <textarea
+                name="description"
+                value={newProductData.description}
+                onChange={(e) => setNewProductData((prev) => ({ ...prev, description: e.target.value }))}
+                className="w-full mt-1 border rounded px-2 py-1"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Weight (lbs):</label>
+              <input
+                type="number"
+                name="weight"
+                value={newProductData.weight}
+                onChange={(e) => setNewProductData((prev) => ({ ...prev, weight: e.target.value }))}
+                className="w-full mt-1 border rounded px-2 py-1"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block font-semibold text-gray-700">Image:</label>
+              <input
+                type="file"
+                name="image"
+                onChange={(e) => setNewProductData((prev) => ({ ...prev, image: e.target.files[0] }))}
+                className="w-full mt-1 border rounded px-2 py-1"
+              />
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-700 mb-4">Variants</h3>
+            {newProductData.variants.map((variant, index) => (
+              <div key={index} className="mb-4 border p-4 rounded">
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Length"
+                    value={variant.length}
+                    onChange={(e) => handleVariantChange(index, "length", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Wefts Per Pack"
+                    value={variant.weftsPerPack}
+                    onChange={(e) => handleVariantChange(index, "weftsPerPack", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Retail Price"
+                    value={variant.prices.suggestedRetailPrice}
+                    onChange={(e) => handleVariantChange(index, "prices.suggestedRetailPrice", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Ambassador Price"
+                    value={variant.prices.ambassadorPrice}
+                    onChange={(e) => handleVariantChange(index, "prices.ambassadorPrice", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Stylist Price"
+                    value={variant.prices.stylistPrice}
+                    onChange={(e) => handleVariantChange(index, "prices.stylistPrice", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Quantity"
+                    value={variant.quantity}
+                    onChange={(e) => handleVariantChange(index, "quantity", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVariant(index)}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded mt-2"
+                >
+                  Remove Variant
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddVariant}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded"
+            >
+              Add Variant
+            </button>
+
+            <div className="flex justify-end mt-6 space-x-4">
+              <button
+                type="button"
+                onClick={() => setAddingProduct(false)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddProduct}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                Add Product
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : (
+        <div>
+          <button
+            onClick={() => setAddingProduct(true)}
+            className="mb-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Add New Product
+          </button>
+          </div>
+       
+      )}
 
       {editingProduct ? (
         <div className="p-6 bg-gray-100 rounded-lg shadow-md">
@@ -292,11 +506,13 @@ const Inventory = () => {
               >
                 Close
               </button>
+            
             </div>
           </div>
         </div>
       )}
     </div>
+    
   );
 };
 
