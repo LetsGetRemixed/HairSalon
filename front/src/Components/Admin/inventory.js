@@ -39,19 +39,30 @@ const Inventory = () => {
   };
 
   const handleInputChange = (e, variantIndex, field, priceField) => {
-    if (variantIndex !== undefined && field) {
-      const updatedVariants = [...formData.variants];
-      if (priceField) {
-        updatedVariants[variantIndex].prices[priceField] = e.target.value;
-      } else {
-        updatedVariants[variantIndex][field] = e.target.value;
-      }
-      setFormData((prev) => ({ ...prev, variants: updatedVariants }));
+  if (variantIndex !== undefined) {
+    const updatedVariants = [...formData.variants];
+    if (priceField) {
+      // Update specific price field without overwriting the entire prices object
+      updatedVariants[variantIndex] = {
+        ...updatedVariants[variantIndex],
+        prices: {
+          ...updatedVariants[variantIndex].prices,
+          [priceField]: e.target.value,
+        },
+      };
     } else {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      // Update other fields directly
+      updatedVariants[variantIndex] = {
+        ...updatedVariants[variantIndex],
+        [field]: e.target.value,
+      };
     }
-  };
+    setFormData((prev) => ({ ...prev, variants: updatedVariants }));
+  } else {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+};
 
   const handleSaveChanges = async () => {
     try {
@@ -71,41 +82,73 @@ const Inventory = () => {
   };
 
   const handleAddProduct = async () => {
-    try {
-      const formData = new FormData();
-      formData.append("category", newProductData.category);
-      formData.append("productName", newProductData.productName);
-      formData.append("description", newProductData.description);
-      formData.append("weight", newProductData.weight);
-      formData.append("variants", JSON.stringify(newProductData.variants));
-      formData.append("image", newProductData.image);
+  try {
+    const formData = new FormData();
+    formData.append("category", newProductData.category);
+    formData.append("productName", newProductData.productName);
+    formData.append("description", newProductData.description);
+    formData.append("weight", newProductData.weight);
 
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/items/add-product`, formData, {
+    // Ensure variants are formatted correctly
+    const formattedVariants = newProductData.variants.map((variant) => ({
+      length: variant.length,
+      weftsPerPack: parseInt(variant.weftsPerPack) || 0,
+      quantity: parseInt(variant.quantity) || 0,
+      prices: {
+        suggestedRetailPrice: parseFloat(variant.prices.suggestedRetailPrice) || 0,
+        ambassadorPrice: parseFloat(variant.prices.ambassadorPrice) || 0,
+        stylistPrice: parseFloat(variant.prices.stylistPrice) || 0,
+      },
+    }));
+
+    formData.append("variants", JSON.stringify(formattedVariants));
+    formData.append("image", newProductData.image);
+
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/items/add-product`,
+      formData,
+      {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      });
+      }
+    );
 
-      setInventory((prev) => [...prev, response.data.product]);
-      setAddingProduct(false);
-      setNewProductData({
-        category: "",
-        productName: "",
-        description: "",
-        weight: "",
-        variants: [],
-        image: null,
-      });
-      alert("Product added successfully!");
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert("Failed to add product. Please try again.");
-    }
-  };
+    // Update the inventory with the new product
+    setInventory((prev) => [...prev, response.data.product]);
+    setAddingProduct(false);
+    setNewProductData({
+      category: "",
+      productName: "",
+      description: "",
+      weight: "",
+      variants: [],
+      image: null,
+    });
+
+    alert("Product added successfully!");
+  } catch (error) {
+    console.error("Error adding product:", error);
+    alert("Failed to add product. Please try again.");
+  }
+};
 
   const handleVariantChange = (index, field, value) => {
     const updatedVariants = [...newProductData.variants];
-    updatedVariants[index] = { ...updatedVariants[index], [field]: value };
+    if (field.includes(".")) {
+      // Handle nested fields (e.g., "prices.suggestedRetailPrice")
+      const [nestedField, nestedKey] = field.split(".");
+      updatedVariants[index] = {
+        ...updatedVariants[index],
+        [nestedField]: {
+          ...updatedVariants[index][nestedField],
+          [nestedKey]: value,
+        },
+      };
+    } else {
+      // Handle top-level fields (e.g., "length", "weftsPerPack")
+      updatedVariants[index] = { ...updatedVariants[index], [field]: value };
+    }
     setNewProductData((prev) => ({ ...prev, variants: updatedVariants }));
   };
 
