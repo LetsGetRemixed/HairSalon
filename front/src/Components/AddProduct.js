@@ -37,7 +37,8 @@ const AddProductForm = () => {
       data.append("productName", formData.productName);
       data.append("description", formData.description);
       data.append("weight", formData.weight);
-      data.append("variants", formData.variants); // Ensure this is in JSON string format
+      data.append("variants", formData.variants); 
+      console.log('Data: ', data);
 
       const response = await axios.post("http://localhost:5100/api/items/add-product", data, {
         headers: { "Content-Type": "multipart/form-data" },

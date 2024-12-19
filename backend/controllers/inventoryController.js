@@ -142,8 +142,9 @@ exports.updateInventory = async (req, res) => {
       if (!req.file) {
         return res.status(400).json({ error: 'Image is required.' });
       }
-  
+      console.log('oiwnowxwexwe',req.file);
       const file = req.file;
+      
       // Convert file to .webp format
       const convertedBuffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
   
@@ -167,11 +168,11 @@ exports.updateInventory = async (req, res) => {
       const product = new Inventory({
         category,
         productName,
-        productFileName: productName, // Save productName for matching in getInventory
+        productFileName: productName, 
         description,
         weight,
         imageUrl: signedUrl,
-        variants: JSON.parse(variants), // Parse variants to array
+        variants: JSON.parse(variants), 
       });
   
       await product.save();
