@@ -4,16 +4,13 @@ const subscriptionSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     membershipType: {
         type: String,
-        enum: ['Bronze', 'Silver', 'Gold'],
+        enum: ['Default', 'Ambassador', 'Stylist'],
         required: true,
       },
-      expiresAt: { type: Date },
-      isActive: { 
-        type: Boolean, 
-        default: function() {
-          return this.expiresAt > Date.now();
-        }
-    }
+      subscriptionId: { type: String, required: true },
+      subscriptionType: {type: String, required: true},
+      isActive: { type: Boolean, default: true, required: true },
+      expireDate: { type: Date, index: true },
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
