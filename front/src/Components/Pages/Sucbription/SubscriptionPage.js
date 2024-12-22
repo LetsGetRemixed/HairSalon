@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSubscription } from './SubscriptionContext';
 import { AuthContext } from '../Account/AuthContext';
@@ -7,64 +6,49 @@ import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
 
 const SubscriptionPage = () => {
-  const { subscription, setSubscription } = useSubscription();
+  const { subscription, selectedPlan, selectPlan, refreshSubscription } = useSubscription();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [selectedPlan, setSelectedPlan] = useState(subscription);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
 
   // Redirect to registration if the user is not logged in
   useEffect(() => {
     if (!user) {
-      navigate('/register'); // Redirect to registration page
+      navigate('/register');
     }
   }, [user, navigate]);
 
-  const refreshSubscription = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
-      );
-      setSubscription(response.data || 'Bronze'); // Update context with latest subscription
-      setSelectedPlan(response.data || 'Bronze');
-    } catch (err) {
-      console.error('Error refreshing subscription:', err);
+  const handleSubscribe = () => {
+    if (selectedPlan === subscription) {
+      alert('You already have this subscription.');
+      return;
     }
+    if (selectedPlan === 'Default') {
+      alert('You cannot subscribe to the default plan.');
+      return;
+    }
+    navigate(`/subcheckout?plan=${selectedPlan}`);
   };
 
-  const handleSubscriptionChange = async () => {
+  const handleUnsubscribe = async () => {
     setLoading(true);
     setError('');
-  
     try {
-      if (!user) {
-        setError('User not logged in');
-        return;
-      }
-  
-      if (subscription === 'Bronze') {
-        // Call create-membership even for upgrades from Bronze
-        const response = await axios.post(
-          `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
-          { membershipType: selectedPlan }
-        );
-        setSubscription(response.data.subscription.membershipType); // Update context immediately
-        alert('Subscription created/upgraded successfully!');
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/cancel-subscription/${user.userId}`,
+        { method: 'PATCH' }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        alert('Subscription canceled successfully.');
+        refreshSubscription(); // Update context with the latest subscription
       } else {
-        // Call update-membership for other upgrades
-        const response = await axios.put(
-          `${process.env.REACT_APP_BACKEND_URL}/subscription/update-membership/${user.userId}`,
-          { membershipType: selectedPlan }
-        );
-        setSubscription(response.data.subscription.membershipType); // Update context immediately
-        alert('Subscription updated successfully!');
+        throw new Error(data.message || 'Error canceling subscription.');
       }
-  
-      await refreshSubscription(); // Refresh subscription data
     } catch (err) {
-      console.error('Subscription error:', err);
-      setError(err.response?.data?.message || 'Error processing subscription.');
+      console.error('Error canceling subscription:', err);
+      setError(err.message || 'Error processing cancellation.');
     } finally {
       setLoading(false);
     }
@@ -72,50 +56,68 @@ const SubscriptionPage = () => {
 
   return (
     <div>
-
-        <Navbar />
-
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
-      <h1 className="text-2xl font-bold mb-4 text-center">Choose Your Plan</h1>
-      {subscription && subscription !== 'Bronze' && (
-        <p className="text-green-600 font-medium text-center mb-4">
-          Your current plan: <strong>{subscription}</strong>
-        </p>
-      )}
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      <div className="grid grid-cols-1 gap-4">
-        {['Bronze', 'Silver', 'Gold'].map((plan) => (
+      <Navbar />
+      <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
+        <h1 className="text-2xl font-bold mb-4 text-center">Manage Your Subscription</h1>
+        {subscription && subscription !== 'Default' && (
+          <p className="text-green-600 font-medium text-center mb-4">
+            Your current plan: <strong>{subscription}</strong>
+          </p>
+        )}
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <div className="grid grid-cols-1 gap-4">
+          {[{ plan: 'Stylist', description: 'Professional tools and resources for stylists.' },
+            { plan: 'Ambassador', description: 'Exclusive perks for ambassadors.' }].map(
+            ({ plan, description }) => (
+              <div
+                key={plan}
+                className={`p-4 rounded-md border ${
+                  subscription === plan
+                    ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
+                    : selectedPlan === plan
+                    ? 'border-green-500 bg-green-100'
+                    : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
+                }`}
+                onClick={() => {
+                  if (subscription !== plan) selectPlan(plan);
+                }}
+              >
+                <h2 className="text-xl font-bold">{plan}</h2>
+                <p className="text-sm text-gray-600">{description}</p>
+                {subscription === plan && (
+                  <p className="text-xs text-gray-500 mt-2">You already have this plan.</p>
+                )}
+              </div>
+            )
+          )}
+        </div>
+        <button
+          onClick={handleSubscribe}
+          className={`mt-6 w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 ${
+            loading || subscription === selectedPlan ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          disabled={loading || subscription === selectedPlan}
+        >
+          {loading ? 'Processing...' : 'Subscribe'}
+        </button>
+        {subscription !== 'Default' && (
           <button
-            key={plan}
-            onClick={() => setSelectedPlan(plan)}
-            className={`p-4 rounded-md border ${
-              selectedPlan === plan
-                ? 'border-green-500 bg-green-100'
-                : 'border-gray-300 bg-gray-50'
-            }`}
+            onClick={handleUnsubscribe}
+            className="mt-4 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
+            disabled={loading}
           >
-            {plan}
+            {loading ? 'Processing...' : 'Unsubscribe'}
           </button>
-        ))}
+        )}
       </div>
-      <button
-        onClick={handleSubscriptionChange}
-        className={`mt-6 w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 ${
-          loading ? 'opacity-50' : ''
-        }`}
-        disabled={loading}
-      >
-        {loading ? 'Processing...' : 'Submit Membership'}
-      </button>
-    </div>
-
-            <Footer />
-
+      <Footer />
     </div>
   );
 };
 
 export default SubscriptionPage;
+
+
 
 
 
