@@ -149,9 +149,6 @@ const Inventory = () => {
   };
 
   const handleVariantChange = (index, field, value) => {
-    console.log("Index:", index, "Field:", field, "Value:", value); // Debugging log
-  
-    // Validate field
     if (!field) {
       console.error("Field is undefined in handleVariantChange");
       return;
@@ -159,27 +156,24 @@ const Inventory = () => {
   
     const updatedVariants = [...newProductData.variants];
   
+    // Handle nested fields (e.g., "prices.suggestedRetailPrice")
     if (field.includes(".")) {
       const [nestedField, nestedKey] = field.split(".");
       updatedVariants[index] = {
         ...updatedVariants[index],
         [nestedField]: {
-          ...updatedVariants[index][nestedField],
+          ...(updatedVariants[index][nestedField] || {}), // Ensure nested object exists
           [nestedKey]: value,
         },
       };
     } else {
-      updatedVariants[index] = {
-        ...updatedVariants[index],
-        [field]: value,
-      };
+      // Handle top-level fields (e.g., "length", "weftsPerPack")
+      updatedVariants[index] = { ...updatedVariants[index], [field]: value };
     }
   
-    setNewProductData((prev) => ({
-      ...prev,
-      variants: updatedVariants,
-    }));
+    setNewProductData((prev) => ({ ...prev, variants: updatedVariants }));
   };
+  
 
   const handleAddVariant = () => {
     setNewProductData((prev) => ({
@@ -246,15 +240,11 @@ const Inventory = () => {
 
       {/* Main Section */}
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        {addingProduct ? (
-          <AddProductForm
-            newProductData={newProductData}
-            onInputChange={handleVariantChange}
-            onAddVariant={handleAddVariant}
-            onRemoveVariant={handleRemoveVariant}
-            onAddProduct={handleAddProduct}
-            onCancel={() => setAddingProduct(false)}
-          />
+      {addingProduct ? (
+  <AddProductForm
+    setInventory={setInventory} // Pass the function to update the inventory in the parent
+    setAddingProduct={setAddingProduct} // Pass the function to toggle the `addingProduct` state
+  />
         ) : editingProduct ? (
           <EditProductForm
             formData={formData}
