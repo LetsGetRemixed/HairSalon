@@ -1,7 +1,9 @@
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
 const Transaction = require('../models/transactionsModel');
-
+const { getStorage } = require("firebase-admin/storage");
+const multer = require('multer');
+const sharp = require('sharp');
 
 
 // Create a new user
@@ -108,5 +110,69 @@ exports.deleteUser = async (req, res) => {
     } catch (error) {
       console.error("Error updating user:", error);
       return res.status(500).json({ message: "Server error", error });
+    }
+  };
+
+  exports.uploadLicense = async (req, res) => {
+    console.log("Am i hitting this route????");
+    try {
+      const { userId } = req.params; 
+      console.log('UserID is ', userId);
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+      if (!req.file) {
+        return res.status(400).json({ error: 'Image is required.' });
+      }
+      const file = req.file;
+      const convertedBuffer = await sharp(file.buffer).webp({ quality: 70 }).toBuffer();
+
+      // Set file name as the user name
+      const filePath = `UserLicense/${user.name}.webp`;
+      // Upload file to Firebase 
+      const fileRef = bucket.file(filePath);
+      await fileRef.save(convertedBuffer, {
+        metadata: { contentType: 'image/webp' },
+      });
+
+      res.status(201).json({ message: 'User license uploaded succesfully to firebase' });
+    } catch (error) {
+      console.error('Error uploading license:', error);
+      res.status(500).json({ error: 'Failed to upload license' });
+    }
+  };
+
+  exports.getLicenseSignedUrl = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Generate file path for the user's license
+      const filePath = `UserLicense/${user.name}.webp`; // Use the naming pattern used during upload
+      const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+      const fileRef = bucket.file(filePath);
+  
+      // Check if file exists
+      const [exists] = await fileRef.exists();
+      if (!exists) {
+        return res.status(404).json({ message: 'License file not found' });
+      }
+  
+      // Generate a signed URL
+      const [url] = await fileRef.getSignedUrl({
+        action: 'read', // Grants read access
+        expires: Date.now() + 60 * 60 * 1000, // URL valid for 15 minutes
+      });
+  
+      res.status(200).json({ signedUrl: url });
+    } catch (error) {
+      console.error('Error generating signed URL:', error);
+      res.status(500).json({ error: 'Failed to generate signed URL' });
     }
   };
