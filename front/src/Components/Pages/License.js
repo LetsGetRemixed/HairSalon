@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { data } from '@remix-run/router';
+import React, { useState } from "react";
+import axios from "axios";
 
 const LicenseUpload = () => {
   const [file, setFile] = useState(null);
-  const [userId, setUserId] = useState('');
-  const [message, setMessage] = useState('');
+  const [userId, setUserId] = useState("");
+  const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Handle file selection
+  // Handle file selection with validation
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    if (selectedFile && !selectedFile.type.startsWith("image/")) {
+      setMessage("Please upload a valid image file.");
+      setFile(null);
+      return;
+    }
+    setFile(selectedFile);
+    setMessage(""); // Clear any previous error message
   };
 
   // Handle userId input
@@ -22,27 +28,35 @@ const LicenseUpload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Basic validation
     if (!file || !userId) {
-      setMessage('Please provide a file and user ID.');
+      setMessage("Please provide both a file and user ID.");
       return;
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("image", file);
+    console.log('Form data is ', formData);
+    // Log formData contents for debugging
+for (const [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+  }
 
     setIsLoading(true);
+    setMessage(""); // Clear any previous message
 
     try {
-      // Replace with your backend's upload route
       const response = await axios.post(
         `http://localhost:5100/api/users/upload-license/${userId}`,
-        formData
+        formData,
+        
       );
 
-      setMessage(response.data.message);
+      setMessage(`Upload successful: ${response.data.message}`);
     } catch (error) {
+      console.error("Error uploading license:", error);
       setMessage(
-        error.response?.data?.error || 'Something went wrong. Please try again.'
+        error.response?.data?.error || "Failed to upload license. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -50,10 +64,10 @@ const LicenseUpload = () => {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
+    <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
       <h2>Upload License</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        <div style={{ marginBottom: "10px" }}>
           <label htmlFor="userId">User ID:</label>
           <input
             type="text"
@@ -61,10 +75,17 @@ const LicenseUpload = () => {
             value={userId}
             onChange={handleUserIdChange}
             required
-            style={{ display: 'block', width: '100%', padding: '8px', margin: '5px 0' }}
+            style={{
+              display: "block",
+              width: "100%",
+              padding: "8px",
+              margin: "5px 0",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+            }}
           />
         </div>
-        <div style={{ marginBottom: '10px' }}>
+        <div style={{ marginBottom: "10px" }}>
           <label htmlFor="file">License Image:</label>
           <input
             type="file"
@@ -72,28 +93,29 @@ const LicenseUpload = () => {
             accept="image/*"
             onChange={handleFileChange}
             required
-            style={{ display: 'block', margin: '5px 0' }}
+            style={{ display: "block", margin: "5px 0" }}
           />
         </div>
         <button
           type="submit"
           style={{
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            padding: '10px 20px',
-            border: 'none',
-            cursor: 'pointer',
+            backgroundColor: isLoading ? "#cccccc" : "#4CAF50",
+            color: "white",
+            padding: "10px 20px",
+            border: "none",
+            cursor: isLoading ? "not-allowed" : "pointer",
+            borderRadius: "4px",
           }}
           disabled={isLoading}
         >
-          {isLoading ? 'Uploading...' : 'Upload'}
+          {isLoading ? "Uploading..." : "Upload"}
         </button>
       </form>
       {message && (
         <p
           style={{
-            marginTop: '10px',
-            color: message.includes('success') ? 'green' : 'red',
+            marginTop: "10px",
+            color: message.toLowerCase().includes("success") ? "green" : "red",
           }}
         >
           {message}

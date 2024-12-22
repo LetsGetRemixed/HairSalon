@@ -114,6 +114,7 @@ exports.deleteUser = async (req, res) => {
   };
 
   exports.uploadLicense = async (req, res) => {
+    console.log("Am i hitting this route????");
     try {
       const { userId } = req.params; 
       console.log('UserID is ', userId);
@@ -142,4 +143,4 @@ exports.deleteUser = async (req, res) => {
       console.error('Error uploading license:', error);
       res.status(500).json({ error: 'Failed to upload license' });
     }
-  };//
+  };
