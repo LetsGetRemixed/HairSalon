@@ -24,6 +24,7 @@ import Info from './Components/Admin/Info';
 import AddProduct from './Components/AddProduct';
 import PaymentForm from './Components/Pages/Checkout/CheckoutSubscriptions';
 import LicenseUpload from './Components/Pages/License';
+import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm';
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/account" element={<Account />} />
                     <Route path="/subscribe" element={<SubscriptionPage />} />
+                    <Route path="/subcheckout" element={<SubCheckout />} />
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/adminlogin" element={<AdminLogin />} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
