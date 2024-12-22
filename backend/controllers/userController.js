@@ -144,3 +144,35 @@ exports.deleteUser = async (req, res) => {
       res.status(500).json({ error: 'Failed to upload license' });
     }
   };
+
+  exports.getLicenseSignedUrl = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      // Generate file path for the user's license
+      const filePath = `UserLicense/${user.name}.webp`; // Use the naming pattern used during upload
+      const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+      const fileRef = bucket.file(filePath);
+  
+      // Check if file exists
+      const [exists] = await fileRef.exists();
+      if (!exists) {
+        return res.status(404).json({ message: 'License file not found' });
+      }
+  
+      // Generate a signed URL
+      const [url] = await fileRef.getSignedUrl({
+        action: 'read', // Grants read access
+        expires: Date.now() + 60 * 60 * 1000, // URL valid for 15 minutes
+      });
+  
+      res.status(200).json({ signedUrl: url });
+    } catch (error) {
+      console.error('Error generating signed URL:', error);
+      res.status(500).json({ error: 'Failed to generate signed URL' });
+    }
+  };

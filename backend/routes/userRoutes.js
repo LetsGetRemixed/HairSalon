@@ -12,6 +12,7 @@ router.post('/upload-license/:userId', upload.single('image'), userController.up
 router.put('/update-user-info/:userId', userController.updateUser);
 router.get('/all-users', userController.getAllUsers);
 router.get('/:id', userController.getUserById);
+router.get('/get-user-license/:userId', userController.getLicenseSignedUrl);
 router.delete('/:id', userController.deleteUser);
 
 
