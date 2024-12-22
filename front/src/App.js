@@ -23,6 +23,7 @@ import AdminLogin from './Components/Admin/AdminLogin';
 import Info from './Components/Admin/Info';
 import AddProduct from './Components/AddProduct';
 import PaymentForm from './Components/Pages/Checkout/CheckoutSubscriptions';
+import LicenseUpload from './Components/Pages/License';
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
                     <Route path="/admin/info" element={<ProtectedRoute><Info /></ProtectedRoute>} />
                     <Route path='/add-product' element={<AddProduct />} />
                     <Route path='/sub' element={<PaymentForm />} />
+                    <Route path='/license' element={<LicenseUpload />} />
                   </Routes>
                 </Router>
             </CartProvider>

@@ -1,7 +1,9 @@
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
 const Transaction = require('../models/transactionsModel');
-
+const { getStorage } = require("firebase-admin/storage");
+const multer = require('multer');
+const sharp = require('sharp');
 
 
 // Create a new user
@@ -110,3 +112,34 @@ exports.deleteUser = async (req, res) => {
       return res.status(500).json({ message: "Server error", error });
     }
   };
+
+  exports.uploadLicense = async (req, res) => {
+    try {
+      const { userId } = req.params; 
+      console.log('UserID is ', userId);
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const bucket = getStorage().bucket('boldhair-f5522.firebasestorage.app');
+      if (!req.file) {
+        return res.status(400).json({ error: 'Image is required.' });
+      }
+      const file = req.file;
+      const convertedBuffer = await sharp(file.buffer).webp({ quality: 70 }).toBuffer();
+
+      // Set file name as the user name
+      const filePath = `UserLicense/${user.name}.webp`;
+      // Upload file to Firebase 
+      const fileRef = bucket.file(filePath);
+      await fileRef.save(convertedBuffer, {
+        metadata: { contentType: 'image/webp' },
+      });
+
+      res.status(201).json({ message: 'User license uploaded succesfully to firebase' });
+    } catch (error) {
+      console.error('Error uploading license:', error);
+      res.status(500).json({ error: 'Failed to upload license' });
+    }
+  };//

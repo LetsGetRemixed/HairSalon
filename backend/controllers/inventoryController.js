@@ -156,15 +156,12 @@ exports.updateInventory = async (req, res) => {
       if (!req.file) {
         return res.status(400).json({ error: 'Image is required.' });
       }
-      console.log('oiwnowxwexwe',req.file);
       const file = req.file;
-      
       // Convert file to .webp format
-      const convertedBuffer = await sharp(file.buffer).webp({ quality: 80 }).toBuffer();
+      const convertedBuffer = await sharp(file.buffer).webp({ quality: 100 }).toBuffer();
   
       // Define the file path in Firebase
       const filePath = `${category}/${productName}.webp`;
-      console.log('Filepath is ', filePath);
   
       // Upload the .webp file to Firebase
       const fileRef = bucket.file(filePath);
