@@ -9,7 +9,8 @@ const subscriptionSchema = new mongoose.Schema({
       },
       subscriptionId: { type: String, required: true },
       subscriptionType: {type: String, required: true},
-      isActive: { type: Boolean, required: true }
+      isActive: { type: Boolean, default: true, required: true },
+      expireDate: { type: Date, index: true },
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);

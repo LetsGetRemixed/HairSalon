@@ -45,6 +45,9 @@ exports.createMembership = async (req, res) => {
 
     await newSubscription.save();
 
+    user.subscription = newSubscription._id;
+    await user.save();
+
     return res.status(201).json({ message: 'Subscription created successfully!', subscription: newSubscription });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -130,36 +133,56 @@ exports.getSubscriptionByUserId = async (req, res) => {
 
 
 exports.cancelSubscription = async (req, res) => {
-  const { subscriptionId } = req.params; 
-  console.log(subscriptionId);
-  const { subscriptionStripeId } = req.body;
+  const { userId } = req.params; 
 
   try {
-    console.log('Cancelling subscription:', subscriptionId);
-    /*
-    // Cancel the subscription
-    const updatedSubscription = await stripe.subscriptions.update(subscriptionStripeId, {
-      cancel_at_period_end: true,
-    });
-    */
-    // Update the subscription in the database
-    const objectId = new mongoose.Types.ObjectId(subscriptionId);
-    // Find subscription in the database
-    const subscription = await Subscription.findOne({ _id: objectId });
-    if (!subscription) {
-      return res.status(404).json({ message: 'Subscription not found in database' });
+    const user = await User.findById(userId).populate('subscription'); // Populate subscription
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    subscription.isActive = false; // Mark as inactive
+    const subscription = user.subscription;
+    if (!subscription) {
+      return res.status(404).json({ message: 'No active subscription found for user' });
+    }
+    // Cancel the subscription
+    const updatedSubscription = await stripe.subscriptions.update(subscription.subscriptionId, {
+      cancel_at_period_end: true,
+    });
+    
+    const currentPeriodEnd = new Date(updatedSubscription.current_period_end * 1000);
+    subscription.expireDate = currentPeriodEnd;
     await subscription.save();
 
     res.status(200).json({
       message: 'Subscription will cancel at the end of the current billing period',
-      //updatedSubscription,
+      updatedSubscription,
       subscription,
     });
   } catch (error) {
     console.error('Error canceling subscription:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.checkAndUpdateSubscription = async (req, res) => {
+  try {
+    const now = new Date();
+    const expiredSubscriptions = await Subscription.find({ 
+      expireDate: { $lt: now }, 
+      isActive: true 
+    });
+    console.log(expiredSubscriptions);
+
+    // Check all active subscriptions
+    for (const subscription of expiredSubscriptions) {
+      subscription.isActive = false;
+      await subscription.save();
+      console.log(`Updated subscription ${subscription._id} to inactive.`);
+    }
+    res.json({ message: 'Subscriptions that are expired are now set to false' });
+  } catch (error) {
+    console.error('Error checking subscriptions subscription:', error);
     res.status(500).json({ error: error.message });
   }
 };

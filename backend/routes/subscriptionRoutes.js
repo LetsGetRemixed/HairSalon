@@ -7,5 +7,6 @@ router.post('/create-membership/:userId', subscriptionController.createMembershi
 router.put('/update-membership/:userId', subscriptionController.updateMembership);
 router.get('/check-user-subscription/:userId', subscriptionController.getSubscriptionByUserId);
 router.get('/get-all-subscriptions', subscriptionController.getAllSubscriptions);
-router.patch('/cancel-subscription/:subscriptionId', subscriptionController.cancelSubscription);
+router.patch('/cancel-subscription/:userId', subscriptionController.cancelSubscription);
+router.post('/check-subscriptions-and-update', subscriptionController.checkAndUpdateSubscription);
 module.exports = router;

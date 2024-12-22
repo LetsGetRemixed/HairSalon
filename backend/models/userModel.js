@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     phone: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
+    subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
   });
   
   const User = mongoose.model('User', userSchema);
