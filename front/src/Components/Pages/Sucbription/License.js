@@ -42,12 +42,19 @@ const LicenseUpload = () => {
     setMessage(""); // Clear any previous message
 
     try {
-      const response = await axios.post(
-        `http://localhost:5100/api/users/upload-license/${user.userId}`, // Use userId from context
+      // Upload the license image
+      await axios.post(
+        `http://localhost:5100/api/users/upload-license/${user.userId}`,
         formData
       );
 
-      setMessage(`Upload successful: ${response.data.message}`);
+      // Update the user's subscription status to Pending
+      await axios.put(
+        `http://localhost:5100/api/users/update-user-info/${user.userId}`,
+        { licenseStatus: "Pending" }
+      );
+
+      setMessage("Upload successful! Your license is now pending approval.");
     } catch (error) {
       console.error("Error uploading license:", error);
       setMessage(
@@ -103,3 +110,4 @@ const LicenseUpload = () => {
 };
 
 export default LicenseUpload;
+
