@@ -49,40 +49,41 @@ const SubscriptionCheckoutForm = () => {
         return;
       }
 
-      // Step 2: Create the Subscription via the backend
+      // Step 2: Create the Stripe Subscription
+      const interval = selectedPlan === 'Ambassador' ? 'Yearly' : 'Monthly';
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/checkout/create-subscription`,
         {
           paymentMethodId: paymentMethod.id,
-          subscriptionType: selectedPlan,
-          userId: user.userId,
+          interval,
         }
       );
 
-      const { subscriptionId, success, error } = response.data;
+      const { subscriptionId: stripeSubscriptionId, success, error } = response.data;
 
-      if (!success) {
-        setMessage(`Subscription creation failed: ${error}`);
+      if (!success || !stripeSubscriptionId) {
+        setMessage(`Subscription creation failed: ${error || 'Unknown error'}`);
         setIsProcessing(false);
         return;
       }
 
-      setSubscriptionId(subscriptionId);
+      setSubscriptionId(stripeSubscriptionId);
 
-      // Step 3: Save the subscription details
+      // Step 3: Save Subscription in the Database
       await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
         {
-          subscriptionId,
-          subscriptionType: selectedPlan,
+          subscriptionId: stripeSubscriptionId,
+          subscriptionType: interval,
+          membershipType: selectedPlan,
         }
       );
 
       setMessage('Subscription created successfully!');
-      await refreshSubscription(); // Refresh subscription data
+      await refreshSubscription(); // Update context with the latest subscription
     } catch (err) {
-      console.error('Error creating subscription:', err);
-      setMessage('Error processing subscription. Please try again.');
+      console.error('Error processing subscription:', err);
+      setMessage('Failed to process subscription. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -156,4 +157,5 @@ export default function SubscriptionCheckout() {
     </div>
   );
 }
+
 
