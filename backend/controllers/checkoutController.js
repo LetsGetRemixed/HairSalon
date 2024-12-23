@@ -34,9 +34,10 @@ exports.createDynamicSubscription = async (req, res) => {
     let priceId; 
     if (interval == 'Yearly') {
       priceId = 'price_1QZ1mNEnsP1F5DSTCOjT0COa';
-    } else {
-      // Monthly price ID
+    } else if (interval == 'Monthly') {
       priceId = price_1QZ1m1EnsP1F5DSTluEMGzzh;
+    } else {
+      res.status(401).json({ message: 'Need a valid interval' });
     }
     // Create the customer
     const customer = await stripe.customers.create({
