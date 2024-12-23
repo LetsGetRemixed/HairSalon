@@ -32,8 +32,21 @@ exports.createMembership = async (req, res) => {
 
     if (currentSubscription) {
       let now = new Date();
-      if (currentSubscription.expireDate < now) {
-        return res.status(200).json({ message: 'User already has a membership', subscription: currentSubscription });
+      if (currentSubscription.expireDate > now) {
+        return res.status(200).json({ message: 'User already has a active running subscription', subscription: currentSubscription });
+      } else {
+        // If the membership is expired, update it
+        currentSubscription.membershipType = membershipType;
+        currentSubscription.subscriptionId = subscriptionId;
+        currentSubscription.subscriptionType = subscriptionType;
+        currentSubscription.isActive = true;
+        currentSubscription.expireDate = now.setMonth(now.getMonth() + 1); // Extend expiry date by 1 month
+        await currentSubscription.save();
+
+        return res.status(200).json({
+          message: 'Membership renewed successfully!',
+          subscription: currentSubscription,
+        });
       }
     }
 
