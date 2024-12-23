@@ -29,16 +29,15 @@ exports.createCheckout = async (req, res) => {
 };
 
 exports.createDynamicSubscription = async (req, res) => { 
- const { paymentMethodId, interval } = req.body; // interval: 'month' or 'year'
- console.log('Calling create subscription');
+ const { paymentMethodId, interval } = req.body; 
   try {
-    // Use pre-created price IDs from Stripe Dashboard
-    const dailyPriceId = 'price_1QXrm4EnsP1F5DSTg9n89q9A'; // Replace with the actual Price ID for monthly
-    //const yearlyPriceId = 'your_yearly_price_id'; // Replace with the actual Price ID for yearly
-
-    // Select the price based on the subscription interval
-    //const priceId = interval === 'month' ? monthlyPriceId : yearlyPriceId;
-    const priceId = dailyPriceId;
+    let priceId; 
+    if (interval == 'Yearly') {
+      priceId = 'price_1QZ1mNEnsP1F5DSTCOjT0COa';
+    } else {
+      // Monthly price ID
+      priceId = price_1QZ1m1EnsP1F5DSTluEMGzzh;
+    }
     // Create the customer
     const customer = await stripe.customers.create({
       payment_method: paymentMethodId,

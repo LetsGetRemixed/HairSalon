@@ -17,10 +17,13 @@ exports.getAllSubscriptions = async (req, res) => {
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
   const { subscriptionId, subscriptionType, membershipType } = req.body;
-  console.log(req.body);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  if (subscriptionType === "Yearly") {
+    
   }
 
   try {
