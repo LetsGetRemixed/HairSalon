@@ -7,6 +7,7 @@ export const SubscriptionContext = createContext();
 export const SubscriptionProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [subscription, setSubscription] = useState('Default'); // Default subscription level
+  const [licenseStatus, setLicenseStatus] = useState('Pending');
   const [selectedPlan, setSelectedPlan] = useState(''); // Holds the user-selected plan
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -19,11 +20,10 @@ export const SubscriptionProvider = ({ children }) => {
           const response = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
           );
-          console.log('Fetched subscription:', response.data);
-          setSubscription(response.data || 'Default');
+          setSubscription(response.data.subscription || 'Default');
+          setLicenseStatus(response.data.licenseStatus || 'Pending');
         } catch (error) {
           console.error('Error fetching subscription:', error);
-          setError('Failed to fetch subscription details.');
         } finally {
           setLoading(false);
         }
@@ -65,6 +65,8 @@ export const SubscriptionProvider = ({ children }) => {
       value={{
         subscription,
         setSubscription,
+        licenseStatus,
+        setLicenseStatus,
         selectedPlan,
         selectPlan,
         refreshSubscription,

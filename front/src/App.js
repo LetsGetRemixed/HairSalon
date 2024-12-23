@@ -23,7 +23,7 @@ import AdminLogin from './Components/Admin/AdminLogin';
 import Info from './Components/Admin/Info';
 import AddProduct from './Components/AddProduct';
 import PaymentForm from './Components/Pages/Checkout/CheckoutSubscriptions';
-import LicenseUpload from './Components/Pages/License';
+import LicenseUpload from './Components/Pages/Sucbription/License';
 import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm';
 
 function App() {
