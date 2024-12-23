@@ -5,6 +5,7 @@ import Navbar from '../Universal/Navbar2';
 import Footer from '../Universal/Footer';
 import { AuthContext } from '../Account/AuthContext';
 import { useSubscription } from './SubscriptionContext';
+import axios from 'axios';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
@@ -12,9 +13,10 @@ const SubscriptionCheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const { user } = useContext(AuthContext);
-  const { selectedPlan } = useSubscription(); // Assuming selectedPlan is managed in SubscriptionContext
+  const { selectedPlan, refreshSubscription } = useSubscription();
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState('');
+  const [subscriptionId, setSubscriptionId] = useState(null);
 
   useEffect(() => {
     if (!selectedPlan) {
@@ -34,53 +36,53 @@ const SubscriptionCheckoutForm = () => {
     setMessage('Processing subscription payment...');
 
     try {
-      // Step 1: Create the Payment Intent on the server
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-payment-intent`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.userId,
-            subscriptionType: selectedPlan,
-          }),
-        }
-      );
-
-      const { clientSecret } = await response.json();
-
-      // Step 2: Confirm the payment with Stripe
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement),
-          billing_details: {
-            name: user.name,
-            email: user.email,
-          },
-        },
+      // Step 1: Create the Payment Method
+      const cardElement = elements.getElement(CardElement);
+      const { paymentMethod, error: paymentError } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
       });
 
-      if (error) {
-        setMessage(`Payment failed: ${error.message}`);
+      if (paymentError) {
+        setMessage(`Payment method error: ${paymentError.message}`);
         setIsProcessing(false);
         return;
       }
 
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
-        setMessage('Payment successful! Updating subscription...');
-        await fetch(`${process.env.REACT_APP_BACKEND_URL}/subscription/update-user-subscription`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: user.userId,
-            subscriptionType: selectedPlan,
-          }),
-        });
-        setMessage('Subscription updated successfully!');
+      // Step 2: Create the Subscription via the backend
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/checkout/create-subscription`,
+        {
+          paymentMethodId: paymentMethod.id,
+          subscriptionType: selectedPlan,
+          userId: user.userId,
+        }
+      );
+
+      const { subscriptionId, success, error } = response.data;
+
+      if (!success) {
+        setMessage(`Subscription creation failed: ${error}`);
+        setIsProcessing(false);
+        return;
       }
+
+      setSubscriptionId(subscriptionId);
+
+      // Step 3: Save the subscription details
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
+        {
+          subscriptionId,
+          subscriptionType: selectedPlan,
+        }
+      );
+
+      setMessage('Subscription created successfully!');
+      await refreshSubscription(); // Refresh subscription data
     } catch (err) {
-      console.error('Error processing subscription payment:', err);
-      setMessage('Failed to process payment. Please try again.');
+      console.error('Error creating subscription:', err);
+      setMessage('Error processing subscription. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -92,7 +94,7 @@ const SubscriptionCheckoutForm = () => {
       {message && (
         <p
           className={`text-center mb-4 ${
-            message.includes('failed') ? 'text-red-500' : 'text-green-500'
+            message.includes('failed') || message.includes('Error') ? 'text-red-500' : 'text-green-500'
           }`}
         >
           {message}
@@ -114,13 +116,9 @@ const SubscriptionCheckoutForm = () => {
                   base: {
                     fontSize: '16px',
                     color: '#424770',
-                    '::placeholder': {
-                      color: '#aab7c4',
-                    },
+                    '::placeholder': { color: '#aab7c4' },
                   },
-                  invalid: {
-                    color: '#9e2146',
-                  },
+                  invalid: { color: '#9e2146' },
                 },
               }}
             />
@@ -136,6 +134,11 @@ const SubscriptionCheckoutForm = () => {
           {isProcessing ? 'Processing...' : 'Subscribe Now'}
         </button>
       </div>
+      {subscriptionId && (
+        <p className="text-center mt-4 text-sm text-gray-600">
+          Subscription ID: <span className="font-mono">{subscriptionId}</span>
+        </p>
+      )}
     </form>
   );
 };
@@ -153,3 +156,4 @@ export default function SubscriptionCheckout() {
     </div>
   );
 }
+
