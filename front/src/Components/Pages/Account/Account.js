@@ -41,7 +41,7 @@ const Account = () => {
           const subscriptionResponse = await axios.get(
             `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
           );
-          setSubscription(subscriptionResponse.data || "Bronze");
+          setSubscription(subscriptionResponse.data || "Default");
         }
       } catch (error) {
         console.error("Error fetching account details or subscription:", error);

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
+import { AuthContext } from "../Account/AuthContext";
 
 const LicenseUpload = () => {
+  const { user } = useContext(AuthContext); // Fetch user from AuthContext
   const [file, setFile] = useState(null);
-  const [userId, setUserId] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,37 +20,31 @@ const LicenseUpload = () => {
     setMessage(""); // Clear any previous error message
   };
 
-  // Handle userId input
-  const handleUserIdChange = (e) => {
-    setUserId(e.target.value);
-  };
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Basic validation
-    if (!file || !userId) {
-      setMessage("Please provide both a file and user ID.");
+    if (!file) {
+      setMessage("Please provide a valid file.");
+      return;
+    }
+
+    if (!user?.userId) {
+      setMessage("User ID is not available. Please log in again.");
       return;
     }
 
     const formData = new FormData();
     formData.append("image", file);
-    console.log('Form data is ', formData);
-    // Log formData contents for debugging
-for (const [key, value] of formData.entries()) {
-    console.log(`${key}: ${value}`);
-  }
 
     setIsLoading(true);
     setMessage(""); // Clear any previous message
 
     try {
       const response = await axios.post(
-        `http://localhost:5100/api/users/upload-license/${userId}`,
-        formData,
-        
+        `http://localhost:5100/api/users/upload-license/${user.userId}`, // Use userId from context
+        formData
       );
 
       setMessage(`Upload successful: ${response.data.message}`);
@@ -67,24 +62,6 @@ for (const [key, value] of formData.entries()) {
     <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
       <h2>Upload License</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div style={{ marginBottom: "10px" }}>
-          <label htmlFor="userId">User ID:</label>
-          <input
-            type="text"
-            id="userId"
-            value={userId}
-            onChange={handleUserIdChange}
-            required
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "8px",
-              margin: "5px 0",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
-          />
-        </div>
         <div style={{ marginBottom: "10px" }}>
           <label htmlFor="file">License Image:</label>
           <input
