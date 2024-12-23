@@ -35,7 +35,7 @@ const Payment = ({ price, interval }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             paymentMethodId: paymentMethod.id,
-            interval: 'month',
+            interval: 'Yearly',
           }),
         });
   
@@ -47,11 +47,11 @@ const Payment = ({ price, interval }) => {
 
 
           const response2 = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/67623b2f994d89a38f209e1e`,
+            `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/676239b8994d89a38f209c53`,
             { 
               subscriptionId: data.subscriptionId,
-              subscriptionType: 'Monthly',
-              membershipType: 'Stylist'
+              subscriptionType: 'Yearly',
+              membershipType: 'Ambassador'
              }
           );
         } else {
