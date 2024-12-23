@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema({
     phone: { type: String, required: true },
     isAdmin: { type: Boolean, default: false },
     subscription: { type: mongoose.Schema.Types.ObjectId, ref: 'Subscription' },
+    license: {
+      type: String,
+      enum: ['Approved', 'Pending', 'Not Approved'],
+      default: 'Not Approved'
+    },
   });
   
   const User = mongoose.model('User', userSchema);
