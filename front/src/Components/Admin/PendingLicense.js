@@ -14,7 +14,7 @@ const PendingLicense = () => {
           `${process.env.REACT_APP_BACKEND_URL}/users/all-users`
         );
         const usersWithPendingLicense = response.data.filter(
-          (user) => user.licenseStatus === "Pending"
+          (user) => user.license === "Pending"
         );
         setPendingUsers(usersWithPendingLicense);
       } catch (err) {
@@ -33,7 +33,7 @@ const PendingLicense = () => {
     try {
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/users/update-user-info/${userId}`,
-        { licenseStatus: "Approved" }
+        { license: "Approved" }
       );
       setPendingUsers((prev) =>
         prev.filter((user) => user._id !== userId)
@@ -50,7 +50,7 @@ const PendingLicense = () => {
     try {
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/users/update-user-info/${userId}`,
-        { licenseStatus: "Rejected" }
+        { license: "Not Approved" }
       );
       setPendingUsers((prev) =>
         prev.filter((user) => user._id !== userId)

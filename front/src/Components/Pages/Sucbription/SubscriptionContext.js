@@ -12,18 +12,29 @@ export const SubscriptionProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch the user's current subscription on mount or when user changes
+  // Fetch the user's current subscription and license status on mount or when user changes
   useEffect(() => {
-    const fetchSubscription = async () => {
+    const fetchUserDetails = async () => {
       if (user) {
+        setLoading(true);
         try {
+          // Fetch user details using /:id endpoint
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
+            `${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`
           );
-          setSubscription(response.data.subscription || 'Default');
-          setLicenseStatus(response.data.licenseStatus || 'Pending');
+          const userData = response.data;
+
+          // Set subscription and license status
+          setSubscription(userData.subscription || 'Default');
+          setLicenseStatus(userData.license || 'Pending');
+
+          console.log('Fetched user subscription:', userData.subscription);
+          console.log('Fetched user license:', userData.license);
+
+          setError('');
         } catch (error) {
-          console.error('Error fetching subscription:', error);
+          console.error('Error fetching user details:', error);
+          setError('Failed to load user details.');
         } finally {
           setLoading(false);
         }
@@ -32,7 +43,7 @@ export const SubscriptionProvider = ({ children }) => {
       }
     };
 
-    fetchSubscription();
+    fetchUserDetails();
   }, [user]);
 
   // Update the selected plan
@@ -40,20 +51,27 @@ export const SubscriptionProvider = ({ children }) => {
     setSelectedPlan(plan);
   };
 
-  // Refresh subscription from the backend
+  // Refresh subscription and license status from the backend
   const refreshSubscription = async () => {
     if (user) {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
+          `${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`
         );
-        console.log('Refreshed subscription:', response.data);
-        setSubscription(response.data || 'Default');
+        const userData = response.data;
+
+        // Refresh subscription and license status
+        setSubscription(userData.subscription || 'Default');
+        setLicenseStatus(userData.license || 'Pending');
+
+        console.log('Refreshed user subscription:', userData.subscription);
+        console.log('Refreshed user license:', userData.license);
+
         setError('');
       } catch (error) {
-        console.error('Error refreshing subscription:', error);
-        setError('Failed to refresh subscription details.');
+        console.error('Error refreshing user details:', error);
+        setError('Failed to refresh user details.');
       } finally {
         setLoading(false);
       }
@@ -81,5 +99,7 @@ export const SubscriptionProvider = ({ children }) => {
 
 // Custom hook for using SubscriptionContext
 export const useSubscription = () => useContext(SubscriptionContext);
+
+
 
 

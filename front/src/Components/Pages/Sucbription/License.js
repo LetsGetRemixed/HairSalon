@@ -51,7 +51,7 @@ const LicenseUpload = () => {
       // Update the user's subscription status to Pending
       await axios.put(
         `http://localhost:5100/api/users/update-user-info/${user.userId}`,
-        { licenseStatus: "Pending" }
+        { license: "Pending" }
       );
 
       setMessage("Upload successful! Your license is now pending approval.");
