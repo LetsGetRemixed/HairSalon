@@ -151,3 +151,34 @@ exports.checkAndUpdateSubscription = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.updateSubscriptionStatus = async (req, res) => {
+  const { userId } = req.params;
+  const { membershipType } = req.body;
+  
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const user = await User.findById(userId).populate('subscription'); 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const subscription = user.subscription;
+    if (!subscription) {
+      return res.status(404).json({ message: 'No active subscription found for user' });
+    }
+    subscription.membershipType = membershipType;
+    await subscription.save();
+    res.status(200).json({
+      message: 'Subscription membershipType updated',
+      subscription,
+    });
+
+  } catch (error) {
+    console.error('Error checking subscriptions subscription:', error);
+    res.status(500).json({ error: error.message });
+  }
+}
