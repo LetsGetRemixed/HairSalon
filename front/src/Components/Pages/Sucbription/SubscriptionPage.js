@@ -12,12 +12,14 @@ const SubscriptionPage = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
 
-  // Redirect to registration if the user is not logged in
+  // Redirect to registration if the user is not logged in and refresh subscription on page load
   useEffect(() => {
     if (!user) {
       navigate('/register');
+    } else {
+      refreshSubscription(); // Fetch latest subscription and license status on initial load
     }
-  }, [user, navigate]);
+  }, [user, navigate]); // Dependency on user and navigate only
 
   const handleSubscribe = () => {
     if (licenseStatus !== 'Approved') {
@@ -96,30 +98,30 @@ const SubscriptionPage = () => {
         {licenseStatus === 'Approved' && (
           <>
             <div className="grid grid-cols-1 gap-4">
-              {[
-                { plan: 'Stylist', description: 'Professional tools and resources for stylists.' },
-                { plan: 'Ambassador', description: 'Exclusive perks for ambassadors.' },
-              ].map(({ plan, description }) => (
-                <div
-                  key={plan}
-                  className={`p-4 rounded-md border ${
-                    subscription === plan
-                      ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
-                      : selectedPlan === plan
-                      ? 'border-green-500 bg-green-100'
-                      : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
-                  }`}
-                  onClick={() => {
-                    if (subscription !== plan) selectPlan(plan);
-                  }}
-                >
-                  <h2 className="text-xl font-bold">{plan}</h2>
-                  <p className="text-sm text-gray-600">{description}</p>
-                  {subscription === plan && (
-                    <p className="text-xs text-gray-500 mt-2">You already have this plan.</p>
-                  )}
-                </div>
-              ))}
+              {[{ plan: 'Stylist', description: 'Professional tools and resources for stylists.' },
+                { plan: 'Ambassador', description: 'Exclusive perks for ambassadors.' }].map(
+                ({ plan, description }) => (
+                  <div
+                    key={plan}
+                    className={`p-4 rounded-md border ${
+                      subscription === plan
+                        ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
+                        : selectedPlan === plan
+                        ? 'border-green-500 bg-green-100'
+                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
+                    }`}
+                    onClick={() => {
+                      if (subscription !== plan) selectPlan(plan);
+                    }}
+                  >
+                    <h2 className="text-xl font-bold">{plan}</h2>
+                    <p className="text-sm text-gray-600">{description}</p>
+                    {subscription === plan && (
+                      <p className="text-xs text-gray-500 mt-2">You already have this plan.</p>
+                    )}
+                  </div>
+                )
+              )}
             </div>
             <button
               onClick={handleSubscribe}
@@ -149,6 +151,8 @@ const SubscriptionPage = () => {
 };
 
 export default SubscriptionPage;
+
+
 
 
 
