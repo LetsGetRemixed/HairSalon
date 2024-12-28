@@ -67,8 +67,8 @@ const SubscriptionPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">Manage Your Subscription</h1>
+      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
+        <h1 className="text-3xl font-bold mb-6 text-center">Manage Your Subscription</h1>
         {licenseStatus === 'Pending' && (
           <p className="text-yellow-600 font-medium text-center mb-4">
             Your license is pending approval. You cannot subscribe until it's approved.
@@ -85,47 +85,74 @@ const SubscriptionPage = () => {
           </p>
         )}
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
+  
         {licenseStatus !== 'Approved' && (
           <button
             onClick={handleUploadLicense}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600"
           >
             Upload License
           </button>
         )}
-
+  
         {licenseStatus === 'Approved' && (
           <>
-            <div className="grid grid-cols-1 gap-4">
-              {[{ plan: 'Stylist', description: 'Professional tools and resources for stylists.' },
-                { plan: 'Ambassador', description: 'Exclusive perks for ambassadors.' }].map(
-                ({ plan, description }) => (
-                  <div
-                    key={plan}
-                    className={`p-4 rounded-md border ${
-                      subscription === plan
-                        ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
-                        : selectedPlan === plan
-                        ? 'border-green-500 bg-green-100'
-                        : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
-                    }`}
-                    onClick={() => {
-                      if (subscription !== plan) selectPlan(plan);
-                    }}
-                  >
-                    <h2 className="text-xl font-bold">{plan}</h2>
-                    <p className="text-sm text-gray-600">{description}</p>
-                    {subscription === plan && (
-                      <p className="text-xs text-gray-500 mt-2">You already have this plan.</p>
-                    )}
-                  </div>
-                )
-              )}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {[
+                {
+                  plan: 'Ambassador for 1 Month',
+                  price: '$50',
+                  description: [
+                    'Exclusive access to Ambassador tools.',
+                    'Priority customer support.',
+                    'Access to premium content.',
+                  ],
+                },
+                {
+                  plan: 'Ambassador for 1 Year',
+                  price: '$540',
+                  savings: 'Save $60 compared to the monthly plan!',
+                  description: [
+                    'All benefits of the monthly plan.',
+                    'Significant savings for a yearly commitment.',
+                    'Special annual events and bonuses.',
+                  ],
+                },
+              ].map(({ plan, price, savings, description }) => (
+                <div
+                  key={plan}
+                  className={`p-6 rounded-lg border shadow-lg ${
+                    subscription === plan
+                      ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
+                      : selectedPlan === plan
+                      ? 'border-green-500 bg-green-100'
+                      : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
+                  }`}
+                  onClick={() => {
+                    if (subscription !== plan) selectPlan(plan);
+                  }}
+                >
+                  <h2 className="text-2xl font-bold mb-2 text-center">{plan}</h2>
+                  <p className="text-lg font-semibold text-gray-800 mb-4 text-center">{price}</p>
+                  {savings && (
+                    <p className="text-sm text-green-600 font-medium mb-4 text-center">{savings}</p>
+                  )}
+                  <ul className="text-gray-600 list-disc list-inside space-y-2">
+                    {description.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                  {subscription === plan && (
+                    <p className="text-sm text-gray-500 mt-4 text-center">
+                      You already have this plan.
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
             <button
               onClick={handleSubscribe}
-              className={`mt-6 w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 ${
+              className={`mt-6 w-full bg-black text-white p-3 rounded-md hover:bg-gray-800 ${
                 loading || subscription === selectedPlan ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               disabled={loading || subscription === selectedPlan}
@@ -134,11 +161,11 @@ const SubscriptionPage = () => {
             </button>
           </>
         )}
-
+  
         {subscription !== 'Default' && licenseStatus === 'Approved' && (
           <button
             onClick={handleUnsubscribe}
-            className="mt-4 w-full bg-red-500 text-white p-2 rounded-md hover:bg-red-600"
+            className="mt-4 w-full bg-red-500 text-white p-3 rounded-md hover:bg-red-600"
             disabled={loading}
           >
             {loading ? 'Processing...' : 'Unsubscribe'}
@@ -148,6 +175,7 @@ const SubscriptionPage = () => {
       <Footer />
     </div>
   );
+  
 };
 
 export default SubscriptionPage;

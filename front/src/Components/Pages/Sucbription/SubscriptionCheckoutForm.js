@@ -74,11 +74,10 @@ const SubscriptionCheckoutForm = () => {
       console.log('Selected plan', selectedPlan);
   
       // Step 3: Update Subscription in the Database
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
+      await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/update-subscription-status/${user.userId}`,
         {
           subscriptionId: stripeSubscriptionId,
-          customerId: customerId,
           subscriptionType: interval,
           membershipType: selectedPlan,
         }
