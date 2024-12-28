@@ -51,6 +51,7 @@ const SubscriptionCheckoutForm = () => {
   
       // Step 2: Create the Stripe Subscription
       const interval = selectedPlan === 'Ambassador' ? 'Yearly' : 'Monthly';
+      console.log('Interval is ', interval);
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/checkout/create-subscription`,
         {
@@ -59,21 +60,25 @@ const SubscriptionCheckoutForm = () => {
         }
       );
   
-      const { subscriptionId: stripeSubscriptionId, success, error } = response.data;
+      const { subscriptionId: stripeSubscriptionId, customerId: customerId } = response.data;
+      console.log('here',stripeSubscriptionId)
+      console.log('hey here',customerId);
   
-      if (!success || !stripeSubscriptionId) {
-        setMessage(`Subscription creation failed: ${error || 'Unknown error'}`);
+      if (!stripeSubscriptionId) {
+        setMessage(`Subscription creation failed:  || 'Unknown error'}`);
         setIsProcessing(false);
         return;
       }
   
       setSubscriptionId(stripeSubscriptionId);
+      console.log('Selected plan', selectedPlan);
   
       // Step 3: Update Subscription in the Database
-      await axios.patch(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/update-subscription-status/${user.userId}`,
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
         {
           subscriptionId: stripeSubscriptionId,
+          customerId: customerId,
           subscriptionType: interval,
           membershipType: selectedPlan,
         }
