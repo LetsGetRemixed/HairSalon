@@ -5,7 +5,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.getAllSubscriptions = async (req, res) => {
   try {
-    //const subscriptions = await Subscription.find();
     const subscriptions = await Subscription.find().populate('user', 'name email');
     res.status(200).json(subscriptions);
   } catch (error) {
@@ -17,7 +16,6 @@ exports.getAllSubscriptions = async (req, res) => {
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
   const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
-  console.log('CustomerId is ', customerId);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -83,9 +81,7 @@ exports.getSubscriptionByUserId = async (req, res) => {
     if (!user) {
       console.log('Not found');
       return res.status(404).json({ message: 'User not found' });
-     } else {
-      console.log('User found');
-     }
+     } 
 
     const subscription = await Subscription.findOne({ user: userId });
     if (!subscription) {

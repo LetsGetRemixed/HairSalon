@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 exports.createTransaction = async (req, res) => {
     try {
         const { products, buyerId, shippingAddress, totalAmount } = req.body;
-        console.log('Calling transaction', req.body);
+        
         
         if (!products || !buyerId || !shippingAddress || !totalAmount) {
             return res.status(400).json({ message: 'Missing required fields' });
