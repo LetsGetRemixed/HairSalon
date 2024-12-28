@@ -32,11 +32,10 @@ exports.createMembership = async (req, res) => {
     let currentSubscription = await Subscription.findOne({ user: userId });
 
     if (currentSubscription) {
-      let now = new Date();
-      if (currentSubscription.expireDate > now) {
+      if (currentSubscription.isActive === true) {
         return res.status(200).json({ message: 'User already has a active running subscription', subscription: currentSubscription });
       } else {
-        // If the membership is expired, update it
+        // If the membership is not active, update it
         currentSubscription.membershipType = membershipType;
         currentSubscription.subscriptionId = subscriptionId;
         currentSubscription.customerId = customerId;
@@ -132,27 +131,6 @@ exports.cancelSubscription = async (req, res) => {
   }
 };
 
-exports.checkAndUpdateSubscription = async (req, res) => {
-  try {
-    const now = new Date();
-    const expiredSubscriptions = await Subscription.find({ 
-      expireDate: { $lt: now }, 
-      isActive: true 
-    });
-    console.log(expiredSubscriptions);
-
-    // Check all active subscriptions
-    for (const subscription of expiredSubscriptions) {
-      subscription.isActive = false;
-      await subscription.save();
-      console.log(`Updated subscription ${subscription._id} to inactive.`);
-    }
-    res.json({ message: 'Subscriptions that are expired are now set to false' });
-  } catch (error) {
-    console.error('Error checking subscriptions subscription:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
 
 exports.updateSubscriptionStatus = async (req, res) => {
   const { userId } = req.params;

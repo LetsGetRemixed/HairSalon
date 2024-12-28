@@ -23,8 +23,7 @@ exports.handleStripeWebhook = async (req, res) => {
     console.log(invoice);
     
     // Get the stripe user ID
-    //const userId = invoice.customer;
-    const userId = 'cus_RTuHrfinYrOsA3'
+    const userId = invoice.customer;
     console.log('userID is ', userId);
     
     try {
@@ -33,6 +32,7 @@ exports.handleStripeWebhook = async (req, res) => {
           subscription.membershipType = 'Default';
           subscription.isActive = false; 
           await subscription.save();
+          console.log('User subscription updated after failed payment');
       } else {
         console.log('User not foound');
       }
