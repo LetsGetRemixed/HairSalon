@@ -16,7 +16,8 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
-  const { subscriptionId, subscriptionType, membershipType } = req.body;
+  const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
+  console.log('CustomerId is ', customerId);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -38,9 +39,9 @@ exports.createMembership = async (req, res) => {
         // If the membership is expired, update it
         currentSubscription.membershipType = membershipType;
         currentSubscription.subscriptionId = subscriptionId;
+        currentSubscription.customerId = customerId;
         currentSubscription.subscriptionType = subscriptionType;
         currentSubscription.isActive = true;
-        currentSubscription.expireDate = now.setMonth(now.getMonth() + 1); // Extend expiry date by 1 month
         await currentSubscription.save();
 
         return res.status(200).json({
@@ -54,6 +55,7 @@ exports.createMembership = async (req, res) => {
       user: userId,
       membershipType: membershipType,
       subscriptionId: subscriptionId,
+      customerId: customerId,
       subscriptionType: subscriptionType,
       isActive: true,
     });
@@ -101,7 +103,7 @@ exports.cancelSubscription = async (req, res) => {
   const { userId } = req.params; 
 
   try {
-    const user = await User.findById(userId).populate('subscription'); // Populate subscription
+    const user = await User.findById(userId).populate('subscription'); 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -181,4 +183,4 @@ exports.updateSubscriptionStatus = async (req, res) => {
     console.error('Error checking subscriptions subscription:', error);
     res.status(500).json({ error: error.message });
   }
-}
+};

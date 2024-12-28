@@ -8,6 +8,7 @@ const subscriptionSchema = new mongoose.Schema({
         required: true,
       },
       subscriptionId: { type: String, required: true },
+      customerId: { type: String },
       subscriptionType: {type: String, required: true},
       isActive: { type: Boolean, default: true, required: true },
       expireDate: { type: Date, index: true },
