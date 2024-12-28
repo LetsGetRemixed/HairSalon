@@ -26,15 +26,15 @@ const SubscriptionCheckoutForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!stripe || !elements) {
       setMessage('Stripe has not loaded yet.');
       return;
     }
-
+  
     setIsProcessing(true);
     setMessage('Processing subscription payment...');
-
+  
     try {
       // Step 1: Create the Payment Method
       const cardElement = elements.getElement(CardElement);
@@ -42,13 +42,13 @@ const SubscriptionCheckoutForm = () => {
         type: 'card',
         card: cardElement,
       });
-
+  
       if (paymentError) {
         setMessage(`Payment method error: ${paymentError.message}`);
         setIsProcessing(false);
         return;
       }
-
+  
       // Step 2: Create the Stripe Subscription
       const interval = selectedPlan === 'Ambassador' ? 'Yearly' : 'Monthly';
       const response = await axios.post(
@@ -58,28 +58,28 @@ const SubscriptionCheckoutForm = () => {
           interval,
         }
       );
-
+  
       const { subscriptionId: stripeSubscriptionId, success, error } = response.data;
-
+  
       if (!success || !stripeSubscriptionId) {
         setMessage(`Subscription creation failed: ${error || 'Unknown error'}`);
         setIsProcessing(false);
         return;
       }
-
+  
       setSubscriptionId(stripeSubscriptionId);
-
-      // Step 3: Save Subscription in the Database
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
+  
+      // Step 3: Update Subscription in the Database
+      await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/update-subscription-status/${user.userId}`,
         {
           subscriptionId: stripeSubscriptionId,
           subscriptionType: interval,
           membershipType: selectedPlan,
         }
       );
-
-      setMessage('Subscription created successfully!');
+  
+      setMessage('Subscription updated successfully!');
       await refreshSubscription(); // Update context with the latest subscription
     } catch (err) {
       console.error('Error processing subscription:', err);
