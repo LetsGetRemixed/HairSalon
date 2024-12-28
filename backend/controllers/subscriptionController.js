@@ -15,7 +15,9 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
+  console.log('user is ', userId);
   const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
+  console.log('whattttt',req.body);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
