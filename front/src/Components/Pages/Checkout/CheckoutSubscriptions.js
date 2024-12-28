@@ -40,6 +40,8 @@ const Payment = ({ price, interval }) => {
         });
   
         const data = await response.json();
+        console.log('CustmeerID is ', data.customerId);
+        console.log('Data is  ', data);
         if (data.subscriptionId) {
           setSubscriptionId(
           data.subscriptionId);
@@ -47,9 +49,10 @@ const Payment = ({ price, interval }) => {
 
 
           const response2 = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/676239b8994d89a38f209c53`,
+            `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/676fb6ba74c7d6c4407eb214`,
             { 
               subscriptionId: data.subscriptionId,
+              customerId: data.customerId,
               subscriptionType: 'Yearly',
               membershipType: 'Ambassador'
              }

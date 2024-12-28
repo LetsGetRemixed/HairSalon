@@ -8,5 +8,4 @@ router.get('/check-user-subscription/:userId', subscriptionController.getSubscri
 router.get('/get-all-subscriptions', subscriptionController.getAllSubscriptions);
 router.patch('/cancel-subscription/:userId', subscriptionController.cancelSubscription);
 router.patch('/update-subscription-status/:userId', subscriptionController.updateSubscriptionStatus);
-router.post('/check-subscriptions-and-update', subscriptionController.checkAndUpdateSubscription);
 module.exports = router;

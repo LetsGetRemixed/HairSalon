@@ -8,6 +8,7 @@ const checkoutRoutes = require('./routes/checkoutRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const fedExRoutes = require('./routes/fedexShippingRoutes');
+const stripeRoutes = require('./routes/stripeRoutes');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const dotenv = require('dotenv');
@@ -18,13 +19,12 @@ const logger = require("firebase-functions/logger");
 dotenv.config();
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
-//const serviceAccount = require('./boldhair-f5522-firebase-adminsdk-t8f6n-9f1cbfe22e.json');
 admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.FB_TYPE,
     project_id: process.env.FB_PROJECT_ID,
     private_key_id: process.env.FB_PRIVATE_KEY_ID,
-    private_key: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'), // Replace `FIREBASE_` prefix with `FB_`
+    private_key: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'), 
     client_email: process.env.FB_CLIENT_EMAIL,
     client_id: process.env.FB_CLIENT_ID,
     auth_uri: process.env.FB_AUTH_URI,
@@ -38,6 +38,8 @@ admin.initializeApp({
 
 
 const app = express();
+// Route for stripe needs raw instead of json
+app.use('/api/stripe', stripeRoutes);
 app.use(express.json());
 app.use(cors());
 
@@ -50,7 +52,6 @@ app.use('/api/transaction', transactionRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/fedex', fedExRoutes);
 
-// Connect to MongoDB
 connectToDB();
 exports.api = functions.https.onRequest(app);
 

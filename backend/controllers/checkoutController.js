@@ -5,9 +5,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.createCheckout = async (req, res) => {
   try {
-      const { amount, currency } = req.body;  // Retrieve amount and currency from request
-      //console.log('amount is', amount);
-
+      const { amount, currency } = req.body;  
       // Create a Payment Intent with the specified amount and currency
       const amountInCents = Math.round(amount);
       const paymentIntent = await stripe.paymentIntents.create({
@@ -18,7 +16,6 @@ exports.createCheckout = async (req, res) => {
           }
       });
 
-      // Send the client_secret back to the frontend
       res.status(200).json({
           clientSecret: paymentIntent.client_secret
       });
@@ -52,7 +49,7 @@ exports.createDynamicSubscription = async (req, res) => {
       expand: ['latest_invoice.payment_intent'],
     });
 
-    res.status(200).json({ subscriptionId: subscription.id });
+    res.status(200).json({ subscriptionId: subscription.id, customerId: customer.id });
   } catch (error) {
     console.error('Error creating subscription:', error);
     res.status(500).json({ error: error.message });

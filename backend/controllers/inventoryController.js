@@ -23,7 +23,7 @@ const getInventory = async (category) => {
             .map(async (file) => {
             const fileName = file.name.split('/').pop(); // Extract file name
             const productFileName = fileName.replace(/\.(webp)$/i, ''); // Assume the product name is in the file name, e.g., 'productName_variant.tif'
-            console.log('File name',fileName);
+            
             // Generate signed URL
             const [url] = await file.getSignedUrl({
                 action: 'read',
@@ -92,9 +92,9 @@ exports.getOneItem = async (req, res) => {
 };
 
 exports.updateInventory = async (req, res) => {
-    const { inventoryId } = req.params; // Get inventory ID from URL params
-    const updateFields = req.body; // Get the fields to be updated from the request body
-    console.log('Body is', updateFields);
+    const { inventoryId } = req.params; 
+    const updateFields = req.body; 
+    
     // Validate that at least one field is provided
     if (Object.keys(updateFields).length === 0) {
       return res.status(400).json({ message: "At least one field is required to update" });
@@ -198,8 +198,6 @@ exports.updateInventory = async (req, res) => {
   exports.deleteItem = async (req, res) => {
     try {
       const itemToDelete = await Inventory.findByIdAndDelete(req.params.id);
-      console.log('Hitting this route ', req.params.id);
-      //console.log('Item to be deleteed is ', itemToDelete);
       if (!itemToDelete) return res.status(404).json({ message: 'Item not found' });
       
       res.json({ message: 'Item deleted successfully' });
