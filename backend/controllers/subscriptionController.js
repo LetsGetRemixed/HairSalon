@@ -238,37 +238,37 @@ exports.upgradeMembership = async (req, res) => {
     if (!currentSubscription) {
       return res.status(404).json({ message: 'No active subscription found for user' });
     }
+    // Retrieve the subscription from Stripe
     const subscription = await stripe.subscriptions.retrieve(currentSubscription.subscriptionId);
-    const scheduleId = subscription.schedule; 
-    const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId);
+    if (!subscription) {
+      return res.status(400).json({ message: 'No subscription found.' });
+    }
 
-    const updatedSubscriptionSchedule = await stripe.subscriptionSchedules.update(schedule.id, {
-      phases: [
-        {
-          items: [
-            {
-              price: newPriceId, 
-            },
-          ],
-          start_date: schedule.phases[0].start_date, // Start after the current cycle ends
-          end_date: schedule.phases[0].end_date,
-          billing_cycle_anchor: "automatic",
-          proration_behavior: 'none', 
-        },
-      ],
+    // Cancel the current subscription at the end of the cycle
+    await stripe.subscriptions.update(subscription.id, {
+      cancel_at_period_end: true,
     });
 
-    currentSubscription.subscriptionType = interval;
-    await currentSubscription.save();
+    // Schedule the new subscription to start at the end of the current cycle
+    const newSubscription = await stripe.subscriptions.create({
+      customer: subscription.customer,
+      items: [{ price: newPriceId }],
+      proration_behavior: 'none', // Avoid immediate charges
+      billing_cycle_anchor: subscription.current_period_end,
+      metadata: {
+        originalSubscription: subscription.id,
+      },
+    });
+    currentSubscription.subscriptionId = newSubscription.id;
+    currentSubscription.expireDateForInterval = new Date(subscription.current_period_end * 1000);
     res.status(200).json({
       message: 'Subscription updated successfully',
-      subscription: updatedSubscriptionSchedule,
+      subscription: newSubscription,
     });
+    
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
-// If they upgrade monthly to yearly
-// If they upgrade yearly to monthy
 

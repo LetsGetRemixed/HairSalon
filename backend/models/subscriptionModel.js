@@ -12,6 +12,7 @@ const subscriptionSchema = new mongoose.Schema({
       subscriptionType: {type: String },
       isActive: { type: Boolean, default: true, required: true },
       expireDate: { type: Date, index: true }, 
+      expireDateForInterval: { type: Date },
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
