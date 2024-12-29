@@ -78,8 +78,8 @@ const SubscriptionCheckoutForm = () => {
         `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
         {
           subscriptionId: stripeSubscriptionId,
+          customerId: customerId,
           subscriptionType: interval,
-          subscriptionType: selectedPlan,
           membershipType: 'Ambassador',
         }
       );
