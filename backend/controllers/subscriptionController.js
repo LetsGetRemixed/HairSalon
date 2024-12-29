@@ -239,6 +239,7 @@ exports.upgradeMembership = async (req, res) => {
       return res.status(404).json({ message: 'No active subscription found for user' });
     }
     const subscription = await stripe.subscriptions.retrieve(currentSubscription.subscriptionId);
+    console.log(subscription);
     const updatedSubscription = await stripe.subscriptions.update(currentSubscription.subscriptionId, {
       items: [
         {
@@ -247,7 +248,6 @@ exports.upgradeMembership = async (req, res) => {
         },
       ],
       proration_behavior: 'none', // No imediate charge
-      billing_cycle_anchor: 'unchanged', // Finish the current cycle
     });
 
     currentSubscription.subscriptionType = interval;
