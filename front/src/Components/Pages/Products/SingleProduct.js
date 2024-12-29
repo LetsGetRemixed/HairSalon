@@ -55,6 +55,11 @@ const SingleProduct = () => {
       return;
     }
 
+    if(membershipType === 'Default') {
+      navigate('/subscribe');
+      return;
+    }
+
     if (!selectedLength) {
       alert('Please select a length before adding to the cart.');
       return;

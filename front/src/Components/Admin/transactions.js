@@ -225,10 +225,13 @@ const Transactions = () => {
                   {tx.products.map((product, i) => (
                     <div key={i} className="mb-1">
                       <span className="font-semibold">
-                        {product.category}
+                        {product.name}
                       </span>
                       <span className="ml-2 text-gray-600">
                         - Length: {product.length}
+                      </span>
+                      <span className="ml-2 text-gray-600">
+                        X {product.quantity}
                       </span>
                     </div>
                   ))}
