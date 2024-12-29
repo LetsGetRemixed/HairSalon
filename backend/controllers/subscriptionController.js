@@ -115,7 +115,7 @@ exports.getSubscriptionByUserId = async (req, res) => {
 
     const subscription = await Subscription.findOne({ user: userId });
     if (!subscription) {
-      return res.status(200).json('Bronze');
+      return res.status(200).json('Default');
     }
     res.status(200).json(subscription.membershipType);
   } catch (error) {
