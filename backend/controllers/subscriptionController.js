@@ -12,7 +12,7 @@ exports.getAllSubscriptions = async (req, res) => {
   }
 }
 
-// Create Membership
+// Create Membership or Reactivate an old membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
   const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
@@ -27,11 +27,11 @@ exports.createMembership = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    let currentSubscription = await Subscription.findOne({ user: userId });
-
+    let currentSubscription = await Subscription.findOne({ user: userId }); 
     if (currentSubscription) {
-      if (currentSubscription.isActive === true) {
-        return res.status(200).json({ message: 'User already has a active running subscription', subscription: currentSubscription });
+      let now = new Date();
+      if (currentSubscription.expireDate > now) {
+        return res.status(200).json({ message: `User already has a active running subscription, expires on ${currentSubscription.expireDate}`, subscription: currentSubscription });
       } else {
         // If the membership is not active, update it
         currentSubscription.membershipType = membershipType;
@@ -96,7 +96,7 @@ exports.createStylistMembership = async (req, res) => {
   }
 }
 
-
+// Return the membership type for a user
 exports.getSubscriptionByUserId = async (req, res) => {
   const { userId } = req.params;
   
@@ -107,13 +107,12 @@ exports.getSubscriptionByUserId = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      console.log('Not found');
       return res.status(404).json({ message: 'User not found' });
      } 
 
     const subscription = await Subscription.findOne({ user: userId });
     if (!subscription) {
-      return res.status(200).json('Bronze');
+      return res.status(200).json('No subscription found for this user');
     }
     res.status(200).json(subscription.membershipType);
   } catch (error) {
@@ -121,7 +120,7 @@ exports.getSubscriptionByUserId = async (req, res) => {
   }
 }
 
-
+// Cancel a subscription and set a expiration date at the end of a billing period
 exports.cancelSubscription = async (req, res) => {
   const { userId } = req.params; 
 
@@ -155,7 +154,7 @@ exports.cancelSubscription = async (req, res) => {
   }
 };
 
-
+// Update the membership type for a user
 exports.updateSubscriptionStatus = async (req, res) => {
   const { userId } = req.params;
   const { membershipType } = req.body;
@@ -181,6 +180,30 @@ exports.updateSubscriptionStatus = async (req, res) => {
       subscription,
     });
 
+  } catch (error) {
+    console.error('Error checking subscriptions subscription:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Update all of the expired subscriptions to Styilst 
+exports.checkAndUpdateExpiredSubscription = async (req, res) => {
+  try {
+    const now = new Date();
+    const expiredSubscriptions = await Subscription.find({ 
+      expireDate: { $lt: now }, 
+      isActive: true 
+    });
+    console.log(expiredSubscriptions);
+
+    // Check all active subscriptions
+    for (const subscription of expiredSubscriptions) {
+      subscription.membershipType = 'Stylist';
+      subscription.isActive = true;
+      await subscription.save();
+      console.log(`Updated subscription ${subscription._id} to inactive.`);
+    }
+    res.json({ message: 'Subscriptions that are expired are now set to false' });
   } catch (error) {
     console.error('Error checking subscriptions subscription:', error);
     res.status(500).json({ error: error.message });
