@@ -1,6 +1,8 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../Account/AuthContext";
+import Navbar from "../Universal/Navbar2"; // Import Navbar component
+import Footer from "../Universal/Footer"; // Import Footer component
 
 const LicenseUpload = () => {
   const { user } = useContext(AuthContext); // Fetch user from AuthContext
@@ -44,13 +46,13 @@ const LicenseUpload = () => {
     try {
       // Upload the license image
       await axios.post(
-        `http://localhost:5100/api/users/upload-license/${user.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/users/upload-license/${user.userId}`,
         formData
       );
 
       // Update the user's subscription status to Pending
       await axios.put(
-        `http://localhost:5100/api/users/update-user-info/${user.userId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/users/update-user-info/${user.userId}`,
         { license: "Pending" }
       );
 
@@ -66,48 +68,60 @@ const LicenseUpload = () => {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Upload License</h2>
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <div style={{ marginBottom: "10px" }}>
-          <label htmlFor="file">License Image:</label>
-          <input
-            type="file"
-            id="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-            style={{ display: "block", margin: "5px 0" }}
-          />
+    <div className="bg-[#faf3e6] min-h-screen flex flex-col">
+      <Navbar /> {/* Add Navbar */}
+      <div className="flex-grow">
+        <div className="max-w-md mx-auto bg-white shadow-lg rounded-lg p-8 mt-8">
+          <h2 className="text-3xl font-cinzel font-bold text-center text-[#c29d60] mb-6">
+            Upload Your License
+          </h2>
+          <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
+            <div>
+              <label
+                htmlFor="file"
+                className="block text-lg font-medium text-[#5f5340] mb-2"
+              >
+                License Image:
+              </label>
+              <input
+                type="file"
+                id="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                required
+                className="block w-full p-2 border border-[#e6d7b8] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#c29d60]"
+              />
+            </div>
+            <button
+              type="submit"
+              className={`w-full py-2 px-4 rounded-lg text-white font-bold transition ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#c29d60] hover:bg-[#b79451]"
+              }`}
+              disabled={isLoading}
+            >
+              {isLoading ? "Uploading..." : "Upload"}
+            </button>
+          </form>
+          {message && (
+            <p
+              className={`mt-4 text-center font-medium ${
+                message.toLowerCase().includes("success")
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
         </div>
-        <button
-          type="submit"
-          style={{
-            backgroundColor: isLoading ? "#cccccc" : "#4CAF50",
-            color: "white",
-            padding: "10px 20px",
-            border: "none",
-            cursor: isLoading ? "not-allowed" : "pointer",
-            borderRadius: "4px",
-          }}
-          disabled={isLoading}
-        >
-          {isLoading ? "Uploading..." : "Upload"}
-        </button>
-      </form>
-      {message && (
-        <p
-          style={{
-            marginTop: "10px",
-            color: message.toLowerCase().includes("success") ? "green" : "red",
-          }}
-        >
-          {message}
-        </p>
-      )}
+      </div>
+      <Footer /> {/* Add Footer */}
     </div>
   );
 };
 
 export default LicenseUpload;
+
 

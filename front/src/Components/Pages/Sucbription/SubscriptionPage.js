@@ -67,11 +67,42 @@ const SubscriptionPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="max-w-2xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Manage Your Subscription</h1>
+      <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-md">
+        <h1 className="text-4xl font-cinzel mb-6 text-center">BOLD SUBSCRIPTIONS</h1>
+        
+        {/* Benefits Section */}
+        {licenseStatus !== 'Approved' && (
+  <div className="bg-[#fef7e0] p-8 rounded-lg shadow-lg border border-[#e4cfa8] mb-6">
+    <h2
+      className="text-5xl font-bold text-center mb-6 font-cinzel text-[#c29d60]"
+      style={{
+        textTransform: 'uppercase', // Adds emphasis to the text
+        letterSpacing: '2px', // Adds elegance and spacing
+      }}
+    >
+      Unlock Exclusive Benefits by Uploading Your License!
+    </h2>
+    <p className="text-lg text-[#5f5340] mb-4 font-medium">
+      As a licensed stylist, you'll gain access to exclusive discounts on all products, saving you money on the supplies you need most.
+      But that’s not all – you’ll also be eligible to join our special Ambassador memberships, unlocking even greater perks and rewards.
+    </p>
+    <ul className="list-disc list-inside text-[#6b5d47] space-y-2">
+      <li>Exclusive pricing on every product in our store.</li>
+      <li>Access to premium membership plans with enhanced discounts.</li>
+      <li>Priority support from our dedicated customer service team.</li>
+      <li>Be part of a thriving community of top stylists and ambassadors.</li>
+    </ul>
+    <p className="mt-4 text-center text-[#8a6a3d] font-semibold">
+      Upload your license today and start reaping the benefits!
+    </p>
+  </div>
+)}
+
+
+
         {licenseStatus === 'Pending' && (
           <p className="text-yellow-600 font-medium text-center mb-4">
-            Your license is pending approval. You cannot subscribe until it's approved.
+            Your license is pending approval. You will receive "Stylist" membership upon approval.
           </p>
         )}
         {licenseStatus === 'Rejected' && (
@@ -85,16 +116,16 @@ const SubscriptionPage = () => {
           </p>
         )}
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-  
+
         {licenseStatus !== 'Approved' && (
           <button
             onClick={handleUploadLicense}
-            className="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600"
+            className="w-full bg-gray-800 text-white p-3 rounded-md hover:bg-gray-600"
           >
             Upload License
           </button>
         )}
-  
+
         {licenseStatus === 'Approved' && (
           <>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -160,7 +191,7 @@ const SubscriptionPage = () => {
             </button>
           </>
         )}
-  
+
         {subscription !== 'Default' && licenseStatus === 'Approved' && (
           <button
             onClick={handleUnsubscribe}
