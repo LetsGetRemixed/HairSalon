@@ -126,73 +126,79 @@ const SubscriptionPage = () => {
           </button>
         )}
 
-        {licenseStatus === 'Approved' && (
-          <>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {[
-                {
-                  plan: 'Ambassador',
-                  price: '$50',
-                  description: [
-                    'Exclusive access to Ambassador tools.',
-                    'Priority customer support.',
-                    'Even more discounts on all products!',
-                  ],
-                },
-                {
-                  plan: 'Ambassador for 1 Year',
-                  price: '$540',
-                  savings: 'Save $60 compared to the monthly plan!',
-                  description: [
-                    'All benefits of the monthly plan.',
-                    'Significant savings for a yearly commitment.',
-                  ],
-                },
-              ].map(({ plan, price, savings, description }) => (
-                <div
-                  key={plan}
-                  className={`p-6 rounded-lg border shadow-lg ${
-                    subscription === plan
-                      ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
-                      : selectedPlan === plan
-                      ? 'border-green-500 bg-green-100'
-                      : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
-                  }`}
-                  onClick={() => {
-                    if (subscription !== plan) selectPlan(plan);
-                  }}
-                >
-                  <h2 className="text-2xl font-bold mb-2 text-center">{plan}</h2>
-                  <p className="text-lg font-semibold text-gray-800 mb-4 text-center">{price}</p>
-                  {savings && (
-                    <p className="text-sm text-green-600 font-medium mb-4 text-center">{savings}</p>
-                  )}
-                  <ul className="text-gray-600 list-disc list-inside space-y-2">
-                    {description.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                  {subscription === plan && (
-                    <p className="text-sm text-gray-500 mt-4 text-center">
-                      You already have this plan.
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={handleSubscribe}
-              className={`mt-6 w-full bg-black text-white p-3 rounded-md hover:bg-gray-800 ${
-                loading || subscription === selectedPlan ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              disabled={loading || subscription === selectedPlan}
-            >
-              {loading ? 'Processing...' : 'Subscribe'}
-            </button>
-          </>
-        )}
+{licenseStatus === 'Approved' && (
+  <>
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {[
+        {
+          plan: 'Ambassador',
+          price: '$50 / Month',
+          description: [
+            'Exclusive access to Ambassador tools.',
+            'Priority customer support.',
+            'Even more discounts on all products!',
+          ],
+        },
+        {
+          plan: 'Ambassador for 1 Year',
+          price: '$540 / Year',
+          savings: 'Save $60 compared to the monthly plan!',
+          description: [
+            'All benefits of the monthly plan.',
+            'Significant savings for a yearly commitment.',
+          ],
+        },
+      ].map(({ plan, price, savings, description }) => (
+        <div
+          key={plan}
+          className={`p-6 rounded-lg border shadow-lg ${
+            membershipType === plan
+              ? 'border-gray-400 bg-gray-200 cursor-not-allowed'
+              : selectedPlan === plan
+              ? 'border-green-500 bg-green-100'
+              : 'border-gray-300 bg-gray-50 hover:bg-gray-100 cursor-pointer'
+          }`}
+          onClick={() => {
+            if (membershipType !== plan) selectPlan(plan);
+          }}
+          style={{
+            pointerEvents: membershipType === plan ? 'none' : 'auto', // Disable interaction if already subscribed
+          }}
+        >
+          <h2 className="text-2xl font-bold mb-2 text-center">{plan}</h2>
+          <p className="text-lg font-semibold text-gray-800 mb-4 text-center">{price}</p>
+          {savings && (
+            <p className="text-sm text-green-600 font-medium mb-4 text-center">{savings}</p>
+          )}
+          <ul className="text-gray-600 list-disc list-inside space-y-2">
+            {description.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+          {membershipType === plan && (
+            <p className="text-sm text-gray-500 mt-4 text-center">
+              You are currently on this plan.
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+    <button
+      onClick={handleSubscribe}
+      className={`mt-6 w-full bg-black text-white p-3 rounded-md hover:bg-gray-800 ${
+        loading || membershipType === selectedPlan
+          ? 'opacity-50 cursor-not-allowed'
+          : ''
+      }`}
+      disabled={loading || membershipType === selectedPlan }
+    >
+      {loading ? 'Processing...' : 'Subscribe'}
+    </button>
+  </>
+)}
 
-        {subscription !== 'Default' && licenseStatus === 'Approved' && (
+
+        {membershipType !== 'Default' && membershipType !== 'Stylist' && licenseStatus === 'Approved' && (
           <button
             onClick={handleUnsubscribe}
             className="mt-4 w-full bg-red-500 text-white p-3 rounded-md hover:bg-red-600"

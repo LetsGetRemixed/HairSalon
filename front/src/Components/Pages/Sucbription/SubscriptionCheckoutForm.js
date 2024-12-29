@@ -110,7 +110,17 @@ const SubscriptionCheckoutForm = () => {
         <div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Selected Subscription</h3>
           <p className="text-center p-3 bg-gray-100 rounded">
-            {selectedPlan ? `You have selected the ${selectedPlan} plan.` : 'No plan selected.'}
+            {selectedPlan ? (
+              <>
+                You have selected the <strong>{selectedPlan}</strong> plan.
+                <br />
+                <span className="text-lg font-bold text-gray-700">
+                  Price: {selectedPlan === 'Ambassador' ? '$50 / Month' : '$540 / Year'}
+                </span>
+              </>
+            ) : (
+              'No plan selected.'
+            )}
           </p>
         </div>
         <div>
