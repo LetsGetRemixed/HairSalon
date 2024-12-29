@@ -17,6 +17,7 @@ const CheckoutForm = () => {
   const [shippingCost, setShippingCost] = useState(5.0); // Default shipping cost for 'Ground'
   const [clientSecret, setClientSecret] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderDetails, setOrderDetails] = useState(null);
   const [message, setMessage] = useState('');
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
@@ -53,17 +54,17 @@ const CheckoutForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!stripe || !elements) {
       setMessage('Stripe has not loaded yet.');
       return;
     }
-
+  
     setIsProcessing(true);
     setMessage('Processing payment...');
-
+  
     const totalAmount = calculateSubtotal() + shippingCost;
-
+  
     try {
       // Step 1: Create a Payment Intent on the server
       const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
@@ -71,10 +72,10 @@ const CheckoutForm = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: totalAmount * 100, currency: 'usd' }), // Convert to cents
       });
-
+  
       const data = await response.json();
       setClientSecret(data.clientSecret);
-
+  
       // Step 2: Confirm the Payment with Stripe
       const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
@@ -86,16 +87,16 @@ const CheckoutForm = () => {
           },
         },
       });
-
+  
       if (error) {
         setMessage(`Payment failed: ${error.message}`);
         setIsProcessing(false);
         return;
       }
-
+  
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         setMessage('Payment successful! Saving transaction...');
-
+  
         // Step 3: Save the transaction data on the server
         const transactionData = {
           products: cart,
@@ -105,14 +106,21 @@ const CheckoutForm = () => {
           isShipped: false,
           priority: shippingMethod, // Save selected shipping method
         };
-
+  
         await fetch('http://localhost:5100/api/transaction/save-transaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(transactionData),
         });
-
-        setMessage('Transaction saved successfully!');
+  
+        // Store the order details
+        setOrderDetails({
+          products: cart,
+          shippingAddress: shippingInfo.address,
+          totalAmount: paymentIntent.amount / 100,
+          priority: shippingMethod,
+        });
+  
         clearCart();
       }
     } catch (error) {
@@ -124,6 +132,8 @@ const CheckoutForm = () => {
   };
 
   return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    {!orderDetails ? (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-6 bg-white shadow rounded">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Checkout</h2>
       {message && (
@@ -401,7 +411,23 @@ const CheckoutForm = () => {
         </button>
       </div>
     </form>
-  );
+    
+
+  ) : (
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded">
+      <h2 className="text-3xl font-bold text-center font-cinzel text-green-600 mb-4">Order Placed!</h2>
+      <p className="text-gray-700 mb-4 font-cinzel text-center">Your order has been placed successfully.</p>
+      <p className="text-gray-700 mb-4 font-cinzel text-center">You will receive an email receipt for your order.</p>
+      <button
+        onClick={() => window.location.href = '/'}
+        className="w-full p-3 bg-gray-900 text-white font-bold rounded hover:bg-gray-600"
+      >
+        Back to Home
+      </button>
+    </div>
+  )}
+</div>
+);
 };
 
 export default function Checkout() {
