@@ -33,7 +33,7 @@ exports.createDynamicSubscription = async (req, res) => {
     if (interval == 'Yearly') {
       priceId = 'price_1QZ1mNEnsP1F5DSTCOjT0COa';
     } else if (interval == 'Monthly') {
-      priceId = price_1QZ1m1EnsP1F5DSTluEMGzzh;
+      priceId = 'price_1QZ1m1EnsP1F5DSTluEMGzzh';
     } else {
       res.status(401).json({ message: 'Need a valid interval' });
     }
