@@ -68,6 +68,34 @@ exports.createMembership = async (req, res) => {
   }
 };
 
+exports.createStylistMembership = async (req, res) => {
+  const { userId } = req.params;
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log('User not found');
+      return res.status(404).json({ message: 'User not found' });
+     } 
+     const newSubscription = new Subscription({
+      user: userId,
+      membershipType: 'Stylist',
+      isActive: true,
+    });
+
+    await newSubscription.save();
+    user.subscription = newSubscription._id;
+    await user.save();
+
+    return res.status(201).json({ message: 'Stylist subscription created successfully!', subscription: newSubscription });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
 
 exports.getSubscriptionByUserId = async (req, res) => {
   const { userId } = req.params;

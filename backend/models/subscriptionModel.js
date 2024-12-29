@@ -7,9 +7,9 @@ const subscriptionSchema = new mongoose.Schema({
         enum: ['Default', 'Ambassador', 'Stylist'],
         required: true,
       },
-      subscriptionId: { type: String, required: true },
+      subscriptionId: { type: String },
       customerId: { type: String },
-      subscriptionType: {type: String, required: true},
+      subscriptionType: {type: String },
       isActive: { type: Boolean, default: true, required: true },
       expireDate: { type: Date, index: true },
 });
