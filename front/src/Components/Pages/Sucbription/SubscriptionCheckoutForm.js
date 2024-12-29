@@ -50,7 +50,7 @@ const SubscriptionCheckoutForm = () => {
       }
   
       // Step 2: Create the Stripe Subscription
-      const interval = selectedPlan === 'Ambassador' ? 'Yearly' : 'Monthly';
+      const interval = selectedPlan === 'Ambassador for 1 Year' ? 'Yearly' : 'Monthly';
       console.log('Interval is ', interval);
       const response = await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/checkout/create-subscription`,
@@ -60,7 +60,7 @@ const SubscriptionCheckoutForm = () => {
         }
       );
   
-      const { subscriptionId: stripeSubscriptionId, customerId: customerId } = response.data;
+      const { subscriptionId: stripeSubscriptionId, customerId: customerId } = response.data; // Cancel -> monthly -> Yearly
       console.log('here',stripeSubscriptionId)
       console.log('hey here',customerId);
   

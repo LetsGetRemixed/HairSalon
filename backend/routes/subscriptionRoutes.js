@@ -10,5 +10,6 @@ router.get('/get-all-subscriptions', subscriptionController.getAllSubscriptions)
 router.patch('/cancel-subscription/:userId', subscriptionController.cancelSubscription);
 router.patch('/update-subscription-status/:userId', subscriptionController.updateSubscriptionStatus);
 router.patch('/check-expired-functions', subscriptionController.checkAndUpdateExpiredSubscription);
+router.patch('/upgrade-membership/:userId', subscriptionController.upgradeMembership);
 
 module.exports = router;

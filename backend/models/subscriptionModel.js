@@ -11,7 +11,7 @@ const subscriptionSchema = new mongoose.Schema({
       customerId: { type: String },
       subscriptionType: {type: String },
       isActive: { type: Boolean, default: true, required: true },
-      expireDate: { type: Date, index: true },
+      expireDate: { type: Date, index: true }, 
 });
 
 const Subscription = mongoose.model('Subscription', subscriptionSchema);
