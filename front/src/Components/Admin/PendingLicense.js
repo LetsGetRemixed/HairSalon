@@ -32,7 +32,7 @@ const PendingLicense = () => {
   const handleApprove = async (userId) => {
     try {
       // Call the new endpoint to create a Stylist subscription
-      await axios.patch(
+      await axios.post(
         `${process.env.REACT_APP_BACKEND_URL}/subscription/create-stylist-sub/${userId}`
       );
   
