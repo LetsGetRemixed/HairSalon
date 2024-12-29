@@ -7,7 +7,8 @@ const AdminDashboard = () => {
     { title: 'Subscriptions', icon: '\uD83D\uDCB3', route: '/admin/subscriptions' },
     { title: 'Transactions', icon: '\uD83D\uDCB8', route: '/admin/transactions' },
     { title: 'Product Inventory', icon: '\uD83D\uDED2', route: '/admin/inventory' },
-    { title: 'Pending Licenses', icon: '📝', route: '/admin/pending-license' }, // New Pending Licenses section
+    { title: 'Pending Licenses', icon: '📝', route: '/admin/pending-license' },
+    { title: 'Shipping Orders', icon: '📦', route: '/admin/unfulfilled-orders' }, // New section
     { title: 'Info', icon: 'ℹ️', route: '/admin/info' },
   ];
 
@@ -51,6 +52,7 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
 
 
 

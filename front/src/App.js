@@ -27,6 +27,7 @@ import LicenseUpload from './Components/Pages/Sucbription/License';
 import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm';
 import PendingLicense from './Components/Admin/PendingLicense';
 import Contact from './Components/Pages/Contact/Contact';
+import ShippingOrders from './Components/Admin/ShippingOrders';
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
                     <Route path="/admin/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
                     <Route path="/admin/inventory" element={<ProtectedRoute><ProductInventory /></ProtectedRoute>} />
                     <Route path="/admin/pending-license" element={<ProtectedRoute><PendingLicense/></ProtectedRoute>} />
+                    <Route path="/admin/unfulfilled-orders" element={<ProtectedRoute><ShippingOrders/></ProtectedRoute>} />
                     <Route path="/admin/info" element={<ProtectedRoute><Info /></ProtectedRoute>} />
                     <Route path='/add-product' element={<AddProduct />} />
                     <Route path='/sub' element={<PaymentForm />} />

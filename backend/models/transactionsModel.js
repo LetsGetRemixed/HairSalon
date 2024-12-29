@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const transactionSchema = new mongoose.Schema({
   products: [
     {
+      name: { type: String, required: true },
       length: { type: String, required: true },
       quantity: { type: Number, required: true, min: 1},
     }
@@ -18,7 +19,9 @@ const transactionSchema = new mongoose.Schema({
     country: { type: String, required: true }
   },
   totalAmount: { type: Number, required: true },
-  purchaseDate: { type: Date, default: Date.now }
+  purchaseDate: { type: Date, default: Date.now },
+  isShipped: { type: Boolean, default: false },
+  priority: { type: String, enum: ['Ground', '2Day', 'Overnight'], default: 'Ground' },
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);
