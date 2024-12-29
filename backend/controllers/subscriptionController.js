@@ -20,7 +20,7 @@ exports.createMembership = async (req, res) => {
   console.log('whattttt',req.body);
   
   if (!mongoose.isValidObjectId(userId)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
+    return res.status(400).json({ message: 'Invalid user ID' }); 
   }
 
   try {
@@ -75,7 +75,6 @@ exports.createStylistMembership = async (req, res) => {
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
   }
-console.log('User is ', userId);
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -212,3 +211,57 @@ exports.checkAndUpdateExpiredSubscription = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.upgradeMembership = async (req, res) => {
+  const { userId } = req.params;
+  const { newPriceId } = req.body;
+  if (!mongoose.isValidObjectId(userId)) {
+    return res.status(400).json({ message: 'Invalid user ID' });
+  }
+
+  let interval;
+  if (newPriceId == 'price_1QZ1mNEnsP1F5DSTCOjT0COa') { 
+    interval = 'Yearly';
+  } else if (newPriceId == 'price_1QZ1m1EnsP1F5DSTluEMGzzh') {
+    interval = 'Monthly';
+  } else {
+    res.status(401).json({ message: 'Need a valid priceId' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let currentSubscription = await Subscription.findOne({ user: userId }); 
+    if (!currentSubscription) {
+      return res.status(404).json({ message: 'No active subscription found for user' });
+    }
+    const subscription = await stripe.subscriptions.retrieve(currentSubscription.subscriptionId);
+    const updatedSubscription = await stripe.subscriptions.update(currentSubscription.subscriptionId, {
+      items: [
+        {
+          id: subscription.items.data[0].id, 
+          price: newPriceId, 
+        },
+      ],
+      proration_behavior: 'none', // No imediate charge
+      billing_cycle_anchor: 'unchanged', // Finish the current cycle
+    });
+
+    currentSubscription.subscriptionType = interval;
+    await currentSubscription.save();
+    res.status(200).json({
+      message: 'Subscription updated successfully',
+      subscription: updatedSubscription,
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+// If they upgrade monthly to yearly
+// If they upgrade yearly to monthy
+
+// Update 
