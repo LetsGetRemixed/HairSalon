@@ -11,7 +11,6 @@ const Cart = () => {
     loading,
     fetchCart,
     removeFromCart,
-    clearCart,
     updateCartItemQuantity,
     applyPromoCode,
     discount,
@@ -19,13 +18,13 @@ const Cart = () => {
     calculateTotal,
   } = useCart();
 
-  const { subscription } = useSubscription();
+  const { membershipType } = useSubscription();
   const [promoCode, setPromoCode] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchCart(subscription); // Fetch the cart when the component mounts
-  }, [fetchCart, subscription]);
+    fetchCart(membershipType); // Fetch the cart when the component mounts
+  }, [fetchCart, membershipType]);
 
   const handleQuantityChange = (itemId, length, delta) => {
     const item = cart.find((item) => item.productId === itemId && item.length === length);

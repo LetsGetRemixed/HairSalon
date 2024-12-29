@@ -6,7 +6,8 @@ export const SubscriptionContext = createContext();
 
 export const SubscriptionProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
-  const [subscription, setSubscription] = useState('Default'); // Default subscription level
+  const [subscription, setSubscription] = useState('Default'); // Holds the subscription ID
+  const [membershipType, setMembershipType] = useState('Default'); // Holds the membership type (e.g., Ambassador, Default)
   const [licenseStatus, setLicenseStatus] = useState('Pending');
   const [selectedPlan, setSelectedPlan] = useState(''); // Holds the user-selected plan
   const [loading, setLoading] = useState(true);
@@ -24,11 +25,13 @@ export const SubscriptionProvider = ({ children }) => {
           );
           const userData = response.data;
 
-          // Set subscription and license status
-          setSubscription(userData.subscription || 'Default');
+          // Set subscription (ID) and membershipType (e.g., Ambassador)
+          setSubscription(userData.subscription?._id || 'Default');
+          setMembershipType(userData.subscription?.membershipType || 'Default');
           setLicenseStatus(userData.license || 'Pending');
 
-          console.log('Fetched user subscription:', userData.subscription);
+          console.log('Fetched subscription ID:', userData.subscription?._id);
+          console.log('Fetched membership type:', userData.subscription?.membershipType);
           console.log('Fetched user license:', userData.license);
 
           setError('');
@@ -61,11 +64,13 @@ export const SubscriptionProvider = ({ children }) => {
         );
         const userData = response.data;
 
-        // Refresh subscription and license status
-        setSubscription(userData.subscription || 'Default');
+        // Refresh subscription (ID) and membershipType
+        setSubscription(userData.subscription?._id || 'Default');
+        setMembershipType(userData.subscription?.membershipType || 'Default');
         setLicenseStatus(userData.license || 'Pending');
 
-        console.log('Refreshed user subscription:', userData.subscription);
+        console.log('Refreshed subscription ID:', userData.subscription?._id);
+        console.log('Refreshed membership type:', userData.subscription?.membershipType);
         console.log('Refreshed user license:', userData.license);
 
         setError('');
@@ -81,7 +86,8 @@ export const SubscriptionProvider = ({ children }) => {
   return (
     <SubscriptionContext.Provider
       value={{
-        subscription,
+        subscription, // Subscription ID for general use
+        membershipType, // Membership type for specific use cases
         setSubscription,
         licenseStatus,
         setLicenseStatus,
@@ -99,6 +105,7 @@ export const SubscriptionProvider = ({ children }) => {
 
 // Custom hook for using SubscriptionContext
 export const useSubscription = () => useContext(SubscriptionContext);
+
 
 
 
