@@ -239,22 +239,30 @@ exports.upgradeMembership = async (req, res) => {
       return res.status(404).json({ message: 'No active subscription found for user' });
     }
     const subscription = await stripe.subscriptions.retrieve(currentSubscription.subscriptionId);
-    console.log(subscription);
-    const updatedSubscription = await stripe.subscriptions.update(currentSubscription.subscriptionId, {
-      items: [
+    const scheduleId = subscription.schedule; 
+    const schedule = await stripe.subscriptionSchedules.retrieve(scheduleId);
+
+    const updatedSubscriptionSchedule = await stripe.subscriptionSchedules.update(schedule.id, {
+      phases: [
         {
-          id: subscription.items.data[0].id, 
-          price: newPriceId, 
+          items: [
+            {
+              price: newPriceId, 
+            },
+          ],
+          start_date: schedule.phases[0].start_date, // Start after the current cycle ends
+          end_date: schedule.phases[0].end_date,
+          billing_cycle_anchor: "automatic",
+          proration_behavior: 'none', 
         },
       ],
-      proration_behavior: 'none', // No imediate charge
     });
 
     currentSubscription.subscriptionType = interval;
     await currentSubscription.save();
     res.status(200).json({
       message: 'Subscription updated successfully',
-      subscription: updatedSubscription,
+      subscription: updatedSubscriptionSchedule,
     });
 
   } catch (error) {
@@ -264,4 +272,3 @@ exports.upgradeMembership = async (req, res) => {
 // If they upgrade monthly to yearly
 // If they upgrade yearly to monthy
 
-// Update 
