@@ -87,6 +87,7 @@ const SubscriptionPage = () => {
       But that’s not all – you’ll also be eligible to join our special Ambassador memberships, unlocking even greater perks and rewards.
     </p>
     <ul className="list-disc list-inside text-[#6b5d47] space-y-2">
+    <li>Access to purchase our full inventory of products.</li>
       <li>Exclusive pricing on every product in our store.</li>
       <li>Access to premium membership plans with enhanced discounts.</li>
       <li>Priority support from our dedicated customer service team.</li>
