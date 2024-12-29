@@ -206,12 +206,14 @@ const Account = () => {
               )}
             </div>
           </div>
-          {subscription && (
-            <div className="flex items-center">
-              <FaMedal className="text-yellow-500 mr-3" />
-              <p><strong>Subscription:</strong> {subscription}</p>
-            </div>
-          )}
+                      {subscription && (
+              <div className="flex items-center">
+                <FaMedal className="text-yellow-500 mr-3" />
+                <p>
+                  <strong>Subscription:</strong> {subscription === "Default" ? "None" : subscription}
+                </p>
+              </div>
+            )}
         </div>
 
         {/* Success Message */}
