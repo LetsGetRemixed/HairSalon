@@ -31,25 +31,24 @@ const PendingLicense = () => {
   // Approve License
   const handleApprove = async (userId) => {
     try {
+      // Call the new endpoint to create a Stylist subscription
+      await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-stylist-sub/${userId}`
+      );
+  
       // Update the license status to "Approved"
       await axios.put(
         `${process.env.REACT_APP_BACKEND_URL}/users/update-user-info/${userId}`,
         { license: "Approved" }
       );
   
-      // Update the subscription to "Stylist"
-      await axios.patch(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/update-subscription-status/${userId}`,
-        { membershipType: "Stylist" } // Pass the desired subscription type
-      );
-  
       // Remove the approved user from the pending list
       setPendingUsers((prev) => prev.filter((user) => user._id !== userId));
   
-      alert("License approved and subscription updated to Stylist successfully!");
+      alert("License approved and Stylist subscription created successfully!");
     } catch (err) {
-      console.error("Error approving license and updating subscription:", err);
-      alert("Failed to approve the license or update the subscription. Please try again.");
+      console.error("Error approving license and creating subscription:", err);
+      alert("Failed to approve the license or create the subscription. Please try again.");
     }
   };
 

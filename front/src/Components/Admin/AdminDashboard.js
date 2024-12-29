@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { useAdminAuth } from './AdminAuthProvider';
 
 const AdminDashboard = () => {
+
+  const { logout } = useAdminAuth();
+
   const sections = [
     { title: 'Users', icon: '👤', route: '/admin/users' },
     { title: 'Subscriptions', icon: '\uD83D\uDCB3', route: '/admin/subscriptions' },
@@ -19,12 +23,20 @@ const AdminDashboard = () => {
         <div>
           <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
         </div>
-        <Link
-          to="/"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300"
-        >
-          Back to Website
-        </Link>
+        <div className="flex space-x-4">
+          <Link
+            to="/"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300"
+          >
+            Back to Website
+          </Link>
+          <button
+            onClick={logout}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300"
+          >
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* Section Cards */}
