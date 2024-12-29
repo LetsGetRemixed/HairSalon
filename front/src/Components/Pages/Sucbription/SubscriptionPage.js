@@ -100,12 +100,12 @@ const SubscriptionPage = () => {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {[
                 {
-                  plan: 'Ambassador for 1 Month',
+                  plan: 'Ambassador',
                   price: '$50',
                   description: [
                     'Exclusive access to Ambassador tools.',
                     'Priority customer support.',
-                    'Access to premium content.',
+                    'Even more discounts on all products!',
                   ],
                 },
                 {
@@ -115,7 +115,6 @@ const SubscriptionPage = () => {
                   description: [
                     'All benefits of the monthly plan.',
                     'Significant savings for a yearly commitment.',
-                    'Special annual events and bonuses.',
                   ],
                 },
               ].map(({ plan, price, savings, description }) => (

@@ -12,7 +12,7 @@ const SingleProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { products, loading, error } = useProducts();
-  const { subscription } = useSubscription(); // Get subscription tier
+  const { membershipType } = useSubscription(); // Get subscription tier
   
   const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
@@ -37,7 +37,8 @@ const SingleProduct = () => {
 
   // Determine the applicable price based on subscription
   const getApplicablePrice = (prices) => {
-    switch (subscription) {
+    console.log('Subscription:', membershipType);
+    switch (membershipType) {
       case 'Ambassador':
         return prices.ambassadorPrice;
       case 'Stylist':
@@ -154,7 +155,7 @@ const SingleProduct = () => {
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
                   <ul className="text-gray-700 space-y-2">
-                    {subscription !== 'Default' && (
+                    {membershipType !== 'Default' && (
                       <li className="text-red-500 line-through">
                         Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
                       </li>
