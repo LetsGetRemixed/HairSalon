@@ -26,6 +26,7 @@ import PaymentForm from './Components/Pages/Checkout/CheckoutSubscriptions';
 import LicenseUpload from './Components/Pages/Sucbription/License';
 import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm';
 import PendingLicense from './Components/Admin/PendingLicense';
+import Contact from './Components/Pages/Contact/Contact';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path='/checkout' element={<Checkout/>} />
                     <Route path="/product/:id" element={<SingleProduct />} />
                     <Route path="/login" element={<Login />} />
