@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useCart } from './CartContext';
@@ -13,6 +13,8 @@ const CheckoutForm = () => {
   const elements = useElements();
   const { user } = useContext(AuthContext);
   const { cart, calculateSubtotal, clearCart } = useCart();
+  const [shippingMethod, setShippingMethod] = useState('Ground');
+  const [shippingCost, setShippingCost] = useState(5.0); // Default shipping cost for 'Ground'
   const [clientSecret, setClientSecret] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState('');
@@ -27,60 +29,30 @@ const CheckoutForm = () => {
       country: '',
     },
   });
-  const [shippingCost, setShippingCost] = useState(0);
-   // Fetch Shipping Cost
-   const fetchShippingCost = async () => {
-    const requestPayload = {
-      origin: {
-        street: "123 Main St",
-        city: "Memphis",
-        state: "TN",
-        zip: "38116",
-        country: "US",
-      },
-      destination: {
-        street: "456 Elm St",
-        city: "Dallas",
-        state: "TX",
-        zip: "75201",
-        country: "US",
-        residential: true,
-      },
-      weight: 0.32125, 
-      dimensions: {
-        length: 11.31,
-        width: 8.75,
-        height: 4.33071,
-      },
-      
-    };
+  const [billingInfo, setBillingInfo] = useState({
+    name: '',
+    email: '',
+    address: {
+      line1: '',
+      city: '',
+      state: '',
+      postal_code: '',
+      country: '',
+    },
+  });
 
-    try {
-      const response = await fetch('http://localhost:5100/api/fedex/get-shipping', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestPayload),
-      });
-
-      const data = await response.json();
-      console.log('Here is the data: ', data);
-
-      if (data.success && data.results.length > 0) {
-        const cost = data.results[0].cost;
-        console.log('Here is the cost: ', cost);
-        setShippingCost(cost);
-      } else {
-        setMessage('Failed to fetch shipping cost. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error fetching shipping cost:', error);
-      setMessage('Error calculating shipping. Please check your address and try again.');
-    }
+  const handleShippingChange = (e) => {
+    const selectedMethod = e.target.value;
+    setShippingMethod(selectedMethod);
+    let cost = 0;
+    if (selectedMethod === 'Ground') cost = 5.0;
+    else if (selectedMethod === '2Day') cost = 15.0;
+    else if (selectedMethod === 'Overnight') cost = 25.0;
+    setShippingCost(cost);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    fetchShippingCost();
-    console.log('Shipping cost is: ', shippingCost);
 
     if (!stripe || !elements) {
       setMessage('Stripe has not loaded yet.');
@@ -90,10 +62,10 @@ const CheckoutForm = () => {
     setIsProcessing(true);
     setMessage('Processing payment...');
 
-    // Step 1: Fetch the Payment Intent from your backend
     const totalAmount = calculateSubtotal() + shippingCost;
-    console.log('Total amount is ', totalAmount);
+
     try {
+      // Step 1: Create a Payment Intent on the server
       const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,17 +73,16 @@ const CheckoutForm = () => {
       });
 
       const data = await response.json();
-      
       setClientSecret(data.clientSecret);
 
-      // Step 2: Confirm the payment with Stripe
+      // Step 2: Confirm the Payment with Stripe
       const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: {
-            name: shippingInfo.name,
-            email: shippingInfo.email,
-            address: shippingInfo.address,
+            name: billingInfo.name,
+            email: billingInfo.email,
+            address: billingInfo.address,
           },
         },
       });
@@ -125,33 +96,31 @@ const CheckoutForm = () => {
       if (paymentIntent && paymentIntent.status === 'succeeded') {
         setMessage('Payment successful! Saving transaction...');
 
-        // Step 3: Save the transaction in your backend
+        // Step 3: Save the transaction data on the server
         const transactionData = {
           products: cart,
           buyerId: user.userId,
           shippingAddress: shippingInfo.address,
-          totalAmount: paymentIntent.amount / 100, // Convert to dollars
+          totalAmount: paymentIntent.amount / 100, // Convert back to dollars
+          isShipped: false,
+          priority: shippingMethod, // Save selected shipping method
         };
-        console.log('Here is the transaction data: ', transactionData);
 
-        try {
-          await fetch('http://localhost:5100/api/transaction/save-transaction', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(transactionData),
-          });
-          setMessage('Transaction saved successfully!');
-          clearCart();
-        } catch (error) {
-          console.error('Error saving transaction:', error.message);
-        }
+        await fetch('http://localhost:5100/api/transaction/save-transaction', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(transactionData),
+        });
+
+        setMessage('Transaction saved successfully!');
+        clearCart();
       }
     } catch (error) {
       setMessage('Failed to process payment. Please try again.');
-      console.error('Error fetching payment intent:', error);
+      console.error('Error processing payment:', error);
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   };
 
   return (
@@ -167,9 +136,10 @@ const CheckoutForm = () => {
         </p>
       )}
       <div className="grid gap-6">
+        {/* Shipping Information */}
         <div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Shipping Information</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid gap-4">
             <input
               type="text"
               placeholder="Full Name"
@@ -190,8 +160,6 @@ const CheckoutForm = () => {
               className="w-full p-3 border rounded"
               required
             />
-          </div>
-          <div className="grid gap-4 mt-4">
             <input
               type="text"
               placeholder="Address Line 1"
@@ -261,6 +229,102 @@ const CheckoutForm = () => {
             />
           </div>
         </div>
+
+        {/* Billing Information */}
+        <div>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">Billing Information</h3>
+          <div className="grid gap-4">
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={billingInfo.name}
+              onChange={(e) =>
+                setBillingInfo((prev) => ({ ...prev, name: e.target.value }))
+              }
+              className="w-full p-3 border rounded"
+              required
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={billingInfo.email}
+              onChange={(e) =>
+                setBillingInfo((prev) => ({ ...prev, email: e.target.value }))
+              }
+              className="w-full p-3 border rounded"
+              required
+            />
+            <input
+              type="text"
+              placeholder="Address Line 1"
+              value={billingInfo.address.line1}
+              onChange={(e) =>
+                setBillingInfo((prev) => ({
+                  ...prev,
+                  address: { ...prev.address, line1: e.target.value },
+                }))
+              }
+              className="w-full p-3 border rounded"
+              required
+            />
+            <div className="grid grid-cols-3 gap-4">
+              <input
+                type="text"
+                placeholder="City"
+                value={billingInfo.address.city}
+                onChange={(e) =>
+                  setBillingInfo((prev) => ({
+                    ...prev,
+                    address: { ...prev.address, city: e.target.value },
+                  }))
+                }
+                className="w-full p-3 border rounded"
+                required
+              />
+              <input
+                type="text"
+                placeholder="State"
+                value={billingInfo.address.state}
+                onChange={(e) =>
+                  setBillingInfo((prev) => ({
+                    ...prev,
+                    address: { ...prev.address, state: e.target.value },
+                  }))
+                }
+                className="w-full p-3 border rounded"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Postal Code"
+                value={billingInfo.address.postal_code}
+                onChange={(e) =>
+                  setBillingInfo((prev) => ({
+                    ...prev,
+                    address: { ...prev.address, postal_code: e.target.value },
+                  }))
+                }
+                className="w-full p-3 border rounded"
+                required
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Country"
+              value={billingInfo.address.country}
+              onChange={(e) =>
+                setBillingInfo((prev) => ({
+                  ...prev,
+                  address: { ...prev.address, country: e.target.value },
+                }))
+              }
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+        </div>
+
+        {/* Stripe Card Element */}
         <div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Payment Information</h3>
           <div className="p-3 border rounded">
@@ -282,6 +346,23 @@ const CheckoutForm = () => {
             />
           </div>
         </div>
+
+        {/* Shipping Method */}
+        <div>
+          <h3 className="text-lg font-semibold mb-2 text-gray-800">Shipping Method</h3>
+          <select
+            value={shippingMethod}
+            onChange={handleShippingChange}
+            className="w-full p-3 border rounded"
+            required
+          >
+            <option value="Ground">Ground - $5.00</option>
+            <option value="2Day">2 Day AM - $15.00</option>
+            <option value="Overnight">Priority Overnight - $25.00</option>
+          </select>
+        </div>
+
+        {/* Cart Summary */}
         <div>
           <h3 className="text-lg font-semibold mb-2 text-gray-800">Cart Summary</h3>
           <ul className="divide-y">
@@ -295,10 +376,20 @@ const CheckoutForm = () => {
             ))}
           </ul>
           <div className="flex justify-between font-bold text-lg mt-4">
-            <span>Total:</span>
+            <span>Subtotal:</span>
             <span>${calculateSubtotal().toFixed(2)}</span>
           </div>
+          <div className="flex justify-between font-bold text-lg mt-4">
+            <span>Shipping:</span>
+            <span>${shippingCost.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between font-bold text-lg mt-4">
+            <span>Total:</span>
+            <span>${(calculateSubtotal() + shippingCost).toFixed(2)}</span>
+          </div>
         </div>
+
+        {/* Payment Button */}
         <button
           type="submit"
           disabled={!stripe || isProcessing}
@@ -326,4 +417,7 @@ export default function Checkout() {
     </div>
   );
 }
+
+
+
 

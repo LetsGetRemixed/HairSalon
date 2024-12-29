@@ -27,6 +27,7 @@ exports.createCheckout = async (req, res) => {
 
 exports.createDynamicSubscription = async (req, res) => { 
  const { paymentMethodId, interval } = req.body; 
+ console.log('Am i hitting here');
   try {
     let priceId; 
     if (interval == 'Yearly') {

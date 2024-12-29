@@ -12,9 +12,9 @@ export const CartProvider = ({ children }) => {
 
   const getApplicablePrice = (prices, subscription) => {
     switch (subscription) {
-      case 'Gold':
+      case 'Ambassador':
         return prices.ambassadorPrice;
-      case 'Silver':
+      case 'Stylist':
         return prices.stylistPrice;
       default:
         return prices.suggestedRetailPrice;

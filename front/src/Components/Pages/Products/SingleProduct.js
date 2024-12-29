@@ -5,7 +5,6 @@ import { AuthContext } from '../Account/AuthContext';
 import { useSubscription } from '../Sucbription/SubscriptionContext'; // Import SubscriptionContext
 import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
-import { useCart } from '../Checkout/CartContext';
 import axios from 'axios';
 import AfterAdd from './AfterAdd';
 
@@ -13,7 +12,7 @@ const SingleProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { products, loading, error } = useProducts();
-  const { subscription } = useSubscription(); // Get subscription tier
+  const { membershipType } = useSubscription(); // Get subscription tier
   
   const { user } = useContext(AuthContext);
   const [selectedLength, setSelectedLength] = useState(null);
@@ -38,12 +37,13 @@ const SingleProduct = () => {
 
   // Determine the applicable price based on subscription
   const getApplicablePrice = (prices) => {
-    switch (subscription) {
-      case 'Gold':
+    console.log('Subscription:', membershipType);
+    switch (membershipType) {
+      case 'Ambassador':
         return prices.ambassadorPrice;
-      case 'Silver':
+      case 'Stylist':
         return prices.stylistPrice;
-      case 'Bronze':
+      case 'Default':
       default:
         return prices.suggestedRetailPrice;
     }
@@ -155,7 +155,7 @@ const SingleProduct = () => {
                 <div className="mb-6">
                   <h2 className="text-lg font-semibold text-gray-800 mb-2">Pricing:</h2>
                   <ul className="text-gray-700 space-y-2">
-                    {subscription !== 'Bronze' && (
+                    {membershipType !== 'Default' && (
                       <li className="text-red-500 line-through">
                         Retail Price: ${selectedVariant.prices.suggestedRetailPrice}
                       </li>

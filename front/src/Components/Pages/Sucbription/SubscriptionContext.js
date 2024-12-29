@@ -6,21 +6,38 @@ export const SubscriptionContext = createContext();
 
 export const SubscriptionProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
-  const [subscription, setSubscription] = useState('Bronze'); // Default to 'Bronze' if no subscription exists
+  const [subscription, setSubscription] = useState('Default'); // Holds the subscription ID
+  const [membershipType, setMembershipType] = useState('Default'); // Holds the membership type (e.g., Ambassador, Default)
+  const [licenseStatus, setLicenseStatus] = useState('Pending');
+  const [selectedPlan, setSelectedPlan] = useState(''); // Holds the user-selected plan
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
+  // Fetch the user's current subscription and license status on mount or when user changes
   useEffect(() => {
-    const fetchSubscription = async () => {
+    const fetchUserDetails = async () => {
       if (user) {
+        setLoading(true);
         try {
+          // Fetch user details using /:id endpoint
           const response = await axios.get(
-            `${process.env.REACT_APP_BACKEND_URL}/subscription/check-user-subscription/${user.userId}`
+            `${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`
           );
-          // Ensure response data is valid
-          console.log('Fetched subscription:', response.data);
-          setSubscription(response.data || 'Bronze');
+          const userData = response.data;
+
+          // Set subscription (ID) and membershipType (e.g., Ambassador)
+          setSubscription(userData.subscription?._id || 'Default');
+          setMembershipType(userData.subscription?.membershipType || 'Default');
+          setLicenseStatus(userData.license || 'Pending');
+
+          console.log('Fetched subscription ID:', userData.subscription?._id);
+          console.log('Fetched membership type:', userData.subscription?.membershipType);
+          console.log('Fetched user license:', userData.license);
+
+          setError('');
         } catch (error) {
-          console.error('Error fetching subscription:', error);
+          console.error('Error fetching user details:', error);
+          setError('Failed to load user details.');
         } finally {
           setLoading(false);
         }
@@ -29,16 +46,67 @@ export const SubscriptionProvider = ({ children }) => {
       }
     };
 
-    fetchSubscription();
+    fetchUserDetails();
   }, [user]);
 
+  // Update the selected plan
+  const selectPlan = (plan) => {
+    setSelectedPlan(plan);
+  };
+
+  // Refresh subscription and license status from the backend
+  const refreshSubscription = async () => {
+    if (user) {
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BACKEND_URL}/users/${user.userId}`
+        );
+        const userData = response.data;
+
+        // Refresh subscription (ID) and membershipType
+        setSubscription(userData.subscription?._id || 'Default');
+        setMembershipType(userData.subscription?.membershipType || 'Default');
+        setLicenseStatus(userData.license || 'Pending');
+
+        console.log('Refreshed subscription ID:', userData.subscription?._id);
+        console.log('Refreshed membership type:', userData.subscription?.membershipType);
+        console.log('Refreshed user license:', userData.license);
+
+        setError('');
+      } catch (error) {
+        console.error('Error refreshing user details:', error);
+        setError('Failed to refresh user details.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
-    <SubscriptionContext.Provider value={{ subscription, setSubscription, loading }}>
+    <SubscriptionContext.Provider
+      value={{
+        subscription, // Subscription ID for general use
+        membershipType, // Membership type for specific use cases
+        setSubscription,
+        licenseStatus,
+        setLicenseStatus,
+        selectedPlan,
+        selectPlan,
+        refreshSubscription,
+        loading,
+        error,
+      }}
+    >
       {children}
     </SubscriptionContext.Provider>
   );
 };
 
+// Custom hook for using SubscriptionContext
 export const useSubscription = () => useContext(SubscriptionContext);
+
+
+
 
 

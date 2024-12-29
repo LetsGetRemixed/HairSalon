@@ -74,18 +74,17 @@ const SubscriptionCheckoutForm = () => {
       console.log('Selected plan', selectedPlan);
   
       // Step 3: Update Subscription in the Database
-      await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/subscription/create-membership/${user.userId}`,
+      await axios.patch(
+        `${process.env.REACT_APP_BACKEND_URL}/subscription/update-subscription-status/${user.userId}`,
         {
           subscriptionId: stripeSubscriptionId,
-          customerId: customerId,
           subscriptionType: interval,
           membershipType: selectedPlan,
         }
       );
   
       setMessage('Subscription updated successfully!');
-      await refreshSubscription(); 
+      await refreshSubscription(); // Update context with the latest subscription
     } catch (err) {
       console.error('Error processing subscription:', err);
       setMessage('Failed to process subscription. Please try again.');

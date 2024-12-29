@@ -15,7 +15,9 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership or Reactivate an old membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
+  console.log('user is ', userId);
   const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
+  console.log('whattttt',req.body);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -112,7 +114,7 @@ exports.getSubscriptionByUserId = async (req, res) => {
 
     const subscription = await Subscription.findOne({ user: userId });
     if (!subscription) {
-      return res.status(200).json('No subscription found for this user');
+      return res.status(200).json('Default');
     }
     res.status(200).json(subscription.membershipType);
   } catch (error) {
