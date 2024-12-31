@@ -30,8 +30,7 @@ const Footer = () => {
 
           {/* Contact Information */}
           <div className="flex flex-col items-center md:items-end text-center md:text-right mt-11">
-            <p className="text-sm">Email: support@yourcompany.com</p>
-            <p className="text-sm">Phone: +1 (123) 456-7890</p>
+            <p className="text-sm">Email: Support@boldhairco.com</p>
           </div>
 
         </div>

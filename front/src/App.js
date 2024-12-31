@@ -28,6 +28,8 @@ import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm
 import PendingLicense from './Components/Admin/PendingLicense';
 import Contact from './Components/Pages/Contact/Contact';
 import ShippingOrders from './Components/Admin/ShippingOrders';
+import PrivacyPolicy from './Components/Pages/Universal/PrivacyPolicy';
+import TermsOfService from './Components/Pages/Universal/Terms';
 
 function App() {
   return (
@@ -39,6 +41,8 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path='/checkout' element={<Checkout/>} />
                     <Route path="/product/:id" element={<SingleProduct />} />

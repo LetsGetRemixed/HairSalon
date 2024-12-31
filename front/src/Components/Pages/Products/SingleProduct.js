@@ -144,16 +144,38 @@ const SingleProduct = () => {
               </div>
 
               {/* Quantity Selection */}
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Quantity:</h2>
-                <input
-                  type="number"
-                  min="1"
-                  value={selectedQuantity}
-                  onChange={(e) => setSelectedQuantity(Number(e.target.value))}
-                  className="w-20 p-2 border rounded-md"
-                />
-              </div>
+                        <div className="mb-6">
+                      <h2 className="text-lg font-semibold text-gray-800 mb-2">Select Quantity:</h2>
+                      {selectedVariant ? (
+                        <>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {selectedVariant.quantity > 5
+                              ? "In Stock"
+                              : "Low Quantity: May add to shipping time"}
+                          </p>
+                          {selectedVariant.quantity > 0 ? (
+                            <input
+                              type="number"
+                              min="1"
+                              max={selectedVariant.quantity}
+                              value={selectedQuantity}
+                              onChange={(e) => {
+                                const value = Math.min(
+                                  Number(e.target.value),
+                                  selectedVariant.quantity
+                                );
+                                setSelectedQuantity(value);
+                              }}
+                              className="w-20 p-2 border rounded-md"
+                            />
+                          ) : (
+                            <p className="text-red-600 font-bold">Out of Stock</p>
+                          )}
+                        </>
+                      ) : (
+                        <p className="text-gray-600">Please select a length to see quantity details.</p>
+                      )}
+                    </div>
 
               {/* Pricing Details */}
               {selectedVariant ? (
@@ -172,9 +194,7 @@ const SingleProduct = () => {
                   <p className="mt-4 text-sm text-gray-600">
                     Wefts per Pack: {selectedVariant.weftsPerPack}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Available Quantity: {selectedVariant.quantity || 'Out of Stock'}
-                  </p>
+                 
                 </div>
               ) : (
                 <p className="text-gray-600 text-sm">Please select a length to see pricing.</p>
@@ -196,6 +216,19 @@ const SingleProduct = () => {
             >
               Add to Cart
             </button>
+                        {/* Additional Message */}
+                    <div className="mt-8 text-center text-sm text-gray-600">
+                      For orders larger than available quantity, please reach out to{" "}
+                      <a
+                        href="mailto:support@boldhairco.com"
+                        className="text-blue-600 underline hover:text-blue-800"
+                      >
+                        support@boldhairco.com
+                      </a>{" "}
+                      for product availability or to place large orders.
+                    </div>
+
+
           </div>
         </div>
       </div>
