@@ -182,12 +182,12 @@ const SingleProduct = () => {
             </div>
 
             {/* Product Description */}
-            <div className="mt-6 font-cinzel">
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">About {product.productName}:</h2>
-              <p className="text-gray-600 text-md">
-                {product.description || 'No description available for this product.'}
-              </p>
-            </div>
+            {product.description && (
+  <div className="mt-6 font-cinzel">
+    <h2 className="text-lg font-semibold text-gray-800 mb-2">About {product.productName}:</h2>
+    <p className="text-gray-600 text-md">{product.description}</p>
+  </div>
+)}
             
             {/* Add to Cart Button */}
             <button

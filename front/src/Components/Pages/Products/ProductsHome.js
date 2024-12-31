@@ -14,8 +14,10 @@ const ProductsHome = () => {
 
   // Filter products by category
   const filteredProducts = sortCategory
-    ? products.filter((product) => product.category === sortCategory)
-    : products;
+  ? products
+      .filter((product) => product.category === sortCategory)
+      .sort((a, b) => a.productName.localeCompare(b.productName))
+  : products.sort((a, b) => a.productName.localeCompare(b.productName));
 
   // Display products up to the visible count
   const displayedProducts = filteredProducts.slice(0, visibleProducts);
