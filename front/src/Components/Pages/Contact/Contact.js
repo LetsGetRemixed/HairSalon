@@ -1,7 +1,6 @@
 import React from 'react';
 import Navbar from '../Universal/Navbar2';
 import Footer from '../Universal/Footer';
-import { Link } from 'react-router-dom';
 
 const Contact = () => {
   return (

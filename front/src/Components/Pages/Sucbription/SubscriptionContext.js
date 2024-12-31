@@ -9,6 +9,7 @@ export const SubscriptionProvider = ({ children }) => {
   const [subscription, setSubscription] = useState('Default'); // Holds the subscription ID
   const [membershipType, setMembershipType] = useState('Default'); // Holds the membership type (e.g., Ambassador, Default)
   const [licenseStatus, setLicenseStatus] = useState('Pending');
+  const [nextBillingDate, setNextBillingDate] = useState('null');
   const [selectedPlan, setSelectedPlan] = useState(''); // Holds the user-selected plan
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,10 +30,14 @@ export const SubscriptionProvider = ({ children }) => {
           setSubscription(userData.subscription?._id || 'Default');
           setMembershipType(userData.subscription?.membershipType || 'Default');
           setLicenseStatus(userData.license || 'Pending');
+          setNextBillingDate(userData.subscription?.expireDate);
+        
+      
 
           console.log('Fetched subscription ID:', userData.subscription?._id);
           console.log('Fetched membership type:', userData.subscription?.membershipType);
-          console.log('Fetched user license:', userData.license);
+          console.log('Fetched user license:', userData.license || null);
+          
 
           setError('');
         } catch (error) {
@@ -64,14 +69,20 @@ export const SubscriptionProvider = ({ children }) => {
         );
         const userData = response.data;
 
+        
+
         // Refresh subscription (ID) and membershipType
         setSubscription(userData.subscription?._id || 'Default');
         setMembershipType(userData.subscription?.membershipType || 'Default');
         setLicenseStatus(userData.license || 'Pending');
+        setNextBillingDate(userData.subscription.expireDate);
+      
+     
 
         console.log('Refreshed subscription ID:', userData.subscription?._id);
         console.log('Refreshed membership type:', userData.subscription?.membershipType);
         console.log('Refreshed user license:', userData.license);
+        console.log('Refreshed next billing date:', nextBillingDate);
 
         setError('');
       } catch (error) {
@@ -88,6 +99,7 @@ export const SubscriptionProvider = ({ children }) => {
       value={{
         subscription, // Subscription ID for general use
         membershipType, // Membership type for specific use cases
+        nextBillingDate,
         setSubscription,
         licenseStatus,
         setLicenseStatus,
