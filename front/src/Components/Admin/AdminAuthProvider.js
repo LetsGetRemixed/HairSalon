@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
 
 // Create the authentication context
 const AdminAuthContext = createContext();
@@ -8,9 +7,12 @@ const AdminAuthContext = createContext();
 export const AdminAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Login function: Replace this with real authentication logic
+  const ADMIN_LOGIN = process.env.REACT_APP_ADMIN_LOGIN;
+  const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD;
+
+  // Login function: Authenticate using secrets
   const login = (username, password) => {
-    if (username === '123' && password === '123') { // Example credentials
+    if (username === ADMIN_LOGIN && password === ADMIN_PASSWORD) {
       setUser({ username });
       localStorage.setItem('user', JSON.stringify({ username }));
       window.location.href = '/admin'; // Redirect to admin dashboard
