@@ -38,9 +38,8 @@ exports.getUserById = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id)
-      .populate('subscription', 'membershipType') // Populate only the membershipType field
-      .exec();
+    const user = await User.findById(id).populate('subscription'); 
+      
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
