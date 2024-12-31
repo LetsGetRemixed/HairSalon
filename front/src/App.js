@@ -21,8 +21,7 @@ import ProtectedRoute from './Components/Admin/ProtectedRoute';
 import { AdminAuthProvider } from './Components/Admin//AdminAuthProvider';
 import AdminLogin from './Components/Admin/AdminLogin';
 import Info from './Components/Admin/Info';
-import AddProduct from './Components/AddProduct';
-import PaymentForm from './Components/Pages/Checkout/CheckoutSubscriptions';
+
 import LicenseUpload from './Components/Pages/Sucbription/License';
 import SubCheckout from './Components/Pages/Sucbription/SubscriptionCheckoutForm';
 import PendingLicense from './Components/Admin/PendingLicense';
@@ -61,8 +60,6 @@ function App() {
                     <Route path="/admin/pending-license" element={<ProtectedRoute><PendingLicense/></ProtectedRoute>} />
                     <Route path="/admin/unfulfilled-orders" element={<ProtectedRoute><ShippingOrders/></ProtectedRoute>} />
                     <Route path="/admin/info" element={<ProtectedRoute><Info /></ProtectedRoute>} />
-                    <Route path='/add-product' element={<AddProduct />} />
-                    <Route path='/sub' element={<PaymentForm />} />
                     <Route path='/license' element={<LicenseUpload />} />
                   </Routes>
                 </Router>

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const Subscriptions = () => {
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortField, setSortField] = useState("expiresAt");
+  const [sortField, setSortField] = useState("expireDate");
   const [sortOrder, setSortOrder] = useState("asc");
   const [isActiveFilter, setIsActiveFilter] = useState(false);
   const [startDate, setStartDate] = useState("");
@@ -31,11 +31,11 @@ const Subscriptions = () => {
 
   const handleSort = () => {
     const sorted = [...subscriptions].sort((a, b) => {
-      if (sortField === "expiresAt") {
+      if (sortField === "expireDate") {
         //const dateA = new Date(a.expiresAt.split("/").reverse().join("-"));
         //const dateB = new Date(b.expiresAt.split("/").reverse().join("-"));
-        const dateA = a.expiresAt == null ? new Date(0) : new Date(a.expiresAt.split("/").reverse().join("-"));
-        const dateB = b.expiresAt == null ? new Date(0) : new Date(b.expiresAt.split("/").reverse().join("-"));
+        const dateA = a.expireDate == null ? new Date(0) : new Date(a.expireDate.split("/").reverse().join("-"));
+        const dateB = b.expireDate == null ? new Date(0) : new Date(b.expireDate.split("/").reverse().join("-"));
       
         return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       } else if (sortField === "membershipType") {
@@ -50,7 +50,7 @@ const Subscriptions = () => {
   };
 
   const handleClearFilters = () => {
-    setSortField("expiresAt");
+    setSortField("expireDate");
     setSortOrder("asc");
     setIsActiveFilter(false);
     setStartDate("");
@@ -61,7 +61,7 @@ const Subscriptions = () => {
 
   const filteredSubscriptions = handleSort().filter((sub) => {
     //const subDate = new Date(sub.expiresAt.split("/").reverse().join("-"));
-    const subDate = sub.expiresAt == null ? null : new Date(sub.expiresAt.split("/").reverse().join("-"));
+    const subDate = sub.expireDate == null ? null : new Date(sub.expireDate.split("/").reverse().join("-"));
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
     const dateInRange = (!start || subDate >= start) && (!end || subDate <= end);
@@ -111,7 +111,7 @@ const Subscriptions = () => {
             onChange={(e) => setSortField(e.target.value)}
             className="w-full mt-1 border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500"
           >
-            <option value="expiresAt">Expiration Date</option>
+            <option value="expireDate">Expiration Date</option>
             <option value="membershipType">Subscription Type</option>
           </select>
         </div>
@@ -196,9 +196,9 @@ const Subscriptions = () => {
                   {sub.membershipType}
                 </td>
                 <td className="px-4 py-2 border-b text-gray-600">
-                  {sub.expiresAt == null
+                  {sub.expireDate == null
                     ? "Membership expired"
-                    : new Date(sub.expiresAt.split("/").reverse().join("-")).toLocaleDateString()}
+                    : new Date(sub.expireDate.split("/").reverse().join("-")).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-2 border-b">
                   <span

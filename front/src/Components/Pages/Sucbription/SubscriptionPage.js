@@ -6,7 +6,7 @@ import Footer from '../Universal/Footer';
 import Navbar from '../Universal/Navbar2';
 
 const SubscriptionPage = () => {
-  const { subscription, membershipType, licenseStatus, selectedPlan, selectPlan, refreshSubscription } = useSubscription();
+  const { subscription, membershipType, nextBillingDate, licenseStatus, selectedPlan, selectPlan, refreshSubscription } = useSubscription();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(false);
@@ -114,7 +114,10 @@ const SubscriptionPage = () => {
         {licenseStatus === 'Approved' && subscription && subscription !== 'Default' && (
           <p className="text-green-600 font-medium text-center mb-4">
             Your current plan: <strong>{membershipType}</strong>
+            <p>Next billing date: {nextBillingDate}</p>
           </p>
+          
+          
         )}
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
