@@ -38,7 +38,7 @@ exports.getUserById = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id).populate('subscription'); 
+    const user = await User.findById(id);//.populate('subscription'); 
       
 
     if (!user) {
