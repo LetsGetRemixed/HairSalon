@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useCart } from './CartContext';
@@ -16,6 +16,7 @@ const CheckoutForm = () => {
   const [shippingMethod, setShippingMethod] = useState('Ground');
   const [shippingCost, setShippingCost] = useState(5.0); // Default shipping cost for 'Ground'
   const [clientSecret, setClientSecret] = useState('');
+  const [shippingOptions, setShippingOptions] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [message, setMessage] = useState('');
@@ -42,14 +43,89 @@ const CheckoutForm = () => {
     },
   });
 
+  const dimensions = {
+    length: (22.23 / 2.54).toFixed(2), // Convert cm to inches
+    width: (11.11 / 2.54).toFixed(2),
+    height: (28.73 / 2.54).toFixed(2),
+  };
+
+  const fetchShippingCosts = async () => {
+    try {
+      // Origin is fixed
+      const origin = {
+        street: 'PO Box 270999',
+        city: 'Flower Mound',
+        state: 'TX',
+        zip: '75027',
+        country: 'US',
+      };
+  
+      // Destination is based on user input
+      const destination = {
+        street: shippingInfo.address.line1,
+        city: shippingInfo.address.city,
+        state: shippingInfo.address.state,
+        zip: shippingInfo.address.postal_code,
+        country: shippingInfo.address.country,
+        residential: true, // Assuming all destinations are residential
+      };
+  
+      const weight = cart.reduce((total, product) => total + product.weight, 0); // Total weight
+  
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/fedex/get-shipping`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin,
+          destination,
+          weight,
+          dimensions,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (data.success) {
+        const ground = data.results.find((r) => r.service === 'GROUND_HOME_DELIVERY');
+        const twoDay = data.results.find((r) => r.service === 'FEDEX_2_DAY');
+        const overnight = data.results.find((r) => r.service === 'PRIORITY_OVERNIGHT');
+  
+        setShippingOptions([
+          { service: 'Ground', cost: ground?.cost || 0 },
+          { service: '2Day', cost: twoDay?.cost || 0 },
+          { service: 'Overnight', cost: overnight?.cost || 0 },
+        ]);
+  
+        // Set default selection
+        setShippingMethod('Ground');
+        setShippingCost(ground?.cost || 0);
+      } else {
+        setMessage('Failed to fetch shipping costs.');
+      }
+    } catch (error) {
+      console.error('Error fetching shipping costs:', error);
+      setMessage('Error fetching shipping costs.');
+    }
+  };
+
+  useEffect(() => {
+    if (
+      shippingInfo.address.line1 &&
+      shippingInfo.address.city &&
+      shippingInfo.address.state &&
+      shippingInfo.address.postal_code &&
+      shippingInfo.address.country
+    ) {
+      fetchShippingCosts();
+    }
+  }, [shippingInfo]);
+
   const handleShippingChange = (e) => {
     const selectedMethod = e.target.value;
     setShippingMethod(selectedMethod);
-    let cost = 0;
-    if (selectedMethod === 'Ground') cost = 5.0;
-    else if (selectedMethod === '2Day') cost = 15.0;
-    else if (selectedMethod === 'Overnight') cost = 25.0;
-    setShippingCost(cost);
+
+    const selectedOption = shippingOptions.find((option) => option.service === selectedMethod);
+    setShippingCost(selectedOption?.cost || 0);
   };
 
   const handleSubmit = async (e) => {
@@ -67,7 +143,7 @@ const CheckoutForm = () => {
   
     try {
       // Step 1: Create a Payment Intent on the server
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}pi/checkout/checkout-session`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/checkout/checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: totalAmount * 100, currency: 'usd' }), // Convert to cents
@@ -155,6 +231,7 @@ const CheckoutForm = () => {
               placeholder="Full Name"
               value={shippingInfo.name}
               onChange={(e) =>
+                
                 setShippingInfo((prev) => ({ ...prev, name: e.target.value }))
               }
               className="w-full p-3 border rounded"
@@ -215,6 +292,7 @@ const CheckoutForm = () => {
                 placeholder="Postal Code"
                 value={shippingInfo.address.postal_code}
                 onChange={(e) =>
+                  
                   setShippingInfo((prev) => ({
                     ...prev,
                     address: { ...prev.address, postal_code: e.target.value },
@@ -371,18 +449,20 @@ const CheckoutForm = () => {
 
         {/* Shipping Method */}
         <div>
-          <h3 className="text-lg font-semibold mb-2 text-gray-800">Shipping Method</h3>
-          <select
-            value={shippingMethod}
-            onChange={handleShippingChange}
-            className="w-full p-3 border rounded"
-            required
-          >
-            <option value="Ground">Ground - $5.00</option>
-            <option value="2Day">2 Day AM - $15.00</option>
-            <option value="Overnight">Priority Overnight - $25.00</option>
-          </select>
-        </div>
+              <h3 className="text-lg font-semibold mb-2 text-gray-800">Shipping Method</h3>
+              <select
+                value={shippingMethod}
+                onChange={handleShippingChange}
+                className="w-full p-3 border rounded"
+                required
+              >
+                {shippingOptions.map((option) => (
+                  <option key={option.service} value={option.service}>
+                    {option.service} - ${option.cost.toFixed(2)}
+                  </option>
+                ))}
+              </select>
+      </div>
 
         {/* Cart Summary */}
         <div>
