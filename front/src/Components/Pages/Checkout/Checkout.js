@@ -67,7 +67,7 @@ const CheckoutForm = () => {
   
     try {
       // Step 1: Create a Payment Intent on the server
-      const response = await fetch('http://localhost:5100/api/checkout/checkout-session', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}pi/checkout/checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: totalAmount * 100, currency: 'usd' }), // Convert to cents
@@ -107,7 +107,7 @@ const CheckoutForm = () => {
           priority: shippingMethod, // Save selected shipping method
         };
   
-        await fetch('http://localhost:5100/api/transaction/save-transaction', {
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/transaction/save-transaction`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(transactionData),
@@ -318,19 +318,31 @@ const CheckoutForm = () => {
                 required
               />
             </div>
-            <input
-              type="text"
-              placeholder="Country"
-              value={billingInfo.address.country}
-              onChange={(e) =>
-                setBillingInfo((prev) => ({
-                  ...prev,
-                  address: { ...prev.address, country: e.target.value },
-                }))
-              }
-              className="w-full p-3 border rounded"
-              required
-            />
+            <select
+                  value={billingInfo.address.country}
+                  onChange={(e) =>
+                    setBillingInfo((prev) => ({
+                      ...prev,
+                      address: { ...prev.address, country: e.target.value },
+                    }))
+                  }
+                  className="w-full p-3 border rounded"
+                  required
+                >
+                  <option value="" disabled>Select Country</option>
+                  <option value="US">United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="MX">Mexico</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="FR">France</option>
+                  <option value="DE">Germany</option>
+                  <option value="AU">Australia</option>
+                  <option value="JP">Japan</option>
+                  <option value="IN">India</option>
+                  <option value="CN">China</option>
+                  <option value="ZA">South Africa</option>
+                  {/* Add more country options as needed */}
+                </select>
           </div>
         </div>
 
