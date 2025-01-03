@@ -11,7 +11,6 @@ const Cart = () => {
     loading,
     fetchCart,
     removeFromCart,
-    updateCartItemQuantity,
     applyPromoCode,
     discount,
     calculateSubtotal,
@@ -26,13 +25,7 @@ const Cart = () => {
     fetchCart(membershipType); // Fetch the cart when the component mounts
   }, [fetchCart, membershipType]);
 
-  const handleQuantityChange = (itemId, length, delta) => {
-    const item = cart.find((item) => item.productId === itemId && item.length === length);
-    if (item) {
-      const newQuantity = Math.max(1, item.quantity + delta);
-      updateCartItemQuantity(itemId, length, newQuantity);
-    }
-  };
+ 
 
   const handleApplyPromoCode = () => {
     if (!applyPromoCode(promoCode)) {
@@ -83,22 +76,12 @@ const Cart = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleQuantityChange(item.productId, item.length, -1)}
-                      className="px-2 py-1 bg-gray-300 rounded"
-                    >
-                      -
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button
-                      onClick={() => handleQuantityChange(item.productId, item.length, 1)}
-                      className="px-2 py-1 bg-gray-300 rounded"
-                    >
-                      +
-                    </button>
+                   
+                    <span>Quantity: {item.quantity}</span>
+                    
                   </div>
                   <button
-                    onClick={() => removeFromCart(item.productId)}
+                    onClick={() => removeFromCart(item.productId, item.length)}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     Remove

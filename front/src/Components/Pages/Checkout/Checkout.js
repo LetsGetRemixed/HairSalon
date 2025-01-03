@@ -13,8 +13,8 @@ const CheckoutForm = () => {
   const elements = useElements();
   const { user } = useContext(AuthContext);
   const { cart, calculateSubtotal, clearCart } = useCart();
-  const [shippingMethod, setShippingMethod] = useState('Ground');
-  const [shippingCost, setShippingCost] = useState(5.0); // Default shipping cost for 'Ground'
+  const [shippingMethod, setShippingMethod] = useState('notSelected');
+  const [shippingCost, setShippingCost] = useState(30.00); // Default shipping cost for 'Ground'
   const [clientSecret, setClientSecret] = useState('');
   const [shippingOptions, setShippingOptions] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -88,6 +88,15 @@ const CheckoutForm = () => {
           dimensions,
         }),
       });
+
+      //log the every input in the data sent to response
+      console.log('Origin:', origin);
+      console.log('Destination:', destination);
+      console.log('Weight:', weight);
+      console.log('Dimensions:', dimensions);
+      
+
+      console.log('Response:', response);
   
       const data = await response.json();
   
@@ -106,11 +115,12 @@ const CheckoutForm = () => {
         setShippingMethod('Ground');
         setShippingCost(ground?.cost || 0);
       } else {
-        setMessage('Failed to fetch shipping costs.');
+        setShippingOptions([]);
+        setShippingMethod('notSelected');
+        console.log('Failed to fetch shipping costs.');
       }
     } catch (error) {
       console.error('Error fetching shipping costs:', error);
-      setMessage('Error fetching shipping costs.');
     }
   };
 
@@ -132,6 +142,7 @@ const CheckoutForm = () => {
 
     const selectedOption = shippingOptions.find((option) => option.service === selectedMethod);
     setShippingCost(selectedOption?.cost || 0);
+    console.log('Selected option:', selectedMethod);
   };
 
   const handleSubmit = async (e) => {
@@ -139,6 +150,17 @@ const CheckoutForm = () => {
   
     if (!stripe || !elements) {
       setMessage('Stripe has not loaded yet.');
+      return;
+    }
+
+    if (shippingMethod === 'notSelected') {
+      setMessage('Please select a shipping method.');
+      return;
+    }
+  
+    // Check if subtotal is greater than 0
+    if (calculateSubtotal() === 0) {
+      setMessage('Your cart is empty. Add items to proceed.');
       return;
     }
   
@@ -194,6 +216,8 @@ const CheckoutForm = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(transactionData),
         });
+
+        console.log('Transaction data:', transactionData);
   
         // Store the order details
         setOrderDetails({
@@ -280,47 +304,100 @@ const CheckoutForm = () => {
                 className="w-full p-3 border rounded"
                 required
               />
-              <input
-                type="text"
-                placeholder="State"
-                value={shippingInfo.address.state}
-                onChange={(e) =>
-                  setShippingInfo((prev) => ({
-                    ...prev,
-                    address: { ...prev.address, state: e.target.value },
-                  }))
-                }
-                className="w-full p-3 border rounded"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Postal Code"
-                value={shippingInfo.address.postal_code}
-                onChange={(e) =>
-                  
-                  setShippingInfo((prev) => ({
-                    ...prev,
-                    address: { ...prev.address, postal_code: e.target.value },
-                  }))
-                }
-                className="w-full p-3 border rounded"
-                required
-              />
-            </div>
-            <input
-              type="text"
-              placeholder="Country"
-              value={shippingInfo.address.country}
-              onChange={(e) =>
-                setShippingInfo((prev) => ({
-                  ...prev,
-                  address: { ...prev.address, country: e.target.value },
-                }))
-              }
-              className="w-full p-3 border rounded"
-              required
-            />
+             <select
+      value={shippingInfo.address.state}
+      onChange={(e) =>
+        setShippingInfo((prev) => ({
+          ...prev,
+          address: { ...prev.address, state: e.target.value },
+        }))
+      }
+      className="w-full p-3 border rounded"
+      required
+    >
+      <option value="" disabled>Select State</option>
+      <option value="AL">Alabama</option>
+      <option value="AK">Alaska</option>
+      <option value="AZ">Arizona</option>
+      <option value="AR">Arkansas</option>
+      <option value="CA">California</option>
+      <option value="CO">Colorado</option>
+      <option value="CT">Connecticut</option>
+      <option value="DE">Delaware</option>
+      <option value="FL">Florida</option>
+      <option value="GA">Georgia</option>
+      <option value="HI">Hawaii</option>
+      <option value="ID">Idaho</option>
+      <option value="IL">Illinois</option>
+      <option value="IN">Indiana</option>
+      <option value="IA">Iowa</option>
+      <option value="KS">Kansas</option>
+      <option value="KY">Kentucky</option>
+      <option value="LA">Louisiana</option>
+      <option value="ME">Maine</option>
+      <option value="MD">Maryland</option>
+      <option value="MA">Massachusetts</option>
+      <option value="MI">Michigan</option>
+      <option value="MN">Minnesota</option>
+      <option value="MS">Mississippi</option>
+      <option value="MO">Missouri</option>
+      <option value="MT">Montana</option>
+      <option value="NE">Nebraska</option>
+      <option value="NV">Nevada</option>
+      <option value="NH">New Hampshire</option>
+      <option value="NJ">New Jersey</option>
+      <option value="NM">New Mexico</option>
+      <option value="NY">New York</option>
+      <option value="NC">North Carolina</option>
+      <option value="ND">North Dakota</option>
+      <option value="OH">Ohio</option>
+      <option value="OK">Oklahoma</option>
+      <option value="OR">Oregon</option>
+      <option value="PA">Pennsylvania</option>
+      <option value="RI">Rhode Island</option>
+      <option value="SC">South Carolina</option>
+      <option value="SD">South Dakota</option>
+      <option value="TN">Tennessee</option>
+      <option value="TX">Texas</option>
+      <option value="UT">Utah</option>
+      <option value="VT">Vermont</option>
+      <option value="VA">Virginia</option>
+      <option value="WA">Washington</option>
+      <option value="WV">West Virginia</option>
+      <option value="WI">Wisconsin</option>
+      <option value="WY">Wyoming</option>
+    </select>
+                <input
+                  type="text"
+                  placeholder="Postal Code"
+                  value={shippingInfo.address.postal_code}
+                  onChange={(e) => {
+                    const zipCode = e.target.value;
+                    if (/^\d{0,5}$/.test(zipCode)) { // Allow only valid ZIP codes (up to 5 digits)
+                      setShippingInfo((prev) => ({
+                        ...prev,
+                        address: { ...prev.address, postal_code: zipCode },
+                      }));
+                    }
+                  }}
+                  className="w-full p-3 border rounded"
+                  required
+                />
+              </div>
+              <select
+                    value={shippingInfo.address.country}
+                    onChange={(e) =>
+                      setShippingInfo((prev) => ({
+                        ...prev,
+                        address: { ...prev.address, country: e.target.value },
+                      }))
+                    }
+                    className="w-full p-3 border rounded"
+                    required
+                  >
+                    <option value="" disabled>Select Country</option>
+                    <option value="US">United States</option>
+                  </select>
           </div>
         </div>
 
@@ -375,19 +452,69 @@ const CheckoutForm = () => {
                 className="w-full p-3 border rounded"
                 required
               />
-              <input
-                type="text"
-                placeholder="State"
-                value={billingInfo.address.state}
-                onChange={(e) =>
-                  setBillingInfo((prev) => ({
-                    ...prev,
-                    address: { ...prev.address, state: e.target.value },
-                  }))
-                }
-                className="w-full p-3 border rounded"
-                required
-              />
+              <select
+  value={billingInfo.address.state}
+  onChange={(e) =>
+    setBillingInfo((prev) => ({
+      ...prev,
+      address: { ...prev.address, state: e.target.value },
+    }))
+  }
+  className="w-full p-3 border rounded"
+  required
+>
+  <option value="" disabled>Select State</option>
+  <option value="AL">Alabama</option>
+  <option value="AK">Alaska</option>
+  <option value="AZ">Arizona</option>
+  <option value="AR">Arkansas</option>
+  <option value="CA">California</option>
+  <option value="CO">Colorado</option>
+  <option value="CT">Connecticut</option>
+  <option value="DE">Delaware</option>
+  <option value="FL">Florida</option>
+  <option value="GA">Georgia</option>
+  <option value="HI">Hawaii</option>
+  <option value="ID">Idaho</option>
+  <option value="IL">Illinois</option>
+  <option value="IN">Indiana</option>
+  <option value="IA">Iowa</option>
+  <option value="KS">Kansas</option>
+  <option value="KY">Kentucky</option>
+  <option value="LA">Louisiana</option>
+  <option value="ME">Maine</option>
+  <option value="MD">Maryland</option>
+  <option value="MA">Massachusetts</option>
+  <option value="MI">Michigan</option>
+  <option value="MN">Minnesota</option>
+  <option value="MS">Mississippi</option>
+  <option value="MO">Missouri</option>
+  <option value="MT">Montana</option>
+  <option value="NE">Nebraska</option>
+  <option value="NV">Nevada</option>
+  <option value="NH">New Hampshire</option>
+  <option value="NJ">New Jersey</option>
+  <option value="NM">New Mexico</option>
+  <option value="NY">New York</option>
+  <option value="NC">North Carolina</option>
+  <option value="ND">North Dakota</option>
+  <option value="OH">Ohio</option>
+  <option value="OK">Oklahoma</option>
+  <option value="OR">Oregon</option>
+  <option value="PA">Pennsylvania</option>
+  <option value="RI">Rhode Island</option>
+  <option value="SC">South Carolina</option>
+  <option value="SD">South Dakota</option>
+  <option value="TN">Tennessee</option>
+  <option value="TX">Texas</option>
+  <option value="UT">Utah</option>
+  <option value="VT">Vermont</option>
+  <option value="VA">Virginia</option>
+  <option value="WA">Washington</option>
+  <option value="WV">West Virginia</option>
+  <option value="WI">Wisconsin</option>
+  <option value="WY">Wyoming</option>
+</select>
               <input
                 type="text"
                 placeholder="Postal Code"
@@ -415,16 +542,7 @@ const CheckoutForm = () => {
                 >
                   <option value="" disabled>Select Country</option>
                   <option value="US">United States</option>
-                  <option value="CA">Canada</option>
-                  <option value="MX">Mexico</option>
-                  <option value="GB">United Kingdom</option>
-                  <option value="FR">France</option>
-                  <option value="DE">Germany</option>
-                  <option value="AU">Australia</option>
-                  <option value="JP">Japan</option>
-                  <option value="IN">India</option>
-                  <option value="CN">China</option>
-                  <option value="ZA">South Africa</option>
+                 
                   {/* Add more country options as needed */}
                 </select>
           </div>
@@ -507,6 +625,22 @@ const CheckoutForm = () => {
         >
           {isProcessing ? 'Processing...' : 'Pay Now'}
         </button>
+
+          
+          <div className="text-sm text-left text-gray-600 mt-4">
+            
+                <p className="py-1">
+                  If you do not see "Shipping Method" option, you might have entered wrong shipping information.
+                  Please check your address and try again.
+                  </p>
+                  <p className="py-1"> Pay Now will proccess your payment. We do not collect any billing information.</p>
+                  <p className="py-1">By clicking "Pay Now," you agree to our terms and conditions.</p>
+                  <p className="py-1">For problems, please contact us at <a href="mailto:support@boldhairco.com">support@boldhairco.com</a>.</p>
+            
+          </div>
+
+          
+        
       </div>
     </form>
     
@@ -514,8 +648,12 @@ const CheckoutForm = () => {
   ) : (
     <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded">
       <h2 className="text-3xl font-bold text-center font-cinzel text-green-600 mb-4">Order Placed!</h2>
+      <h2 className="text-3xl font-bold text-center font-cinzel text-gray-900 mb-4">Thank you for your purchase!</h2>
       <p className="text-gray-700 mb-4 font-cinzel text-center">Your order has been placed successfully.</p>
       <p className="text-gray-700 mb-4 font-cinzel text-center">You will receive an email receipt for your order.</p>
+      <p className="text-gray-700 mb-4 font-cinzel text-center">If you have any questions or concerns, please do not hesitate to contact us.</p>
+      <p className="text-gray-700 mb-4 font-cinzel text-center">We look forward to serving you!</p>
+      
       <button
         onClick={() => window.location.href = '/'}
         className="w-full p-3 bg-gray-900 text-white font-bold rounded hover:bg-gray-600"

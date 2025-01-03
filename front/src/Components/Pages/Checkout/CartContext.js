@@ -59,14 +59,14 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  const removeFromCart = async (productId) => {
+  const removeFromCart = async (productId, length) => {
     if (!user) return;
     try {
       await axios.delete(
         `${process.env.REACT_APP_BACKEND_URL}/cart/remove-from-cart/${user.userId}`,
         { data: { productId } }
       );
-      setCart((prevCart) => prevCart.filter((item) => item.productId !== productId));
+      setCart((prevCart) => prevCart.filter((item) => item.productId !== productId && item.length !== length));
     } catch (error) {
       console.error('Error removing product:', error);
     }
@@ -87,13 +87,7 @@ export const CartProvider = ({ children }) => {
   
     try {
       // Optimistic update only if necessary
-      const updatedCart = cart.map((item) =>
-        item.productId === itemId && item.length === length
-          ? { ...item, quantity: newQuantity }
-          : item
-      );
-  
-      setCart(updatedCart);
+      
   
       // Perform the API call
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/cart/update-quantity/${user.userId}`, {

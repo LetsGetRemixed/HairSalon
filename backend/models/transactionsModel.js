@@ -21,7 +21,7 @@ const transactionSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   purchaseDate: { type: Date, default: Date.now },
   isShipped: { type: Boolean, default: false },
-  priority: { type: String, enum: ['Ground', '2Day', 'Overnight'], default: 'Ground' },
+  priority: { type: String, enum: ['Ground', '2Day', 'Overnight'] },
 });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 exports.createTransaction = async (req, res) => {
     try {
-        const { products, buyerId, shippingAddress, totalAmount } = req.body;
+        const { products, buyerId, shippingAddress, totalAmount, priority } = req.body;
         
         
         if (!products || !buyerId || !shippingAddress || !totalAmount) {
@@ -24,7 +24,8 @@ exports.createTransaction = async (req, res) => {
             products,
             buyerId: buyerObjectId,
             shippingAddress,
-            totalAmount
+            totalAmount,
+            priority,
         });
         const savedTransaction = await transaction.save();
         res.status(201).json({ message: 'Transaction saved successfully', transaction: savedTransaction });
