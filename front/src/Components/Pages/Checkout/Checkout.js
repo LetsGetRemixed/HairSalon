@@ -44,9 +44,9 @@ const CheckoutForm = () => {
   });
 
   const dimensions = {
-    length: (22.23 / 2.54).toFixed(2), // Convert cm to inches
-    width: (11.11 / 2.54).toFixed(2),
-    height: (28.73 / 2.54).toFixed(2),
+    length: parseFloat((22.23 / 2.54).toFixed(2)), // Convert cm to inches and parse as float
+    width: parseFloat((11.11 / 2.54).toFixed(2)),
+    height: parseFloat((28.73 / 2.54).toFixed(2)),
   };
 
   const fetchShippingCosts = async () => {
@@ -70,7 +70,13 @@ const CheckoutForm = () => {
         residential: true, // Assuming all destinations are residential
       };
   
-      const weight = cart.reduce((total, product) => total + product.weight, 0); // Total weight
+      const weight = cart.reduce((total, product) => {
+        return total + product.weight * product.quantity;
+      }, 0); // Total weight in pounds
+      console.log('Total weight:', weight);
+      console.log('Dimensions:', dimensions);
+      console.log('weight:', cart[0].weight);
+      console.log('quantity:', cart[0].quantity);
   
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/fedex/get-shipping`, {
         method: 'POST',

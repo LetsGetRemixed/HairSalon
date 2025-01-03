@@ -69,6 +69,7 @@ const SingleProduct = () => {
       productId: product._id,
       length: selectedVariant.length,
       quantity: selectedQuantity,
+      weight: product.weight,
     };
   
     console.log('Product to Add:', productToAdd); // Debugging log to verify request data // Debugging log to verify request data

@@ -31,10 +31,10 @@ exports.addToCart = async (req, res) => {
   }
 
   
-  const { productId, length, quantity } = req.body;
+  const { productId, length, quantity, weight } = req.body;
 
   // Validate that all required fields are present
-  if (!productId || !length || quantity == null) {
+  if (!productId || !length || quantity == null || weight == null) {
     return res.status(400).json({ message: 'Missing required fields' });
   }
 
@@ -63,7 +63,7 @@ exports.addToCart = async (req, res) => {
       existingItem.quantity += quantity;
     } else {
       // Add a new item to the cart
-      cart.cart.push({ productId, length, quantity });
+      cart.cart.push({ productId, length, quantity, weight });
     }
 
     await cart.save();
