@@ -133,6 +133,17 @@ const Cart = () => {
             >
               Checkout
             </button>
+
+            <div>
+              <p className="text-sm text-gray-500 mt-4">
+                By clicking "Checkout", you agree to the terms and conditions of the website.
+              </p>
+              <p className="text-sm text-gray-500 mt-4">
+                Please review your cart before proceeding to checkout.
+              </p>
+            </div>
+            
+
           </div>
         </div>
       </div>
