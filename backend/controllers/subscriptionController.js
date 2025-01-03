@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const cron = require('node-cron');
 const Subscription = require('../models/subscriptionModel');
 const User = require('../models/userModel');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -272,3 +273,37 @@ exports.upgradeMembership = async (req, res) => {
   }
 }
 
+// Function to calculate the next billing date
+// We will call this function for every subscription thats billing date has past and update it
+function calculateNextBillingDate(currentDate, subscriptionType) {
+  const nextDate = new Date(currentDate);
+  if (subscriptionType === 'monthly') {
+    nextDate.setMonth(nextDate.getMonth() + 1);
+  } else if (subscriptionType === 'yearly') {
+    nextDate.setFullYear(nextDate.getFullYear() + 1);
+  }
+  return nextDate;
+}
+
+// Scheduled job to run every day at midnight
+cron.schedule('0 0 * * *', async () => {
+  console.log("Calling dis");
+  try {
+    // Fetch all subscriptions that are past their next billing date
+    const now = new Date();
+    const subscriptions = await Subscription.find({ nextBillingDate: { $lte: now } });
+
+    // For every subscription in past due billing subscriptions
+    for (const subscription of subscriptions) {
+      const { subscriptionType, nextBillDate } = subscription;
+      // Calculate the new billing date
+      const updatedBillingDate = calculateNextBillingDate(nextBillingDate, subscriptionType);
+      // Update the subscription
+      subscription.nextBillingDate = updatedBillingDate;
+      await subscription.save();
+    }
+    console.log('Daily subscription check completed.');
+  } catch (error) {
+    console.error('Error during daily subscription check:', error);
+  }
+});
