@@ -16,9 +16,7 @@ exports.getAllSubscriptions = async (req, res) => {
 // Create Membership or Reactivate an old membership
 exports.createMembership = async (req, res) => {
   const { userId } = req.params;
-  console.log('user is ', userId);
   const { subscriptionId, customerId, subscriptionType, membershipType } = req.body;
-  console.log('whattttt',req.body);
   
   if (!mongoose.isValidObjectId(userId)) {
     return res.status(400).json({ message: 'Invalid user ID' }); 
@@ -42,6 +40,7 @@ exports.createMembership = async (req, res) => {
         currentSubscription.customerId = customerId;
         currentSubscription.subscriptionType = subscriptionType;
         currentSubscription.isActive = true;
+        currentSubscription.nextBillDate = new Date();
         await currentSubscription.save();
 
         return res.status(200).json({
@@ -58,6 +57,7 @@ exports.createMembership = async (req, res) => {
       customerId: customerId,
       subscriptionType: subscriptionType,
       isActive: true,
+      nextBillDate: new Date(),
     });
 
     await newSubscription.save();
@@ -277,9 +277,9 @@ exports.upgradeMembership = async (req, res) => {
 // We will call this function for every subscription thats billing date has past and update it
 function calculateNextBillingDate(currentDate, subscriptionType) {
   const nextDate = new Date(currentDate);
-  if (subscriptionType === 'monthly') {
+  if (subscriptionType === 'Monthly') {
     nextDate.setMonth(nextDate.getMonth() + 1);
-  } else if (subscriptionType === 'yearly') {
+  } else if (subscriptionType === 'Yearly') {
     nextDate.setFullYear(nextDate.getFullYear() + 1);
   }
   return nextDate;
@@ -287,19 +287,19 @@ function calculateNextBillingDate(currentDate, subscriptionType) {
 
 // Scheduled job to run every day at midnight
 cron.schedule('0 0 * * *', async () => {
-  console.log("Calling dis");
+
   try {
     // Fetch all subscriptions that are past their next billing date
     const now = new Date();
-    const subscriptions = await Subscription.find({ nextBillingDate: { $lte: now } });
+    const subscriptions = await Subscription.find({ nextBillDate: { $lte: now } });
 
     // For every subscription in past due billing subscriptions
     for (const subscription of subscriptions) {
       const { subscriptionType, nextBillDate } = subscription;
       // Calculate the new billing date
-      const updatedBillingDate = calculateNextBillingDate(nextBillingDate, subscriptionType);
+      const updatedBillDate = calculateNextBillingDate(nextBillDate, subscriptionType);
       // Update the subscription
-      subscription.nextBillingDate = updatedBillingDate;
+      subscription.nextBillDate = updatedBillDate;
       await subscription.save();
     }
     console.log('Daily subscription check completed.');
